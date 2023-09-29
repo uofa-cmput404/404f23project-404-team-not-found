@@ -13,7 +13,7 @@ Authors:
 * Kaye Ena Crayzhel Misay
 * Kaustubh Mukherjee
 * Nhat Minh Luu
-* Firstname Lastname
+* Raphael Gutierrez
 * Firstname Lastnmae
 
 Generally everything is LICENSE'D under the ______________.
