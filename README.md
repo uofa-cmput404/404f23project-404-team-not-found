@@ -10,7 +10,7 @@ Contributors / Licensing
 
 Authors:
     
-* Firstname Lastname
+* Kaye Ena Crayzhel Misay
 * Firstname Lastname
 * Firstname Lastname
 * Firstname Lastname
