@@ -12,7 +12,7 @@ Authors:
     
 * Kaye Ena Crayzhel Misay
 * Kaustubh Mukherjee
-* Firstname Lastname
+* Nhat Minh Luu
 * Firstname Lastname
 * Firstname Lastnmae
 
