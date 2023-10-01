@@ -14,6 +14,6 @@ Authors:
 * Kaustubh Mukherjee
 * Nhat Minh Luu
 * Raphael Gutierrez
-* Firstname Lastnmae
+* Mehsheed Ahmed Syed Abdul
 
-Generally everything is LICENSE'D under the ______________.
+Generally everything is LICENSE'D under the GNU General Public License.
