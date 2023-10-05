@@ -16,4 +16,4 @@ Authors:
 * Raphael Gutierrez
 * Mehsheed Ahmed Syed Abdul
 
-Generally everything is LICENSE'D under the GNU General Public License.
+Generally, everything is LICENSE'D under the Apache 2 license by 404_Team_not_found.
