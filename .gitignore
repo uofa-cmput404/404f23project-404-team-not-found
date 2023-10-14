@@ -24,6 +24,7 @@ chrome-user-data
 *.swp
 *.swo
 
+# react
 packages/react-devtools-core/dist
 packages/react-devtools-extensions/chrome/build
 packages/react-devtools-extensions/chrome/*.crx
@@ -37,8 +38,10 @@ packages/react-devtools-inline/dist
 packages/react-devtools-shell/dist
 packages/react-devtools-timeline/dist
 
+# environments #
 venv
 
+# pycharm #
 .idea/**/workspace.xml 
 .idea/**/tasks.xml 
 .idea/dictionaries 
@@ -51,4 +54,7 @@ venv
 .idea/**/uiDesigner.xml 
 .idea/**/gradle.xml 
 .idea/**/libraries 
-*.iws /out/ 
+*.iws /out/
+
+# no need to push local db #
+db.sqlite3
