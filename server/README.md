@@ -8,3 +8,8 @@
 ### Database Migrations
 - Run `python manage.py makemigrations socialdistribution` to create migrations
 - Run `python manage.py migrate` to run pending migrations
+
+### Fixtures and Seeding Data
+- NOT REQUIRED, only if you need seed data
+- Naming convention: DATE_desired_file_name.json
+- Run `python manage.py loaddata socialdistribution/fixtures/file_name.json` to add data in file_name to your local db

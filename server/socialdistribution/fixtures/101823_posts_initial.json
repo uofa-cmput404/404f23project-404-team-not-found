@@ -1,0 +1,34 @@
+[
+    {
+        "model": "socialdistribution.post",
+        "pk": "b73e5e57-15ed-4a8e-9772-015c875f157d",
+        "fields": {
+            "author": "5ba6d758-257f-4f47-b0b7-d3d5f5e32561",
+            "contentType": "text/plain",
+            "description": "John's First Post",
+            "title": "First Post",
+            "source": "https://example.com/posts/1",
+            "origin": "https://example.com/posts/1",
+            "published": "2023-10-16T12:00:00Z",
+            "updatedAt": null,
+            "visibility": "PUBLIC",
+            "unlisted": false
+        }
+    },
+    {
+        "model": "socialdistribution.post",
+        "pk": "d6c4e5e5-0ded-42db-8a59-fef7c2f1c5e0",
+        "fields": {
+            "author": "2b85d648-2e7f-4f4d-a4e6-d272f6e5d491",
+            "contentType": "text/plain",
+            "description": "Jane's Post",
+            "title": "Jane's Thoughts",
+            "source": "https://example.com/posts/3",
+            "origin": "https://example.com/posts/3",
+            "published": "2023-10-16T14:00:00Z",
+            "updatedAt": null,
+            "visibility": "PUBLIC",
+            "unlisted": false
+        }
+    }
+]

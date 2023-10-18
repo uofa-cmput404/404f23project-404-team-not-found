@@ -1,0 +1,26 @@
+[
+    {
+        "model": "socialdistribution.author",
+        "pk": "5ba6d758-257f-4f47-b0b7-d3d5f5e32561",
+        "fields": {
+            "createdAt": "2023-10-16T10:00:00Z",
+            "displayName": "John Doe",
+            "github": "https://github.com/johndoe",
+            "host": "https://example.com",
+            "profileImage": "https://example.com/profiles/john_doe.jpg",
+            "url": "https://example.com/author/johndoe"
+        }
+    },
+    {
+        "model": "socialdistribution.author",
+        "pk": "2b85d648-2e7f-4f4d-a4e6-d272f6e5d491",
+        "fields": {
+            "createdAt": "2023-10-16T11:00:00Z",
+            "displayName": "Jane Smith",
+            "github": "https://github.com/janesmith",
+            "host": "https://example.com",
+            "profileImage": "https://example.com/profiles/jane_smith.jpg",
+            "url": "https://example.com/author/janesmith"
+        }
+    }
+]
