@@ -1,5 +1,7 @@
+import uuid
+
 from django.db import models
-from socialdistribution.constants import CONTENT_MAXLEN, STRING_MAXLEN, URL_MAXLEN
+from socialdistribution.utils.constants import CONTENT_MAXLEN, STRING_MAXLEN, URL_MAXLEN
 
 
 class Post(models.Model):
@@ -8,18 +10,19 @@ class Post(models.Model):
     """
     # Types of content types
     class ContentType(models.TextChoices):
-        BASE64 = 'B64', 'application/base64'    # images can need base 64 decoding
-        JPEG = 'JPEG', 'image/jpeg;base64'
-        MARKDOWN = 'MD', 'text/markdown'
-        PLAIN = 'PL', 'text/plain'
-        PNG = 'PNG', 'image/png;base64'
+        BASE64 = 'application/base64'    # images can need base 64 decoding
+        JPEG = 'image/jpeg;base64'
+        MARKDOWN = 'text/markdown'
+        PLAIN = 'text/plain'
+        PNG = 'image/png;base64'
 
     # Types of visibility for posts
     class Visibility(models.TextChoices):
-        FRIENDS = "FR", "FRIENDS"
-        PRIVATE = "PR", "PRIVATE"
-        PUBLIC = "PB", "PUBLIC"
+        FRIENDS = "FRIENDS"
+        PRIVATE = "PRIVATE"
+        PUBLIC = "PUBLIC"
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey("Author", on_delete=models.CASCADE)
     # ManyToMany rel in Django: sankalpjonna.com/learn-django/the-right-way-to-use-a-manytomanyfield-in-django
     categories = models.ManyToManyField("Category", blank=True)
