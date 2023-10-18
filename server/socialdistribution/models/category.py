@@ -1,5 +1,5 @@
 from django.db import models
-from socialdistribution.constants import STRING_MAXLEN
+from socialdistribution.utils.constants import STRING_MAXLEN
 
 
 class Category(models.Model):

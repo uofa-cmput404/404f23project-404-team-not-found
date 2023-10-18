@@ -8,3 +8,12 @@
 ### Database Migrations
 - Run `python manage.py makemigrations socialdistribution` to create migrations
 - Run `python manage.py migrate` to run pending migrations
+
+### Django Tests
+- Run `python manage.py test socialdistribution` to run all the tests in the app directory
+- Run `python manage.py test socialdistribution.tests.views.test_file_name` to run a view test file, likewise for models
+
+### Fixtures and Seeding Data
+- NOT REQUIRED, only if you need seed data
+- Naming convention: DATE_desired_file_name.json
+- Run `python manage.py loaddata socialdistribution/fixtures/file_name.json` to add data in file_name to your local db
