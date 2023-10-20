@@ -15,10 +15,11 @@ class PostSerializer(serializers.ModelSerializer):
     content = SerializerMethodField("get_content")
     origin = SerializerMethodField('get_origin_url')
     source = SerializerMethodField('get_source_url')
+    type = SerializerMethodField("get_type")
 
     class Meta:
         model = Post
-        fields = ("id", "author", "categories", "content", "contentType", "description", "title", "source",
+        fields = ("id", "author", "categories", "content", "contentType", "description", "title", "type", "source",
                   "origin", "published", "updatedAt", "visibility", "unlisted")
 
     def get_id_url(self, obj):
@@ -36,6 +37,9 @@ class PostSerializer(serializers.ModelSerializer):
         else:
             uri = self.context['request'].build_absolute_uri('/')
             return f'{uri}author/{obj.author.id}/posts/{obj.id}'
+
+    def get_type(self, obj):
+        return "post"
 
     def get_source_url(self, obj):
         if obj.source:
