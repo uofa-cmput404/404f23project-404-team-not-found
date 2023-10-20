@@ -35,4 +35,4 @@ jobs:
         coverage report
     - name: Django Testing
       run: |
-        python3 server/manage.py test
+        python3 server/manage.py test socialdistribution
