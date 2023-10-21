@@ -25,6 +25,7 @@ p: 0.5,
 borderRadius: "8px",
 };
 
+const APP_URI = process.env.REACT_APP_URI;
 
 const MakePostModal = ({isModalOpen, setIsModalOpen}) => {
 
