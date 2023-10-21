@@ -35,6 +35,26 @@ const MakePostModal = ({isModalOpen, setIsModalOpen}) => {
 
     const handleClose = () => setIsModalOpen(false);
 
+    const handleSubmit = async (title, description, content, contentType, visibility, unlisted) => {
+        const payload = {
+            title: title,
+            description: description,
+            content: content,
+            contentType: contentType,
+            visibility: visibility,
+            unlisted: unlisted,
+        }
+        const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`
+
+        try {
+            const response = await axios.post(url, payload)
+
+            handleClose();
+        } catch (error) {
+            console.error("Failed to post", error)
+        }
+    }
+
     return (
         <>
         <Modal open={isModalOpen} onClose={handleClose}>
@@ -99,6 +119,17 @@ const MakePostModal = ({isModalOpen, setIsModalOpen}) => {
                     marginLeft: "auto",
                     marginBottom: 1,
                     marginRight: 1,
+                    }}
+                    onClick={() => {
+                    handleSubmit(
+                        title,
+                        description,
+                        content,
+                        "text/plain",
+                        "PUBLIC",
+                        false
+                    );
+                    setIsModalOpen(true);
                     }}
             >
             Post
