@@ -1,3 +1,5 @@
+import json
+
 from socialdistribution.models import *
 
 
@@ -5,12 +7,13 @@ def create_author():
     # TODO: update when author/user implementation is done for better testing
     author_obj = Author.objects.create(
         displayName="test_not_found",
-        host="http://example.com",
+        host="http://testserver/",
         profileImage="http://example.com/image.jpg",
-        url="http://example.com/profile"
+        url="http://testserver/profile"
     )
 
     return author_obj
+
 
 def create_plain_text_post(author):
     post_obj = Post.objects.create(
