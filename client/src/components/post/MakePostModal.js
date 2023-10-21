@@ -8,7 +8,7 @@ import {
   } from "@mui/material";
 
 import CloseIcon from '@mui/icons-material/Close';
-import axios, * as others from 'axios';
+import axios from 'axios';
 
 const style = {
 display: "flex",
@@ -47,8 +47,7 @@ const MakePostModal = ({isModalOpen, setIsModalOpen}) => {
         const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`
 
         try {
-            const response = await axios.post(url, payload)
-
+            await axios.post(url, payload)
             handleClose();
         } catch (error) {
             console.error("Failed to post", error)
