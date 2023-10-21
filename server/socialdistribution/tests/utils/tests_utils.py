@@ -23,3 +23,7 @@ def create_plain_text_post(author):
         )
 
     return post_obj
+
+
+def deserialize_response(response):
+    return json.loads(response.content.decode('utf-8').replace("'", "\""))
