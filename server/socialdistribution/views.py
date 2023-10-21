@@ -15,20 +15,34 @@ class AuthorView(APIView):
 
 
 class PostsView(APIView):
+    # add allowed HTTP requests
+    # Reference: https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
+    http_method_names = ["get", "post"]
+
     def get(self, request, author_id):
+        """
+        get the recent posts from author AUTHOR_ID
+        TODO: paginate
+        """
         posts = Post.objects.filter(author__id=author_id)
         serializer = PostSerializer(posts, many=True, context={"request": request})
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, author_id):
+        """
+        create a new post but generate a new id
+        """
         # get_object_or_404 is a django shortcut
         # Reference: https://docs.djangoproject.com/en/4.2/topics/http/shortcuts/#get-object-or-404
         author_obj = get_object_or_404(Author, id=author_id)
         post_object = create_post(author_obj, request.data)
         serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
+
         if serializer.is_valid():
             serializer.save(author=author_obj)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
