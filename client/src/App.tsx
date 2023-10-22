@@ -7,6 +7,7 @@ import Login from "./components/authentication/Login";
 import SignUp from "./components/authentication/SignUp";
 
 import "./App.css";
+import ProfilePage from "./components/ProfilePage";
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
       <Route path="/home-page" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/profile-page" element={<ProfilePage />} />
     </Routes>
   );
 };
