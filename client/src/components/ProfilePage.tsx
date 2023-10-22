@@ -53,7 +53,7 @@ const ProfilePage = () => {
         <main>
             <div className={classes.container}>
                 <Container maxWidth="sm">
-                    <img src={require("./defaultprofile.jpg")} alt="profile-pic" className={classes.picture}/>
+                    <img src={require("../assets/defaultprofile.jpg")} alt="profile-pic" className={classes.picture}/>
                     <Typography variant="h4" align="center" color="black" >
                         {username}
                     </Typography>
