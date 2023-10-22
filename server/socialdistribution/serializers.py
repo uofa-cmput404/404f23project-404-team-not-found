@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.serializers import *
 from .models import Author, Post
+from django.contrib.auth.models import User
+
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -51,3 +53,9 @@ class PostSerializer(serializers.ModelSerializer):
         else:
             uri = self.context["request"].build_absolute_uri("/")
             return f"{uri}author/{obj.author.id}/posts/{obj.id}"
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "email", "password")

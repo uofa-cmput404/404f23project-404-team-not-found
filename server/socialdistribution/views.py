@@ -2,10 +2,13 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.models import User
 
 from .serializers import *
 from .models import *
 from .utils import *
+
+
 
 
 # Create your views here.
@@ -91,5 +94,67 @@ class PostView(APIView):
         if serializer.is_valid():
             serializer.save(author=author_obj)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginView(APIView):
+    http_method_names = ["post"]
+
+    def post(self, request):
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        try:
+            user = User.objects.get(username=username)
+            success = user.check_password(password)
+
+            # on success login check
+            if success:
+                data = {"token": "123456"}
+                return Response(data, status=status.HTTP_201_CREATED)
+            # on wrong password
+            else:
+                data = {"message": "Wrong password"}
+                return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+
+        except User.DoesNotExist:
+            data = {"message": "User not found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+        
+class SignUpView(APIView):
+    http_method_names = ["post"]
+
+    def post(self, request):
+        username = request.POST["username"]
+        email = request.POST["email"]
+        password = request.POST["password"]
+
+        author_data = {"displayName": "placeholder", 
+                        "github": "https://placeholder.com", 
+                        "host": "https://placeholder.com",
+                        "profileImage": "https://placeholder.com",
+                        "url": "https://placeholder.com"}
+
+
+        post_object = Author.objects.create(displayName="placeholder", 
+                                            github="https://placeholder.com",
+                                            host="https://placeholder.com",
+                                            profileImage="https://placeholder.com",
+                                            url="https://placeholder.com",
+                                            user=User.objects.create_user(username=username, 
+                                                                          email=email, 
+                                                                          password=password))
+ 
+        serializer = AuthorSerializer(instance=post_object, 
+                                    data=author_data, 
+                                    context={"request": request})
+
+        if serializer.is_valid():
+            # save update and set updatedAt to current time
+            serializer.save(updatedAt=timezone.now())
+            return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
