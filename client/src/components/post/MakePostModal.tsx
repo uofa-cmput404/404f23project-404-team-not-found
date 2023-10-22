@@ -50,6 +50,7 @@ const MakePostModal = ({
       visibility: visibility,
       unlisted: unlisted,
     };
+    // TODO: replace the hardcoded id with the one gotten from the API
     const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
 
     try {
