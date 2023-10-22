@@ -73,7 +73,7 @@ const ProfilePage = () => {
                             </CardContent>
                             <CardActions>
                                 <Button size="small" color="primary">View</Button>
-                                <Button size="small" color="primary">Edit</Button>
+                                <Button size="small" color="primary">Delete</Button>
                             </CardActions>
                         </Card>
                     </Grid>
