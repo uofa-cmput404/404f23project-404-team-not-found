@@ -2,7 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
+
 
 from .serializers import *
 from .models import *
@@ -111,7 +113,9 @@ class LoginView(APIView):
 
             # on success login check
             if success:
-                data = {"token": "123456"}
+                # create token 
+                token, created = Token.objects.get_or_create(user=user)
+                data = {"token": token.key}
                 return Response(data, status=status.HTTP_201_CREATED)
             # on wrong password
             else:
@@ -139,11 +143,11 @@ class SignUpView(APIView):
                         "url": "https://placeholder.com"}
 
 
-        post_object = Author.objects.create(displayName="placeholder", 
-                                            github="https://placeholder.com",
-                                            host="https://placeholder.com",
-                                            profileImage="https://placeholder.com",
-                                            url="https://placeholder.com",
+        post_object = Author.objects.create(displayName=author_data["displayName"], 
+                                            github=author_data["github"],
+                                            host=author_data["host"],
+                                            profileImage=author_data["profileImage"],
+                                            url=author_data["url"],
                                             user=User.objects.create_user(username=username, 
                                                                           email=email, 
                                                                           password=password))
