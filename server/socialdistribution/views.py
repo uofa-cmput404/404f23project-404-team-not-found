@@ -136,6 +136,7 @@ class SignUpView(APIView):
         email = request.POST["email"]
         password = request.POST["password"]
 
+        # TODO: This one is currently a placeholder
         author_data = {"displayName": "placeholder", 
                         "github": "https://placeholder.com", 
                         "host": "https://placeholder.com",
