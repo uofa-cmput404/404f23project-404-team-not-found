@@ -8,7 +8,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 
-const Login = () => {
+const SignUp = () => {
   const handleSubmit = (e: FormEvent) => {
     return;
   };
@@ -18,7 +18,6 @@ const Login = () => {
       <CssBaseline />
       <Box
         sx={{
-          // marginTop: 8,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -26,9 +25,9 @@ const Login = () => {
           height: "100vh",
         }}
       >
-        <Typography variant="h3">Welcome</Typography>
+        <Typography variant="h3">Create an account</Typography>
         <Typography variant="subtitle1">
-          Don't have an account with us? <Link href="/sign-up">Sign Up</Link>
+          Already have an account? <Link href="/login">Log In</Link>
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
@@ -36,9 +35,8 @@ const Login = () => {
             required
             fullWidth
             id="email"
-            label="Email"
+            label="Enter your email"
             name="email"
-            autoComplete="email"
             autoFocus
           />
           <TextField
@@ -46,7 +44,16 @@ const Login = () => {
             required
             fullWidth
             name="password"
-            label="Password"
+            label="Create password"
+            type="password"
+            id="password"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="repeat-password"
+            label="Confirm password"
             type="password"
             id="password"
           />
@@ -56,7 +63,7 @@ const Login = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2, backgroundColor: "black" }}
           >
-            Sign In
+            Sign Up
           </Button>
         </Box>
       </Box>
@@ -64,4 +71,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

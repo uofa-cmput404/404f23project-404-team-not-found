@@ -1,9 +1,10 @@
 import React from "react";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import HomePage from "./components/HomePage";
 import Login from "./components/authentication/Login";
+import SignUp from "./components/authentication/SignUp";
 
 import "./App.css";
 
@@ -12,6 +13,7 @@ const App = () => {
     <Routes>
       <Route path="/home-page" element={<HomePage />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/sign-up" element={<SignUp />} />
     </Routes>
   );
 };
