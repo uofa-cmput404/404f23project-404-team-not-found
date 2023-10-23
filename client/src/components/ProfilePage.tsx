@@ -1,7 +1,7 @@
 // import Button from "@mui/material/Button"
 // import CssBaseline from "@mui/material/CssBaseline"
 import { Typography, CssBaseline, AppBar, Toolbar, Container, Card, Grid, CardMedia, CardContent, CardActions, Button} from "@mui/material"
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 
 const username = "John Doe";
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -9,7 +9,8 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const useStyles = makeStyles((theme) => ({
     container : {
         backgroundColor: "#FAF8F1",
-        padding: theme.spacing(3, 2, 2),
+        paddingTop: "2rem",
+        paddingBottom: "2rem",
         display: 'flex',
         flexDirection: 'column',
         // borderRadius: 10,
@@ -27,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: '20px' 
     }, 
     cardGrid: {
-        paddingTop: theme.spacing(8),
-        paddingBottom: theme.spacing(8),
+        paddingTop: "2rem",
+        paddingBottom: "2rem",
       },
     card: {
         height: '100%',
@@ -68,8 +69,6 @@ const ProfilePage = () => {
 
                             </CardMedia>
                             <CardContent>
-                                <Typography variant="h5">What is Lorem Ipsum?</Typography>
-                                <Typography>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Typography>
                             </CardContent>
                             <CardActions>
                                 <Button size="small" color="primary">View</Button>
