@@ -8,8 +8,13 @@ import SignUp from "./components/authentication/SignUp";
 
 import "./App.css";
 import { ToastContainer } from "react-toastify";
+import { getToken } from "./utils/localStorageUtils";
 
 const App = () => {
+  // TODO: Find a way to validate token
+  // TODO: use userToken to restrict access for not logged in status
+  const userToken = getToken();
+
   return (
     <>
       <ToastContainer
