@@ -4,3 +4,4 @@ Module for all utils in the app
 
 from .constants import *
 from .views_utils import *
+from .serializers_utils import *

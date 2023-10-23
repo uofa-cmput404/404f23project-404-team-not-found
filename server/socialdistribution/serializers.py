@@ -3,6 +3,7 @@ from rest_framework.serializers import *
 from .models import Author, Post
 from django.contrib.auth.models import User
 
+from .utils import *
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -26,36 +27,21 @@ class PostSerializer(serializers.ModelSerializer):
                   "origin", "published", "updatedAt", "visibility", "unlisted")
 
     def get_id_url(self, obj):
-        # id field needs to be a uri of the post
-        uri = self.context["request"].build_absolute_uri("/")
-        return f"{uri}author/{obj.author.id}/posts/{obj.id}"
+        """id field needs to be a uri of the post"""
+        return build_default_post_uri(obj=obj, request=self.context["request"])
 
     def get_content(self, obj):
-        # decode content as it's a binary field
+        """decode content as it's a binary field"""
         if obj.contentType == Post.ContentType.PLAIN and obj.content:
             return obj.content.decode("utf-8")
 
     def get_origin_url(self, obj):
-        # if source is given, pass in the origin, otherwise, build it using current request uri
-        if obj.origin:
-            return obj.origin
-        else:
-            uri = self.context["request"].build_absolute_uri("/")
-            return f"{uri}author/{obj.author.id}/posts/{obj.id}"
+        """if source is given, pass in the origin, otherwise, build it using current request uri"""
+        return obj.origin if obj.origin else build_default_post_uri(obj=obj, request=self.context["request"])
 
     def get_type(self, obj):
         return "post"
 
     def get_source_url(self, obj):
-        # if source is given, pass in the source, otherwise, build it using current request uri
-        if obj.source:
-            return obj.source
-        else:
-            uri = self.context["request"].build_absolute_uri("/")
-            return f"{uri}author/{obj.author.id}/posts/{obj.id}"
-
-
-class LoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("username", "email", "password")
+        """if source is given, pass in the source, otherwise, build it using current request uri"""
+        return obj.source if obj.source else build_default_post_uri(obj=obj, request=self.context["request"])
