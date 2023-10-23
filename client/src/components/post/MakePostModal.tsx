@@ -23,9 +23,11 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const MakePostModal = ({
   isModalOpen,
+  onPostCreated,
   setIsModalOpen,
 }: {
   isModalOpen: boolean;
+  onPostCreated: () => void;
   setIsModalOpen: (isOpen: boolean) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -55,6 +57,7 @@ const MakePostModal = ({
 
     try {
       await axios.post(url, payload);
+      onPostCreated();
       handleClose();
     } catch (error) {
       console.error("Failed to post", error);
