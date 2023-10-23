@@ -8,6 +8,8 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "./index.css";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const theme = createTheme({
   palette: {
