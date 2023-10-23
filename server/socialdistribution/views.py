@@ -168,6 +168,6 @@ class SignUpView(APIView):
             if serializer.is_valid():
                 # save update and set updatedAt to current time
                 serializer.save(updatedAt=timezone.now())
-                return Response(serializer.data)
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
