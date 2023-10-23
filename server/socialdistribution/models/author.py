@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from socialdistribution.utils.constants import STRING_MAXLEN, URL_MAXLEN
+from django.contrib.auth.models import User
 
 
 class Author(models.Model):
@@ -15,3 +16,6 @@ class Author(models.Model):
     host = models.URLField(max_length=URL_MAXLEN)   # home host of the author
     profileImage = models.URLField(max_length=URL_MAXLEN)
     url = models.URLField(max_length=URL_MAXLEN)     # url to the author's profile
+
+    # TODO: Currently have user field as nullable
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)

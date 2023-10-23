@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.serializers import *
 from .models import Author, Post
+from django.contrib.auth.models import User
+
 from .utils import *
 
 
