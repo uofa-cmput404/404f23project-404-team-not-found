@@ -12,7 +12,14 @@ const PostsList = ({
     return (
       <>
         { posts.map(post => (
-          <Card key={post.id} style={{ margin: 10 }}>
+          <Card key={post.id} 
+            style={{ 
+              margin: "auto", 
+              width: "40vw", 
+              borderRadius: 0, 
+              borderBottom: 0
+            }} 
+              variant='outlined'>
             <CardHeader
               avatar={
                 <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
@@ -21,8 +28,9 @@ const PostsList = ({
               }
               title={post.author.displayName}
               subheader={formatDateTime(post.published)}
+              sx = {{marginTop:2}}
             />
-            <CardContent>
+            <CardContent sx={{marginBottom:10}}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1">{post.description}</Typography>
               <Typography variant="body1">{post.content}</Typography>

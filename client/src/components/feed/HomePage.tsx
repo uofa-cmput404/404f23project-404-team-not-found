@@ -40,7 +40,7 @@ export default function HomePage() {
   return (
     <>
       <CssBaseline />
-      <AppBar position="relative" style={{ color: "#FFFFFF" }}>
+      <AppBar position="fixed" style={{ color: "#FFFFFF", height: 60 }}>
         <Typography
           variant="h4"
           align="left"
@@ -56,10 +56,17 @@ export default function HomePage() {
       </AppBar>
       <Grid
         container
-        style={{ width: "100%", margin: "0 auto" }}
+        style={{ width: "100%", margin: "0 auto", marginTop: 60 }}
       >
         <Grid item xs={3} style={{ height: "80vh" }}>
-          <Paper style={{ height: "100vh" }} variant="outlined">
+          <Paper style={{ 
+              height: "100vh", 
+              position: "fixed", 
+              width: "25vw"
+            }} 
+            elevation={3} 
+            variant="outlined" 
+            square>
             <Typography
               variant="h5"
               align="center"
@@ -79,7 +86,7 @@ export default function HomePage() {
             </Box>
           </Paper>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={6} justifyContent='center'>
           <PostsList
             posts={posts}
           />
