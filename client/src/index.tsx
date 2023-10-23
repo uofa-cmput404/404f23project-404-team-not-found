@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "./index.css";
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       main: "#103f5b",

@@ -6,6 +6,7 @@ import { Box, CssBaseline, Paper } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 
 import MakePostModal from "./post/MakePostModal";
+const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
