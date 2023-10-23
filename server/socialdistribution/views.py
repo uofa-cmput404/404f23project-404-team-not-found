@@ -136,30 +136,37 @@ class SignUpView(APIView):
         email = request.POST["email"]
         password = request.POST["password"]
 
-        # TODO: This one is currently a placeholder
-        author_data = {"displayName": "placeholder", 
-                        "github": "https://placeholder.com", 
-                        "host": "https://placeholder.com",
-                        "profileImage": "https://placeholder.com",
-                        "url": "https://placeholder.com"}
+
+        try:
+            # check if the User with given username already exists
+            user = User.objects.get(username=username)
+            data = {"message": "Username already exists"}
+            return Response(data, status=status.HTTP_409_CONFLICT)
+        except:
+            # TODO: This one is currently a placeholder
+            author_data = {"displayName": "placeholder", 
+                            "github": "https://placeholder.com", 
+                            "host": "https://placeholder.com",
+                            "profileImage": "https://placeholder.com",
+                            "url": "https://placeholder.com"}
 
 
-        post_object = Author.objects.create(displayName=author_data["displayName"], 
-                                            github=author_data["github"],
-                                            host=author_data["host"],
-                                            profileImage=author_data["profileImage"],
-                                            url=author_data["url"],
-                                            user=User.objects.create_user(username=username, 
-                                                                          email=email, 
-                                                                          password=password))
- 
-        serializer = AuthorSerializer(instance=post_object, 
-                                    data=author_data, 
-                                    context={"request": request})
+            post_object = Author.objects.create(displayName=author_data["displayName"], 
+                                                github=author_data["github"],
+                                                host=author_data["host"],
+                                                profileImage=author_data["profileImage"],
+                                                url=author_data["url"],
+                                                user=User.objects.create_user(username=username, 
+                                                                            email=email, 
+                                                                            password=password))
+    
+            serializer = AuthorSerializer(instance=post_object, 
+                                        data=author_data, 
+                                        context={"request": request})
 
-        if serializer.is_valid():
-            # save update and set updatedAt to current time
-            serializer.save(updatedAt=timezone.now())
-            return Response(serializer.data)
+            if serializer.is_valid():
+                # save update and set updatedAt to current time
+                serializer.save(updatedAt=timezone.now())
+                return Response(serializer.data)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
