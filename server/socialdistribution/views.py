@@ -135,6 +135,7 @@ class SignUpView(APIView):
         username = request.POST["username"]
         email = request.POST["email"]
         password = request.POST["password"]
+        displayName = request.POST["displayName"]
 
 
         try:
@@ -144,7 +145,7 @@ class SignUpView(APIView):
             return Response(data, status=status.HTTP_409_CONFLICT)
         except:
             # TODO: This one is currently a placeholder
-            author_data = {"displayName": "placeholder", 
+            author_data = {"displayName": displayName, 
                             "github": "https://placeholder.com", 
                             "host": "https://placeholder.com",
                             "profileImage": "https://placeholder.com",

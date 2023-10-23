@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    displayName: "",
     username: "",
     email: "",
     password: "",
@@ -32,10 +33,25 @@ const SignUp = () => {
 
     const requestUrl = "http://127.0.0.1:8000/socialdistribution/signup/";
 
+    console.log(formData);
+
+    // check for missing fields
+    if (
+      formData.displayName === "" ||
+      formData.username === "" ||
+      formData.email === "" ||
+      formData.password === "" ||
+      formData.repeatPassword === ""
+    ) {
+      toast.warning("Please fill all the missing fields!");
+      return;
+    }
+
     const form = new FormData();
     form.append("username", formData.username);
     form.append("email", formData.email);
     form.append("password", formData.password);
+    form.append("displayName", formData.displayName);
 
     axios
       .post(requestUrl, form, {
@@ -71,10 +87,21 @@ const SignUp = () => {
             margin="normal"
             required
             fullWidth
+            id="displayName"
+            label="Enter your name"
+            name="name"
+            autoFocus
+            onChange={(e) => {
+              setFormData({ ...formData, displayName: e.target.value });
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
             id="username"
             label="Enter your username"
             name="username"
-            autoFocus
             onChange={(e) => {
               setFormData({ ...formData, username: e.target.value });
             }}
