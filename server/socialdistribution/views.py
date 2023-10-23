@@ -24,7 +24,7 @@ class PostsView(APIView):
         get the recent posts from author AUTHOR_ID
         TODO: paginate
         """
-        posts = Post.objects.filter(author__id=author_id)
+        posts = Post.objects.filter(author__id=author_id).order_by("-published")
         serializer = PostSerializer(posts, many=True, context={"request": request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
