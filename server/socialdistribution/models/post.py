@@ -10,11 +10,11 @@ class Post(models.Model):
     """
     # Types of content types
     class ContentType(models.TextChoices):
-        BASE64 = 'application/base64'    # images can need base 64 decoding
-        JPEG = 'image/jpeg;base64'
-        MARKDOWN = 'text/markdown'
-        PLAIN = 'text/plain'
-        PNG = 'image/png;base64'
+        BASE64 = "application/base64"    # images can need base 64 decoding
+        JPEG = "image/jpeg;base64"
+        MARKDOWN = "text/markdown"
+        PLAIN = "text/plain"
+        PNG = "image/png;base64"
 
     # Types of visibility for posts
     class Visibility(models.TextChoices):
