@@ -13,5 +13,5 @@ class InboxItem(models.Model):
     # https://docs.djangoproject.com/en/4.2/ref/contrib/contenttypes/
     # content_type points to the model of a content_object with an object_id
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    object_id = models.UUIDField()
     content_object = GenericForeignKey("content_type", "object_id")
