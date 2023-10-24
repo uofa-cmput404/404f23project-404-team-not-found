@@ -18,6 +18,12 @@ class AuthorView(APIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
+    def get(self, request, author_id):
+        # get the author data whose id is AUTHOR_ID
+        author = Author.objects.get(id=author_id)
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class PostsView(APIView):
     # add allowed HTTP requests
