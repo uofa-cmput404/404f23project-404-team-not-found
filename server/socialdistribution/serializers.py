@@ -4,6 +4,7 @@ from .models import Author, Post
 from django.contrib.auth.models import User
 
 from .utils import *
+import base64
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -29,11 +30,14 @@ class PostSerializer(serializers.ModelSerializer):
     def get_id_url(self, obj):
         """id field needs to be a uri of the post"""
         return build_default_post_uri(obj=obj, request=self.context["request"])
-
+ 
     def get_content(self, obj):
         """decode content as it's a binary field"""
         if obj.contentType == Post.ContentType.PLAIN and obj.content:
             return obj.content.decode("utf-8")
+        elif is_image(obj.contentType) and obj.content:
+            base64_encoded = base64.b64encode(obj.content)
+            return f"data:{obj.contentType},{base64_encoded.decode('utf-8')}"
 
     def get_origin_url(self, obj):
         """if source is given, pass in the origin, otherwise, build it using current request uri"""
