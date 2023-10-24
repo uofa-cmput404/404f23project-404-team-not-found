@@ -56,11 +56,12 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
-  const handleClose = () => setIsModalOpen(false);
+  const handleClose = () => {setIsModalOpen(false); setImagePrev('')};
 
   const handleFileRead = async (event:any) => {
     const file = event.target.files[0];
     const base64:any = await convertBase64(file);
+    console.log(file);
     setImagePrev(base64);
     setContent(base64);
   };
@@ -276,7 +277,7 @@ const MakePostModal = ({
                 content,
                 contentType,
                 "PUBLIC",
-                false
+                false,
               );
               setIsModalOpen(true);
             }}
