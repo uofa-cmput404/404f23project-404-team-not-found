@@ -6,6 +6,7 @@ import { makeStyles } from "@mui/styles";
 import {Post} from "../../interfaces/interfaces";
 import "./styles.css";
 import { Link } from "react-router-dom";
+import { getAuthorId } from "../../utils/localStorageUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -56,8 +57,8 @@ const ProfilePage = () => {
       };
 
     const fetchAuthors = async () => {
-        // TODO: replace hardcoded author id with AUTHOR_ID
-        const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/`;
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}author/${AUTHOR_ID}/`;
     
         try {
             const response = await axios.get(url);
@@ -68,8 +69,8 @@ const ProfilePage = () => {
     };
 
     const fetchPosts = async () => {
-        // TODO: replace hardcoded author id with AUTHOR_ID
-        const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
     
         try {
             const response = await axios.get(url);

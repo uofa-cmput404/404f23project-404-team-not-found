@@ -9,6 +9,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
+import { getAuthorId } from "../../utils/localStorageUtils";
 
 const style = {
   display: "flex",
@@ -115,7 +116,8 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     // TODO: replace the hardcoded id with the one gotten from the API
-    const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+    const AUTHOR_ID = getAuthorId();
+    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
 
     try {
       await axios.post(url, payload);
@@ -256,7 +258,7 @@ const MakePostModal = ({
                 borderColor: "gray",
               }}
             />
-          </Grid>     
+          </Grid>
           }
           <Button
             variant="contained"
