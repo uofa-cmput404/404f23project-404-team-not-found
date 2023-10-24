@@ -73,6 +73,17 @@ const ProfilePage = () => {
 
     const username = AuthorData;
     const classes = useStyles();
+    
+    function limitContentTo100Words(content: string): string {
+        const words: string[] = content.split(' ');
+      
+        if (words.length > 100) {
+          const limitedContent: string = words.slice(0, 100).join(' ');
+          return limitedContent;
+        } else {
+          return content;
+        }
+    }
 
     return (
     <>
@@ -88,7 +99,7 @@ const ProfilePage = () => {
             <div className={classes.container}>
                 <Container maxWidth="sm">
                     <img src={require("../assets/defaultprofile.jpg")} alt="profile-pic" className={classes.picture}/>
-                    <Typography variant="h4" align="center" color="black" >
+                    <Typography variant="h2" align="center" color="black" style={{ fontFamily: "Bree Serif, serif" }}>
                         {username}
                     </Typography>
                 </Container>
@@ -96,19 +107,19 @@ const ProfilePage = () => {
             <Container className={classes.cardGrid} maxWidth="md">
                 <Grid container spacing={4}>
                     {posts.map((post, index) => (
-                        <Grid item key={index} xs={12} sm={12} md={12}>
+                        <Grid item key={index} xs={12} sm={12} md={6}>
                             <Card className={classes.card}>
                                 <CardMedia>
                                 </CardMedia>
                                 <CardContent>
-                                    <Typography variant="h1" style={{ fontFamily: "Inria Serif, serif" }}>
+                                    <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
                                         {post.title}
                                     </Typography>
-                                    <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
+                                    <Typography variant="h5" style={{ fontFamily: "Bree Serif, serif" }}>
                                         {post.description} 
                                     </Typography>
                                     <Typography variant="body1" style={{ fontFamily: "Bree Serif, serif" }}>
-                                        {post.content}
+                                        {limitContentTo100Words(post.content ? post.content : '')}
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
