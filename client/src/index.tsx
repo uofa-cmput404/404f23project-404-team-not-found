@@ -11,7 +11,7 @@ import "./index.css";
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const theme = createTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       main: "#103f5b",
