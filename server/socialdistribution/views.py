@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
-
+from django.contrib.contenttypes.models import ContentType
 
 from .serializers import *
 from .models import *
@@ -34,8 +34,50 @@ class FollowersView(APIView):
 
         return Response({
             "type": "followers",
-            "items": [follower_object.follower_author for follower_object in followers]
+            "items": [json.loads(follower_object.follower_author) for follower_object in followers]
         })
+
+
+class FollowerView(APIView):
+    http_method_names = ["delete", "get", "put"]
+
+    def delete(self, request, author_id, follower_id):
+        """
+        remove FOLLOWER_ID as a follower of AUTHOR_ID
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        follower_object = get_object_or_404(Follower,
+                                            author=author_object,
+                                            follower_author__id__endswith=follower_id)
+        follower_object.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, author_id, follower_id):
+        """
+        check if FOLLOWER_ID is a follower of AUTHOR_ID
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        is_follower = (Follower.objects.filter(author=author_object,
+                                               follower_author__id__endswith=follower_id)
+                       .exists())
+
+        return Response({"is_follower": is_follower}, status=status.HTTP_200_OK)
+
+    def put(self, request, author_id, follower_id):
+        """
+        Add FOLLOWER_ID as a follower of AUTHOR_ID
+        TODO: must be authenticated
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        follower_object = create_follower(author_object, request.data)
+        serializer = FollowerSerializer(instance=follower_object, data=request.data, context={"request": request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostsView(APIView):

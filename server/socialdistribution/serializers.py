@@ -12,6 +12,22 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = ("id", "createdAt", "displayName", "github", "host", "profileImage", "url")
 
 
+class FollowerSerializer(serializers.ModelSerializer):
+    object = SerializerMethodField("get_object")
+    actor = serializers.JSONField()  # requestor
+    type = SerializerMethodField("get_type")
+
+    class Meta:
+        model = Follower
+        fields = ("type", "actor", "object")
+
+    def get_object(self, obj):
+        return AuthorSerializer(obj.author).data
+
+    def get_type(self, obj):
+        return "follower"
+
+
 class PostSerializer(serializers.ModelSerializer):
     # Nik Tomazic, Using SerializerMethodField, Ocotber 20, 2023,
     # https://testdriven.io/blog/drf-serializers/
