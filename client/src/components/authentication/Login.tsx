@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { storeToken } from "../../utils/localStorageUtils";
+import { storeAuthorId, storeToken } from "../../utils/localStorageUtils";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ const Login = () => {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((response: any) => {
+        storeAuthorId(response.data.author_id);
         storeToken(response.data.token);
 
         toast.success("You are now logged in");
