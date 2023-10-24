@@ -11,5 +11,5 @@ export const storeAuthorId = (authorId: string) => {
 };
 
 export const getAuthorId = () => {
-  return localStorage.getItem("authToken");
+  return localStorage.getItem("author_id");
 };
