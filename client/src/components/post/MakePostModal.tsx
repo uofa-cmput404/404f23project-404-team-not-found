@@ -1,5 +1,6 @@
 import React, { useState} from "react";
 import { Modal, Box, Button, TextField, IconButton, Grid} from "@mui/material";
+import { styled } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -24,6 +25,19 @@ const style = {
   borderRadius: "8px",
 };
 
+// For opening file upload prompt
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
+
 const APP_URI = process.env.REACT_APP_URI;
 
 const MakePostModal = ({
@@ -38,19 +52,48 @@ const MakePostModal = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
+  const [contentType, setContentType] = useState("text/plain");
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
-  
+  const [imagePrev, setImagePrev] = useState("");
   const handleClose = () => setIsModalOpen(false);
+
+  const handleFileRead = async (event:any) => {
+    const file = event.target.files[0];
+    const base64:any = await convertBase64(file);
+    setImagePrev(base64);
+    setContent(base64);
+  };
+
+  const convertBase64 = (file:any) => {
+    setContentType(`${file.type};base64`);
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
+    setTitle("");
+    setDescription("");
+    setContent("");
+    setImagePrev("")
   }
 
   const handleImageContent = () => {
     setImageType(true);
     setTextType(false);
+    setTitle("");
+    setDescription("");
+    setContent("");
   }
 
 
@@ -96,7 +139,6 @@ const MakePostModal = ({
           >
             <CloseIcon fontSize="small" />
           </IconButton>
-
           <Grid container spacing={0} justifyContent="flex-end" > 
             <Grid item>
               <IconButton 
@@ -117,7 +159,6 @@ const MakePostModal = ({
               </IconButton>
             </Grid>
           </Grid>
-          
           <TextField
             id="title-text"
             label="Title"
@@ -158,7 +199,6 @@ const MakePostModal = ({
               setContent(e.target.value);
             }}
           />}
-
           {imageType && 
             <Grid 
               container
@@ -167,33 +207,56 @@ const MakePostModal = ({
               >   
               <Grid item xs={9}>
                 <TextField
-                  disabled={content !== ""}
                   id="image-field"
                   label="image url"
                   defaultValue=""
                   size="small"
                   fullWidth
                   sx={{margin:1, }}
-
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    setImagePrev(e.target.value);
+                    setContentType("text/plain");
+                  }}
                 />
               </Grid>
               <Grid item xs={3}>
                 <Button 
+                disabled={content !== ""}
+                component="label"
                 variant="outlined"
                 color="primary"
                 sx={{
                   margin:1,
                   height: "100%"
                 }} 
-                endIcon={<UploadIcon/>}
-                >
+                endIcon={<UploadIcon/>}>
                   Upload
+                  <VisuallyHiddenInput
+                    disabled={content !== ""}
+                    accept="image/*"
+                    id="contained-button-file"
+                    multiple
+                    type="file"
+                    onChange={handleFileRead}
+                  />
                 </Button>
               </Grid>
+              <img
+              alt=""
+              src={imagePrev}
+              style={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                maxHeight: 200,
+                border: 0,
+                borderRadius: "5px",
+                borderColor: "gray",
+              }}
+            />
           </Grid>     
           }
-
-
           <Button
             variant="contained"
             color="success"
@@ -211,7 +274,7 @@ const MakePostModal = ({
                 title,
                 description,
                 content,
-                "text/plain",
+                contentType,
                 "PUBLIC",
                 false
               );
