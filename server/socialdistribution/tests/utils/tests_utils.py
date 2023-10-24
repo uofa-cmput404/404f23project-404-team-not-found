@@ -49,7 +49,6 @@ def create_follow_inbox_item(follow_object, inbox_object):
                                                  content_object=follow_object)
     inbox_object.items.add(inbox_item_object)
 
-    print(inbox_item_object)
     return inbox_item_object
 
 
