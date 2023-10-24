@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -161,6 +163,72 @@ class PostView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class InboxView(APIView):
+    http_method_names = ["delete", "get", "post"]
+    queryset = InboxItem.objects.all()
+    serializer_class = InboxItemSerializer
+
+    def delete(self, request, author_id):
+        """
+        clear the inbox
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        inbox_object = get_object_or_404(Inbox, author=author_object)
+        inbox_object.items.clear()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, author_id):
+        """
+        If authenticated get a list of posts sent to AUTHOR_ID
+        TODO: add authentication_classes and permission_classes
+        TODO: paginate
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        inbox_object = get_object_or_404(Inbox, author=author_object)
+        serializer = InboxSerializer(instance=inbox_object, context={"request": request})
+
+        return Response(serializer.data)
+
+    def post(self, request, author_id):
+        """
+        send a post to the author
+        if the type is “post” then add that post to AUTHOR_ID’s inbox
+        if the type is “Follow” then add that follow is added to AUTHOR_ID’s inbox to approve later
+        if the type is “Like” then add that like to AUTHOR_ID’s inbox
+        if the type is “comment” then add that comment to AUTHOR_ID’s inbox
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        data = request.data
+
+        if "type" not in data:
+            return Response(missing_type_in_inbox_post_error, status=status.HTTP_400_BAD_REQUEST)
+
+        if data['type'] == "Follow":
+            follow_object = create_follow(author_object, request.data)
+            serializer = FollowSerializer(instance=follow_object, data=data)
+
+            if serializer.is_valid():
+                # create follow instance
+                follow_instance = serializer.save()
+
+                # Add that follow to the AUTHOR_ID's inbox.
+                author_object = get_object_or_404(Author, id=author_id)
+                inbox_object = get_object_or_404(Inbox, author=author_object)
+                content_type = ContentType.objects.get_for_model(follow_instance)
+                inbox_item_object = InboxItem.objects.create(content_type=content_type,
+                                                             object_id=follow_instance.id,
+                                                             content_object=follow_instance)
+                inbox_object.items.add(inbox_item_object)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # TODO: HANDLE post, like, comment
+
+        return Response({'detail': 'Invalid type or unhandled type in request.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class LoginView(APIView):
     http_method_names = ["post"]
 
@@ -190,7 +258,7 @@ class LoginView(APIView):
             data = {"message": "User not found"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-        
+
 class SignUpView(APIView):
     http_method_names = ["post"]
 

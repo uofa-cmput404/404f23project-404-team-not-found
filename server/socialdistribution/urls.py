@@ -9,6 +9,7 @@ urlpatterns = [
     path("author/<uuid:author_id>/posts/<uuid:post_id>/", PostView.as_view(), name="single_post"),
     path("author/<uuid:author_id>/followers/", FollowersView.as_view(), name="followers"),
     path("author/<uuid:author_id>/followers/<uuid:follower_id>/", FollowerView.as_view(), name="follower"),
+    path("author/<uuid:author_id>/inbox/", InboxView.as_view(), name="inbox"),
 
     # login and signup endpoints
     path("login/", LoginView.as_view(), name="login"),

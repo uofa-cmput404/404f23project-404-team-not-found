@@ -3,6 +3,7 @@ import base64
 
 from socialdistribution.models.post import Post
 from socialdistribution.models.follow import Follow
+from socialdistribution.models.follower import Follower
 
 from .general_utils import *
 
@@ -17,6 +18,13 @@ def create_follow(author, data):
     return follow
 
 
+def create_follower(recipient, data):
+    follower = Follower.objects.create(
+        author=recipient,
+        follower_author=data["actor"]
+    )
+
+    return follower
 
 
 def create_post(author, data, post_id=None):
