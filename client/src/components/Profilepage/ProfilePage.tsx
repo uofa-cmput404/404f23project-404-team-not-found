@@ -1,8 +1,9 @@
 import axios from "axios";
+import Popup from "./popup";
 import { useEffect, useState } from "react";
 import { Typography, CssBaseline, AppBar, Toolbar, Container, Card, Grid, CardMedia, CardContent, CardActions, Button} from "@mui/material"
 import { makeStyles } from "@mui/styles";
-import {Post} from "../interfaces/interfaces";
+import {Post} from "../../interfaces/interfaces";
 import "./styles.css";
 import { Link } from "react-router-dom";
 
@@ -46,6 +47,13 @@ const ProfilePage = () => {
 
     const [AuthorData, setAuthorData] = useState("");
     const [posts, setPosts] = useState<Post[]>([]);
+    const [openPopups, setOpenPopups] = useState<boolean[]>(Array(posts.length).fill(false));
+
+    const togglePopup = (index: number) => {
+        const newOpenPopups = [...openPopups];
+        newOpenPopups[index] = !newOpenPopups[index];
+        setOpenPopups(newOpenPopups);
+      };
 
     const fetchAuthors = async () => {
         // TODO: replace hardcoded author id with AUTHOR_ID
@@ -105,7 +113,7 @@ const ProfilePage = () => {
         <main>
             <div className={classes.container}>
                 <Container maxWidth="sm">
-                    <img src={require("../assets/defaultprofile.jpg")} alt="profile-pic" className={classes.picture}/>
+                    <img src={require("../../assets/defaultprofile.jpg")} alt="profile-pic" className={classes.picture}/>
                     <Typography variant="h2" align="center" color="black" style={{ fontFamily: "Bree Serif, serif" }}>
                         {username}
                     </Typography>
@@ -114,7 +122,7 @@ const ProfilePage = () => {
             <Container className={classes.cardGrid} maxWidth="md">
                 <Grid container spacing={4}>
                     {posts.map((post, index) => (
-                        <Grid item key={index} xs={12} sm={12} md={6}>
+                        <Grid item key={index} xs={12} sm={12} md={12}>
                             <Card className={classes.card}>
                                 <CardMedia>
                                 </CardMedia>
@@ -130,7 +138,20 @@ const ProfilePage = () => {
                                     </Typography>
                                 </CardContent>
                                 <CardActions>
-                                    <Button size="small" color="primary">View</Button>
+                                    <Button size="small" color="primary" onClick={() => togglePopup(index)}>
+                                        View
+                                    </Button>
+                                    <Popup trigger={openPopups[index]} setTrigger={() => togglePopup(index)}>
+                                        <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
+                                            {post.title}
+                                        </Typography>
+                                        <Typography variant="h5" style={{ fontFamily: "Bree Serif, serif" }}>
+                                            {post.description} 
+                                        </Typography>
+                                        <Typography variant="body1" style={{ fontFamily: "Bree Serif, serif" }}>
+                                            {post.content}
+                                        </Typography>
+                                    </Popup>
                                     <Button size="small" color="primary">Delete</Button>
                                 </CardActions>
                             </Card>

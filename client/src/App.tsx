@@ -7,7 +7,7 @@ import Login from "./components/authentication/Login";
 import SignUp from "./components/authentication/SignUp";
 
 import "./App.css";
-import ProfilePage from "./components/ProfilePage";
+import ProfilePage from "./components/Profilepage/ProfilePage";
 import { ToastContainer } from "react-toastify";
 import { getToken } from "./utils/localStorageUtils";
 
