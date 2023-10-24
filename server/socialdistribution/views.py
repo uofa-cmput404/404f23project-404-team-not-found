@@ -1,5 +1,3 @@
-import json
-
 from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -33,10 +31,9 @@ class FollowersView(APIView):
         """
         author_object = get_object_or_404(Author, id=author_id)
         followers = Follower.objects.filter(author=author_object)
-
         return Response({
             "type": "followers",
-            "items": [json.loads(follower_object.follower_author) for follower_object in followers]
+            "items": [follower_object.follower_author for follower_object in followers]
         })
 
 
@@ -72,6 +69,13 @@ class FollowerView(APIView):
         TODO: must be authenticated
         """
         author_object = get_object_or_404(Author, id=author_id)
+        is_follower = (Follower.objects.filter(author=author_object,
+                                               follower_author__id__endswith=follower_id)
+                       .exists())
+
+        if is_follower:
+            return Response(already_followed_error, status=status.HTTP_400_BAD_REQUEST)
+
         follower_object = create_follower(author_object, request.data)
         serializer = FollowerSerializer(instance=follower_object, data=request.data, context={"request": request})
 
