@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { Modal, Box, Button, TextField, IconButton } from "@mui/material";
+import React, { useState} from "react";
+import { Modal, Box, Button, TextField, IconButton, Grid} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
+import NotesIcon from '@mui/icons-material/Notes';
+import ImageIcon from '@mui/icons-material/Image';
+import UploadIcon from '@mui/icons-material/Upload';
+import SendIcon from '@mui/icons-material/Send';
+
 import axios from "axios";
 
 const style = {
@@ -12,7 +17,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "500pt",
+  width: "60vh",
   bgcolor: "background.paper",
   boxShadow: 20,
   p: 0.5,
@@ -33,8 +38,21 @@ const MakePostModal = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
-
+  const [textType, setTextType] = useState(true);
+  const [imageType, setImageType] = useState(false);
+  
   const handleClose = () => setIsModalOpen(false);
+
+  const handleTextContent = () => {
+    setTextType(true);
+    setImageType(false);
+  }
+
+  const handleImageContent = () => {
+    setImageType(true);
+    setTextType(false);
+  }
+
 
   const handleSubmit = async (
     title: string,
@@ -79,6 +97,27 @@ const MakePostModal = ({
             <CloseIcon fontSize="small" />
           </IconButton>
 
+          <Grid container spacing={0} justifyContent="flex-end" > 
+            <Grid item>
+              <IconButton 
+              id="txt"
+              size="small"
+              onClick={handleTextContent}
+              >
+                <NotesIcon fontSize="medium"/> 
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton 
+              size="small"
+              sx={{marginRight: 1}}
+              onClick={handleImageContent}
+              > 
+                <ImageIcon fontSize="medium"/> 
+              </IconButton>
+            </Grid>
+          </Grid>
+          
           <TextField
             id="title-text"
             label="Title"
@@ -104,7 +143,9 @@ const MakePostModal = ({
               setDescription(e.target.value);
             }}
           />
-          <TextField
+
+          {textType &&           
+            <TextField
             id="content-field"
             label="content"
             multiline
@@ -116,12 +157,48 @@ const MakePostModal = ({
             onChange={(e) => {
               setContent(e.target.value);
             }}
-          />
+          />}
+
+          {imageType && 
+            <Grid 
+              container
+              alignItems="center"
+              spacing={1}
+              >   
+              <Grid item xs={9}>
+                <TextField
+                  disabled={content !== ""}
+                  id="image-field"
+                  label="image url"
+                  defaultValue=""
+                  size="small"
+                  fullWidth
+                  sx={{margin:1, }}
+
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <Button 
+                variant="outlined"
+                color="primary"
+                sx={{
+                  margin:1,
+                  height: "100%"
+                }} 
+                endIcon={<UploadIcon/>}
+                >
+                  Upload
+                </Button>
+              </Grid>
+          </Grid>     
+          }
+
 
           <Button
             variant="contained"
             color="success"
             sx={{
+              borderRadius: 20,
               justifyContent: "center",
               color: "white",
               width: "20%",
@@ -140,6 +217,7 @@ const MakePostModal = ({
               );
               setIsModalOpen(true);
             }}
+            endIcon={<SendIcon/>}
           >
             Post
           </Button>

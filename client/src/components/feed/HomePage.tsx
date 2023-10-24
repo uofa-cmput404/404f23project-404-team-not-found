@@ -70,7 +70,6 @@ export default function HomePage() {
               position: "fixed", 
               width: "25vw"
             }} 
-            elevation={3} 
             variant="outlined" 
             square>
             <Typography
