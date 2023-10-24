@@ -22,6 +22,22 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class FollowersView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id):
+        """
+        get a list of authors who are AUTHOR_ID’s followers
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        followers = Follower.objects.filter(author=author_object)
+
+        return Response({
+            "type": "followers",
+            "items": [follower_object.follower_author for follower_object in followers]
+        })
+
+
 class PostsView(APIView):
     # Django Software Foundation, Allowing HTTP request, October 20, 2023,
     # https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
