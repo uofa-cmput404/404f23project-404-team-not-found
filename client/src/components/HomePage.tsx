@@ -4,6 +4,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { Box, CssBaseline, Paper } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
+import {useNavigate} from "react-router-dom";
 
 import MakePostModal from "./post/MakePostModal";
 
@@ -12,6 +13,11 @@ export default function HomePage() {
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
+  };
+
+  const navigate = useNavigate();
+  const handleProfileClick = () => {
+    navigate("/profile-page");
   };
 
   return (
@@ -43,6 +49,13 @@ export default function HomePage() {
               Testing{" "}
             </Typography>
             <Box textAlign="center">
+              <Button
+                variant="contained"
+                style={{ marginTop: 10, width: "60%" }}
+                onClick={handleProfileClick}
+              >
+                Profile
+              </Button>
               <Button
                 variant="contained"
                 style={{ marginTop: 10, width: "60%" }}

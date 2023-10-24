@@ -4,6 +4,7 @@ import { Typography, CssBaseline, AppBar, Toolbar, Container, Card, Grid, CardMe
 import { makeStyles } from "@mui/styles";
 import {Post} from "../interfaces/interfaces";
 import "./styles.css";
+import { Link } from "react-router-dom";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -35,6 +36,10 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         height: '100%' 
     },
+    customLink: {
+        color: "white",
+        textDecoration: "none !important"
+    }
 }));
 
 const ProfilePage = () => {
@@ -79,7 +84,7 @@ const ProfilePage = () => {
       
         if (words.length > 100) {
           const limitedContent: string = words.slice(0, 100).join(' ');
-          return limitedContent;
+          return limitedContent + ' ...';
         } else {
           return content;
         }
@@ -90,9 +95,11 @@ const ProfilePage = () => {
         <CssBaseline />
         <AppBar position="relative">
             <Toolbar>
-                <Typography variant="h6">
-                Profile Page
-                </Typography>
+                <Link to="/home-page">
+                    <Typography variant="h6" className={classes.customLink} style={{ textDecoration: 'none' }}>
+                        SocialDistribution
+                    </Typography>
+                </Link> 
             </Toolbar>
         </AppBar>
         <main>
