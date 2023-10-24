@@ -10,6 +10,7 @@ import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
 import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
+import { getAuthorId } from "../../utils/localStorageUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -27,8 +28,8 @@ export default function HomePage() {
   };
 
   const fetchPosts = async () => {
-    // TODO: replace hardcoded author id with AUTHOR_ID
-    const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+    const AUTHOR_ID = getAuthorId();
+    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -70,7 +71,6 @@ export default function HomePage() {
               position: "fixed", 
               width: "25vw"
             }} 
-            elevation={3} 
             variant="outlined" 
             square>
             <Typography

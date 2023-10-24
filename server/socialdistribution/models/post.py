@@ -15,6 +15,7 @@ class Post(models.Model):
         MARKDOWN = "text/markdown"
         PLAIN = "text/plain"
         PNG = "image/png;base64"
+        WEBP = "image/webp;base64"
 
     # Types of visibility for posts
     class Visibility(models.TextChoices):
