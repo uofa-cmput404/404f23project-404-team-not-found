@@ -115,7 +115,9 @@ class LoginView(APIView):
             if success:
                 # create token 
                 token, created = Token.objects.get_or_create(user=user)
-                data = {"token": token.key}
+                matching_author = Author.objects.get(user=user)
+
+                data = {"token": token.key, "author_id": matching_author.id}
                 return Response(data, status=status.HTTP_201_CREATED)
             # on wrong password
             else:
