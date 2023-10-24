@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import *
-from .models import Author, Post
-from django.contrib.auth.models import User
+from .models import Author
 
 from .utils import *
 import base64
@@ -14,7 +13,8 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    # SerializerMethodField Reference: https://testdriven.io/blog/drf-serializers/
+    # Nik Tomazic, Using SerializerMethodField, Ocotber 20, 2023,
+    # https://testdriven.io/blog/drf-serializers/
     id = SerializerMethodField("get_id_url")
     author = AuthorSerializer(many=False, read_only=True)
     content = SerializerMethodField("get_content")

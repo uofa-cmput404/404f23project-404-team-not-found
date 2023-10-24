@@ -11,9 +11,6 @@ from .models import *
 from .utils import *
 
 
-
-
-# Create your views here.
 class AuthorView(APIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
@@ -26,8 +23,8 @@ class AuthorView(APIView):
 
 
 class PostsView(APIView):
-    # add allowed HTTP requests
-    # Reference: https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
+    # Django Software Foundation, Allowing HTTP request, October 20, 2023,
+    # https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
     http_method_names = ["get", "post"]
 
     def get(self, request, author_id):
@@ -44,7 +41,7 @@ class PostsView(APIView):
         """
         create a new post but generate a new id
         """
-        # get_object_or_404 is a django shortcut
+        # Django Software Foundation, get_object_or_404 is a Django shortcut, October 20, 2023,
         # Reference: https://docs.djangoproject.com/en/4.2/topics/http/shortcuts/#get-object-or-404
         author_obj = get_object_or_404(Author, id=author_id)
         post_object = create_post(author_obj, request.data)
