@@ -124,8 +124,6 @@ const ProfilePage = () => {
                     {posts.map((post, index) => (
                         <Grid item key={index} xs={12} sm={12} md={12}>
                             <Card className={classes.card}>
-                                <CardMedia>
-                                </CardMedia>
                                 <CardContent>
                                     <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
                                         {post.title}
