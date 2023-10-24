@@ -7,4 +7,8 @@ Module for all models in the app
 
 from .author import Author
 from .category import Category
+from .follow import Follow
+from .follower import Follower
+from .inbox import Inbox
+from .inbox_item import InboxItem
 from .post import Post
