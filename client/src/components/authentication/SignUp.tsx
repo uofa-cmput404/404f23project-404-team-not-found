@@ -13,6 +13,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+const APP_URI = process.env.REACT_APP_URI;
+
 const SignUp = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -31,7 +33,7 @@ const SignUp = () => {
       return;
     }
 
-    const requestUrl = "http://127.0.0.1:8000/socialdistribution/signup/";
+    const requestUrl = `${APP_URI}signup/`;
 
     console.log(formData);
 
