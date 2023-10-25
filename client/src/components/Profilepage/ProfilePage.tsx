@@ -1,11 +1,15 @@
 import axios from "axios";
-import Popup from "./popup";
 import { useEffect, useState } from "react";
-import { Typography, CssBaseline, AppBar, Toolbar, Container, Card, Grid, CardMedia, CardContent, CardActions, Button} from "@mui/material"
+import { Typography, CssBaseline, AppBar, Toolbar, Container} from "@mui/material"
 import { makeStyles } from "@mui/styles";
 import {Post} from "../../interfaces/interfaces";
 import "./styles.css";
 import { Link } from "react-router-dom";
+import PostsList from "../post/PostsList";
+import { toast } from "react-toastify";
+import { getAuthorId } from "../../utils/localStorageUtils";
+
+console.log(getAuthorId());
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -47,17 +51,9 @@ const ProfilePage = () => {
 
     const [AuthorData, setAuthorData] = useState("");
     const [posts, setPosts] = useState<Post[]>([]);
-    const [openPopups, setOpenPopups] = useState<boolean[]>(Array(posts.length).fill(false));
-
-    const togglePopup = (index: number) => {
-        const newOpenPopups = [...openPopups];
-        newOpenPopups[index] = !newOpenPopups[index];
-        setOpenPopups(newOpenPopups);
-      };
 
     const fetchAuthors = async () => {
-        // TODO: replace hardcoded author id with AUTHOR_ID
-        const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/`;
+        const url = `${APP_URI}author/` + getAuthorId() + `/`;
     
         try {
             const response = await axios.get(url);
@@ -68,8 +64,7 @@ const ProfilePage = () => {
     };
 
     const fetchPosts = async () => {
-        // TODO: replace hardcoded author id with AUTHOR_ID
-        const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+        const url = `${APP_URI}author/` + getAuthorId() + `/posts/`;;
     
         try {
             const response = await axios.get(url);
@@ -79,6 +74,17 @@ const ProfilePage = () => {
         }
     };
 
+    const deletePost = async (postId: string) => {
+        try {
+          const APIurl = postId.replace("http://localhost:8000", "http://localhost:8000/socialdistribution");
+          await axios.delete(APIurl);
+          setPosts(currentPosts => currentPosts.filter((post) => post.id !== postId));
+          toast.success("Post deleted successfully");
+        } catch (error) {
+          toast.error("Failed to delete post");
+        }
+      };
+
     useEffect(() => {
         fetchAuthors();
         fetchPosts();
@@ -86,17 +92,6 @@ const ProfilePage = () => {
 
     const username = AuthorData;
     const classes = useStyles();
-    
-    function limitContentTo100Words(content: string): string {
-        const words: string[] = content.split(' ');
-      
-        if (words.length > 100) {
-          const limitedContent: string = words.slice(0, 100).join(' ');
-          return limitedContent + ' ...';
-        } else {
-          return content;
-        }
-    }
 
     return (
     <>
@@ -120,42 +115,7 @@ const ProfilePage = () => {
                 </Container>
             </div>
             <Container className={classes.cardGrid} maxWidth="md">
-                <Grid container spacing={4}>
-                    {posts.map((post, index) => (
-                        <Grid item key={index} xs={12} sm={12} md={12}>
-                            <Card className={classes.card}>
-                                <CardContent>
-                                    <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
-                                        {post.title}
-                                    </Typography>
-                                    <Typography variant="h5" style={{ fontFamily: "Bree Serif, serif" }}>
-                                        {post.description} 
-                                    </Typography>
-                                    <Typography variant="body1" style={{ fontFamily: "Bree Serif, serif" }}>
-                                        {limitContentTo100Words(post.content ? post.content : '')}
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Button size="small" color="primary" onClick={() => togglePopup(index)}>
-                                        View
-                                    </Button>
-                                    <Popup trigger={openPopups[index]} setTrigger={() => togglePopup(index)}>
-                                        <Typography variant="h3" style={{ fontFamily: "Bree Serif, serif" }}>
-                                            {post.title}
-                                        </Typography>
-                                        <Typography variant="h5" style={{ fontFamily: "Bree Serif, serif" }}>
-                                            {post.description} 
-                                        </Typography>
-                                        <Typography variant="body1" style={{ fontFamily: "Bree Serif, serif" }}>
-                                            {post.content}
-                                        </Typography>
-                                    </Popup>
-                                    <Button size="small" color="primary">Delete</Button>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
+                <PostsList posts={posts} deletePost={deletePost} />
             </Container>
         </main>
     </>

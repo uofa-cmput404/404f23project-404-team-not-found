@@ -11,8 +11,6 @@ from .models import *
 from .utils import *
 
 
-
-
 # Create your views here.
 class AuthorView(APIView):
     queryset = Author.objects.all()
@@ -65,7 +63,12 @@ class PostView(APIView):
         remove the post whose id is POST_ID
         TODO: not doing as it's another user story
         """
-        pass
+        try:
+            post_object = Post.objects.get(id=post_id, author__id=author_id)
+            post_object.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, author_id, post_id):
         """

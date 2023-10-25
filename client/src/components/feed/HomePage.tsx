@@ -5,12 +5,14 @@ import Typography from "@mui/material/Typography";
 import { Box, CssBaseline, Paper } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import {useNavigate} from "react-router-dom";
-
+import { getAuthorId } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
 import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
+import { toast } from "react-toastify";
 
+console.log(getAuthorId());
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
@@ -27,14 +29,24 @@ export default function HomePage() {
   };
 
   const fetchPosts = async () => {
-    // TODO: replace hardcoded author id with AUTHOR_ID
-    const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+    const url = `${APP_URI}author/` + getAuthorId() + `/posts/`;;
 
     try {
       const response = await axios.get(url);
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    try {
+      const APIurl = postId.replace("http://localhost:8000", "http://localhost:8000/socialdistribution");
+      await axios.delete(APIurl);
+      setPosts(currentPosts => currentPosts.filter(post => post.id !== postId));
+      toast.success("Post deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete post");
     }
   };
 
@@ -100,9 +112,7 @@ export default function HomePage() {
           </Paper>
         </Grid>
         <Grid item xs={6} justifyContent='center'>
-          <PostsList
-            posts={posts}
-          />
+        <PostsList posts={posts} deletePost={deletePost} />
         </Grid>
         <Grid item xs={3}>
           <Typography align="center">side</Typography>

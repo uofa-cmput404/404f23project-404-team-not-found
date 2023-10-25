@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, TextField, IconButton } from "@mui/material";
-
+import { getAuthorId } from "../../utils/localStorageUtils";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 
@@ -53,7 +53,7 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     // TODO: replace the hardcoded id with the one gotten from the API
-    const url = `${APP_URI}author/5ba6d758-257f-4f47-b0b7-d3d5f5e32561/posts/`;
+    const url = `${APP_URI}author/` + getAuthorId() + `/posts/`;
 
     try {
       await axios.post(url, payload);

@@ -1,17 +1,19 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, IconButton } from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 
 const PostsList = ({
-  posts,
+  posts, deletePost
 }: {
   posts: Post[];
+  deletePost: (postId: string) => void;
 }) => {
     return (
       <>
-        { posts.map(post => (
+        { posts.length > 0 ? (posts.map(post => (
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
@@ -26,6 +28,11 @@ const PostsList = ({
                     {post.author.displayName[0]}
                 </Avatar>
               }
+              action={
+                <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
+                  <MoreVertIcon />
+                </IconButton>
+              }
               title={post.author.displayName}
               subheader={formatDateTime(post.published)}
               sx = {{marginTop:2}}
@@ -36,7 +43,9 @@ const PostsList = ({
               <Typography variant="body1">{post.content}</Typography>
             </CardContent>
           </Card>
-        ))}
+        ))): (
+          <Typography variant="body1">No posts available.</Typography>
+        )}
       </>
     );
 };
