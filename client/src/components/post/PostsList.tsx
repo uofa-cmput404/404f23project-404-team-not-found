@@ -38,9 +38,9 @@ const PostsList = ({
               )}
               title={post.author.displayName}
               subheader={formatDateTime(post.published)}
-              sx = {{marginTop:2}}
+              sx = {{margin:0}}
             />
-            <CardContent sx={{marginBottom:10}}>
+            <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
               {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
