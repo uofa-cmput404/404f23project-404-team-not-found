@@ -11,7 +11,7 @@ import UploadIcon from '@mui/icons-material/Upload';
 import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
-import { getAuthorId } from "../../utils/localStorageUtils";
+
 
 const style = {
   display: "flex",
