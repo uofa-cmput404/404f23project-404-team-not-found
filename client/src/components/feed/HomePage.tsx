@@ -12,6 +12,10 @@ import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
 import { getAuthorId } from "../../utils/localStorageUtils";
 
+import Person from "@mui/icons-material/Person";
+import MailIcon from '@mui/icons-material/Mail';
+import ExploreIcon from '@mui/icons-material/Explore';
+
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
@@ -66,38 +70,53 @@ export default function HomePage() {
         style={{ width: "100%", margin: "0 auto", marginTop: 60 }}
       >
         <Grid item xs={3} style={{ height: "80vh" }}>
-          <Paper style={{ 
-              height: "100vh", 
+          <Grid container 
+            alignItems="flex-end"
+            direction="column"
+            sx={{
               position: "fixed", 
-              width: "25vw"
-            }} 
-            variant="outlined" 
-            square>
-            <Typography
-              variant="h5"
-              align="center"
-              style={{ marginTop: "50%" }}
+              paddingTop: 5,
+              paddingRight: 2,
+              width:"30vw", 
+              height: "100vh", 
+              border: 1, 
+              borderTop: 0, 
+              borderColor: "#dbd9d9"}}
             >
-              {" "}
-              Testing{" "}
-            </Typography>
-            <Box textAlign="center">
+            <Grid container
+              direction="column"
+              alignItems="flex-start"
+              width={"50%"}
+            >
               <Button
-                variant="contained"
-                style={{ marginTop: 10, width: "60%" }}
+                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
                 onClick={handleProfileClick}
               >
-                Profile
+                <Person fontSize="large"/>
+                <Typography variant="h6" textTransform="none" paddingLeft={2}> Profile </Typography>
               </Button>
               <Button
-                variant="contained"
-                style={{ marginTop: 10, width: "60%" }}
-                onClick={openMakePostModal}
+                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+              >
+                <MailIcon fontSize="large"/>
+                <Typography variant="h6" textTransform="none" paddingLeft={2}> Inbox </Typography>
+              </Button>
+              <Button
+                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+              >
+                <ExploreIcon fontSize="large"/>
+                <Typography variant="h6" textTransform="none" paddingLeft={2}> Discover </Typography>
+              </Button>
+              <Button
+              variant="contained"
+              size="large"
+              style={{ marginTop: 20, width: "90%", borderRadius: 20}}
+              onClick={openMakePostModal}
               >
                 Post
               </Button>
-            </Box>
-          </Paper>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={6} justifyContent='center'>
           <PostsList
