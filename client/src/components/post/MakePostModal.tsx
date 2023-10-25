@@ -1,5 +1,5 @@
 import React, { useState} from "react";
-import { Modal, Box, Button, TextField, IconButton, Grid} from "@mui/material";
+import { Modal, Box, Button, TextField, IconButton, Grid, Typography} from "@mui/material";
 import { styled } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -57,7 +57,7 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
-  const handleClose = () => {setIsModalOpen(false); setImagePrev('')};
+  const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
 
   const handleFileRead = async (event:any) => {
     const file = event.target.files[0];
@@ -84,8 +84,6 @@ const MakePostModal = ({
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
-    setTitle("");
-    setDescription("");
     setContent("");
     setImagePrev("")
   }
@@ -93,11 +91,8 @@ const MakePostModal = ({
   const handleImageContent = () => {
     setImageType(true);
     setTextType(false);
-    setTitle("");
-    setDescription("");
     setContent("");
   }
-
 
   const handleSubmit = async (
     title: string,
@@ -115,7 +110,6 @@ const MakePostModal = ({
       visibility: visibility,
       unlisted: unlisted,
     };
-    // TODO: replace the hardcoded id with the one gotten from the API
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
 
@@ -132,38 +126,32 @@ const MakePostModal = ({
     <>
       <Modal open={isModalOpen} onClose={handleClose}>
         <Box sx={style}>
-          <IconButton
-            sx={{
-              marginRight: "auto",
-            }}
-            onClick={() => {
-              handleClose();
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-          <Grid container spacing={0} justifyContent="flex-end" > 
-            <Grid item>
-              <IconButton 
-              id="txt"
-              size="small"
-              onClick={handleTextContent}
+          <Grid container>
+            <Grid item xs={3}>
+              <IconButton
+                sx={{
+                  marginRight: "auto",
+                }}
+                onClick={() => {
+                  handleClose();
+                }}
               >
-                <NotesIcon fontSize="medium"/> 
+                <CloseIcon fontSize="small" />
               </IconButton>
             </Grid>
-            <Grid item>
-              <IconButton 
-              size="small"
-              sx={{marginRight: 1}}
-              onClick={handleImageContent}
-              > 
-                <ImageIcon fontSize="medium"/> 
-              </IconButton>
+            <Grid item xs={6} textAlign="center">
+                <Typography 
+                  variant="h6"
+                  sx={{paddingTop:0.2}}
+                >
+                  Create a Post 
+                </Typography>
             </Grid>
+            <Grid item xs={3}></Grid>
           </Grid>
           <TextField
             id="title-text"
+            required
             label="Title"
             defaultValue=""
             sx={{
@@ -176,6 +164,7 @@ const MakePostModal = ({
           />
           <TextField
             id="description-text"
+            required
             label="Description"
             defaultValue=""
             sx={{
@@ -191,9 +180,9 @@ const MakePostModal = ({
           {textType &&           
             <TextField
             id="content-field"
+            required
             label="content"
-            multiline
-            rows={4}
+            multiline rows={4}
             defaultValue=""
             sx={{
               margin: 1,
@@ -211,7 +200,7 @@ const MakePostModal = ({
               <Grid item xs={9}>
                 <TextField
                   id="image-field"
-                  label="image url"
+                  label="Image url"
                   defaultValue=""
                   size="small"
                   fullWidth
@@ -223,15 +212,15 @@ const MakePostModal = ({
                   }}
                 />
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={3} display="inline-flex">
                 <Button 
                 disabled={content !== ""}
                 component="label"
-                variant="outlined"
                 color="primary"
                 sx={{
                   margin:1,
-                  height: "100%"
+                  height: "100%",
+                  marginRight: 0,
                 }} 
                 endIcon={<UploadIcon/>}>
                   Upload
@@ -250,43 +239,67 @@ const MakePostModal = ({
               src={imagePrev}
               style={{
                 marginTop: 5,
+                marginBottom: 10,
                 marginLeft: "auto",
                 marginRight: "auto",
                 maxHeight: 200,
                 border: 0,
                 borderRadius: "5px",
-                borderColor: "gray",
               }}
             />
           </Grid>
           }
-          <Button
-            variant="contained"
-            color="success"
-            sx={{
-              borderRadius: 20,
-              justifyContent: "center",
-              color: "white",
-              width: "20%",
-              marginLeft: "auto",
-              marginBottom: 1,
-              marginRight: 1,
-            }}
-            onClick={() => {
-              handleSubmit(
-                title,
-                description,
-                content,
-                contentType,
-                "PUBLIC",
-                false,
-              );
-              setIsModalOpen(true);
-            }}
-            endIcon={<SendIcon/>}
-          >
-            Post
-          </Button>
+          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
+            <Grid item>
+              <IconButton 
+              color={textType ? "info" : "default"}
+              id="txt"
+              size="small"
+              onClick={handleTextContent}
+              >
+                <NotesIcon fontSize="medium"/> 
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton 
+              color={imageType ? "info" : "default"}
+              size="small"
+              sx={{marginRight: 1}}
+              onClick={handleImageContent}
+              > 
+                <ImageIcon fontSize="medium"/> 
+              </IconButton>
+            </Grid>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={content === "" || title === "" || description === ""} 
+              sx={{
+                borderRadius: 20,
+                justifyContent: "center",
+                color: "white",
+                width: "20%",
+                marginLeft: "auto",
+                marginBottom: 1,
+                marginRight: 1,
+              }}
+              onClick={() => {
+                handleSubmit(
+                  title,
+                  description,
+                  content,
+                  contentType,
+                  "PUBLIC",
+                  false,
+                );
+                setIsModalOpen(false);
+                handleTextContent();
+              }}
+              endIcon={<SendIcon/>}
+              >
+              Post
+            </Button>
+          </Grid>
         </Box>
       </Modal>
     </>
