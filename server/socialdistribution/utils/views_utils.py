@@ -2,7 +2,30 @@ import uuid
 import base64
 
 from socialdistribution.models.post import Post
+from socialdistribution.models.follow import Follow
+from socialdistribution.models.follower import Follower
+
 from .general_utils import *
+
+
+def create_follow(author, data):
+    follow = Follow.objects.create(
+        id=uuid.uuid4(),
+        object=author,
+        actor=data["actor"]
+    )
+
+    return follow
+
+
+def create_follower(recipient, data):
+    follower = Follower.objects.create(
+        author=recipient,
+        follower_author=data["actor"]
+    )
+
+    return follower
+
 
 def create_post(author, data, post_id=None):
     """
