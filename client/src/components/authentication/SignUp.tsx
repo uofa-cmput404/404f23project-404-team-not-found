@@ -35,8 +35,6 @@ const SignUp = () => {
 
     const requestUrl = `${APP_URI}signup/`;
 
-    console.log(formData);
-
     // check for missing fields
     if (
       formData.displayName === "" ||
