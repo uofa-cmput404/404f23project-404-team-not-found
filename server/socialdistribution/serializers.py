@@ -2,8 +2,9 @@ from rest_framework import serializers
 from rest_framework.serializers import *
 
 import base64
+
 from .models import *
-from .utils import build_default_author_uri, build_default_post_uri
+from .utils import build_default_author_uri, build_default_post_uri, is_image
 
 
 class AuthorSerializer(serializers.ModelSerializer):
