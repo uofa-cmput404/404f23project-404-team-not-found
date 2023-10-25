@@ -4,6 +4,8 @@ import { Avatar, Card, CardContent, CardHeader, Typography, IconButton } from "@
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
+import { getAuthorId } from "../../utils/localStorageUtils";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const PostsList = ({
   posts, deletePost
@@ -29,10 +31,11 @@ const PostsList = ({
                 </Avatar>
               }
               action={
+                (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
                 <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
-                  <MoreVertIcon />
+                  <DeleteIcon />
                 </IconButton>
-              }
+              )}
               title={post.author.displayName}
               subheader={formatDateTime(post.published)}
               sx = {{marginTop:2}}
