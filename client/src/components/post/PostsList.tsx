@@ -1,7 +1,7 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, IconButton } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -13,6 +13,7 @@ const PostsList = ({
   posts: Post[];
   deletePost: (postId: string) => void;
 }) => {
+
     return (
       <>
         { posts.length > 0 ? (posts.map(post => (
@@ -21,7 +22,6 @@ const PostsList = ({
               margin: "auto", 
               width: "40vw", 
               borderRadius: 0, 
-              borderBottom: 0
             }} 
               variant='outlined'>
             <CardHeader
@@ -42,8 +42,47 @@ const PostsList = ({
             />
             <CardContent sx={{marginBottom:10}}>
               <Typography variant="h6">{post.title}</Typography>
-              <Typography variant="body1">{post.description}</Typography>
-              <Typography variant="body1">{post.content}</Typography>
+              <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
+              {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+              <div>
+              <Link href={post.content} target="_blank" noWrap> 
+                <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
+                  {post.content}
+                </Typography> 
+              </Link>
+              <CardContent sx={{ padding: 0 }}>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <CardMedia
+                    component="img"
+                    style={{
+                      maxWidth: "100%",
+                      width: "auto",
+                      borderRadius: 12,
+                    }}
+                    image={post.content}
+                  />
+                </div>
+              </CardContent>
+              </div>
+            ):(
+              post.contentType === "text/plain" && (
+                <Typography variant="body1">{post.content}</Typography>)
+            )}
+            {post.contentType.includes("base64") && (
+              <CardContent sx={{ padding: 0}}>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <CardMedia
+                    component="img"
+                    style={{
+                      maxWidth: "100%",
+                      width: "auto",
+                      borderRadius: 12,
+                    }}
+                    image={post.content}
+                  />
+                </div>
+              </CardContent>
+            )}
             </CardContent>
           </Card>
         ))): (

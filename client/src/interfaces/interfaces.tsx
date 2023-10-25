@@ -18,7 +18,7 @@ export interface Post {
   id: string;
   author: Author;
   categories: Category[];
-  content?: string | null;
+  content: string;
   contentType: ContentType;
   description: string;
   title: string;

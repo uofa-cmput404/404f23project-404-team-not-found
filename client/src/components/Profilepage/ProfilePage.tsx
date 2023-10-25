@@ -9,8 +9,6 @@ import PostsList from "../post/PostsList";
 import { toast } from "react-toastify";
 import { getAuthorId } from "../../utils/localStorageUtils";
 
-console.log(getAuthorId());
-
 const APP_URI = process.env.REACT_APP_URI;
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +51,8 @@ const ProfilePage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
 
     const fetchAuthors = async () => {
-        const url = `${APP_URI}author/` + getAuthorId() + `/`;
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}author/${AUTHOR_ID}/`;
     
         try {
             const response = await axios.get(url);
@@ -64,7 +63,8 @@ const ProfilePage = () => {
     };
 
     const fetchPosts = async () => {
-        const url = `${APP_URI}author/` + getAuthorId() + `/posts/`;;
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
     
         try {
             const response = await axios.get(url);

@@ -11,6 +11,7 @@ import PostsList from "../post/PostsList";
 import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
 import { toast } from "react-toastify";
+import { getAuthorId } from "../../utils/localStorageUtils";
 
 console.log(getAuthorId());
 const APP_URI = process.env.REACT_APP_URI;
@@ -29,7 +30,8 @@ export default function HomePage() {
   };
 
   const fetchPosts = async () => {
-    const url = `${APP_URI}author/` + getAuthorId() + `/posts/`;;
+    const AUTHOR_ID = getAuthorId();
+    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -82,7 +84,6 @@ export default function HomePage() {
               position: "fixed", 
               width: "25vw"
             }} 
-            elevation={3} 
             variant="outlined" 
             square>
             <Typography
