@@ -44,7 +44,7 @@ export default function HomePage() {
 
   const deletePost = async (postId: string) => {
     try {
-      const APIurl = postId.replace("http://localhost:8000", "http://localhost:8000/socialdistribution");
+      const APIurl = postId;
       await axios.delete(APIurl);
       setPosts(currentPosts => currentPosts.filter(post => post.id !== postId));
       toast.success("Post deleted successfully");
