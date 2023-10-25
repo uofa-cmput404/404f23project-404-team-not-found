@@ -11,7 +11,7 @@ import PostsList from "../post/PostsList";
 import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
 import { toast } from "react-toastify";
-import { getAuthorId } from "../../utils/localStorageUtils";
+
 
 console.log(getAuthorId());
 const APP_URI = process.env.REACT_APP_URI;
