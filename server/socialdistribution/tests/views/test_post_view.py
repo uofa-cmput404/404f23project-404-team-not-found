@@ -67,5 +67,5 @@ class TestPostView(TestCase):
         uri = json_obj["author"]["host"]
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(json_obj["id"], f"{uri}author/{self.author.id}/posts/{post_id}")
+        self.assertEqual(json_obj["id"], f"{uri}api/author/{self.author.id}/posts/{post_id}")
         self.assertEqual(json_obj["title"], data["title"])
