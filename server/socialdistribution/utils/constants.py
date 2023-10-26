@@ -5,4 +5,5 @@ Please alphabetize when adding for easier parsing
 
 STRING_MAXLEN = 255
 CONTENT_MAXLEN = 4096
+SERVICE = "api/"
 URL_MAXLEN = 2048
