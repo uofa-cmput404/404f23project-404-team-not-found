@@ -12,6 +12,9 @@ import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
 
+import VisibilityMenu from "./VisibilityMenu";
+import TextPostView from "./TextPostView";
+import ImagePostView from "./ImagePostView";
 
 const style = {
   display: "flex",
@@ -27,19 +30,6 @@ const style = {
   p: 0.5,
   borderRadius: "8px",
 };
-
-// For opening file upload prompt
-const VisuallyHiddenInput = styled('input')({
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: 1,
-  overflow: 'hidden',
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  whiteSpace: 'nowrap',
-  width: 1,
-});
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -59,29 +49,9 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
+  const [visibility, setVisibility] = useState("PUBLIC");
+  const [unlisted, setUnlisted] = useState(false);
   const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
-
-  const handleFileRead = async (event:any) => {
-    const file = event.target.files[0];
-    const base64:any = await convertBase64(file);
-    console.log(file);
-    setImagePrev(base64);
-    setContent(base64);
-  };
-
-  const convertBase64 = (file:any) => {
-    setContentType(`${file.type};base64`);
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
 
   const handleTextContent = () => {
     setTextType(true);
@@ -151,105 +121,37 @@ const MakePostModal = ({
             </Grid>
             <Grid item xs={3}></Grid>
           </Grid>
-          <TextField
-            id="title-text"
-            required
-            label="Title"
-            defaultValue=""
-            sx={{
-              margin: 1,
-            }}
-            size="small"
-            onChange={(e) => {
-              setTitle(e.target.value);
-            }}
+          <VisibilityMenu
+            visibility={visibility}
+            setVisibility={setVisibility}
+            unlisted={unlisted}
+            setUnlisted={setUnlisted}
           />
-          <TextField
-            id="description-text"
-            required
-            label="Description"
-            defaultValue=""
-            sx={{
-              marginLeft: 1,
-              marginRight: 1,
-            }}
-            size="small"
-            onChange={(e) => {
-              setDescription(e.target.value);
-            }}
-          />
-
           {textType &&           
-            <TextField
-            id="content-field"
-            required
-            label="content"
-            multiline rows={4}
-            defaultValue=""
-            sx={{
-              margin: 1,
-            }}
-            onChange={(e) => {
-              setContent(e.target.value);
-            }}
-          />}
-          {imageType && 
-            <Grid 
-              container
-              alignItems="center"
-              spacing={1}
-              >   
-              <Grid item xs={9}>
-                <TextField
-                  id="image-field"
-                  label="Image url"
-                  defaultValue=""
-                  size="small"
-                  fullWidth
-                  sx={{margin:1, }}
-                  onChange={(e) => {
-                    setContent(e.target.value);
-                    setImagePrev(e.target.value);
-                    setContentType("text/plain");
-                  }}
-                />
-              </Grid>
-              <Grid item xs={3} display="inline-flex">
-                <Button 
-                disabled={content !== ""}
-                component="label"
-                color="primary"
-                sx={{
-                  margin:1,
-                  height: "100%",
-                  marginRight: 0,
-                }} 
-                endIcon={<UploadIcon/>}>
-                  Upload
-                  <VisuallyHiddenInput
-                    disabled={content !== ""}
-                    accept="image/*"
-                    id="contained-button-file"
-                    multiple
-                    type="file"
-                    onChange={handleFileRead}
-                  />
-                </Button>
-              </Grid>
-              <img
-              alt=""
-              src={imagePrev}
-              style={{
-                marginTop: 5,
-                marginBottom: 10,
-                marginLeft: "auto",
-                marginRight: "auto",
-                maxHeight: 200,
-                border: 0,
-                borderRadius: "5px",
-              }}
+            <TextPostView
+              title={title}
+              setTitle={setTitle}
+              description={description}
+              setDescription={setDescription}
+              content={content}
+              setContent={setContent}
+              contentType={contentType}
+              setContentType={setContentType}
             />
-          </Grid>
+          }
+          {imageType && 
+            <ImagePostView
+              title={title}
+              setTitle={setTitle}
+              description={description}
+              setDescription={setDescription}
+              content={content}
+              setContent={setContent}
+              contentType={contentType}
+              setContentType={setContentType}
+              imagePrev={imagePrev}
+              setImagePrev={setImagePrev}
+            />
           }
           <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
             <Grid item>
@@ -267,10 +169,15 @@ const MakePostModal = ({
               color={imageType ? "info" : "default"}
               size="small"
               sx={{marginRight: 1}}
-              onClick={handleImageContent}
+              onClick={() => {
+                handleImageContent();
+              }}
               > 
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
+            </Grid>
+            <Grid item>
+
             </Grid>
             <Button
               variant="contained"
@@ -301,8 +208,10 @@ const MakePostModal = ({
               >
               Post
             </Button>
+
           </Grid>
         </Box>
+
       </Modal>
     </>
   );
