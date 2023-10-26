@@ -16,7 +16,7 @@ import UserContext from "./contexts/UserContext";
 const App = () => {
   // TODO: Find a way to validate token
   // TODO: use userToken to restrict access for not logged in status
-  const [userToken, setUserToken] = useState<string | null>(null);
+  const [userToken, setUserToken] = useState<string | null>(getToken());
 
   return (
     <UserContext.Provider value={{ userToken, setUserToken }}>

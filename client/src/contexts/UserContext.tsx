@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { getToken } from "../utils/localStorageUtils";
 
 type UserContextType = {
   userToken: string | null;
@@ -6,7 +7,7 @@ type UserContextType = {
 };
 
 const iUserContextState = {
-  userToken: null,
+  userToken: getToken(),
   setUserToken: () => {},
 };
 
