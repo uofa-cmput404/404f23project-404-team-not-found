@@ -1,5 +1,5 @@
 import React, { useState} from "react";
-import { Modal, Box, Button, TextField, IconButton, Grid, Typography} from "@mui/material";
+import { Modal, Box, Button, TextField, IconButton, Grid, Typography,Switch,FormControlLabel,Checkbox} from "@mui/material";
 import { styled } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -57,11 +57,13 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
 
   const handleFileRead = async (event:any) => {
     const file = event.target.files[0];
     const base64:any = await convertBase64(file);
+    setMarkdownCheckbox(false);
     console.log(file);
     setImagePrev(base64);
     setContent(base64);
@@ -93,6 +95,13 @@ const MakePostModal = ({
     setTextType(false);
     setContent("");
   }
+
+  const handleMarkdownContent = (event) => {
+    setMarkdownCheckbox(event.target.checked);
+    if (event.target.checked) setContentType("text/markdown");
+    else setContentType("text/plain");
+    console.log(setMarkdownCheckbox);
+  };
 
   const handleSubmit = async (
     title: string,
@@ -270,6 +279,21 @@ const MakePostModal = ({
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
+            <Grid item>
+              
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={markdownCheckbox}
+                  onChange={handleMarkdownContent}
+                />
+              }
+              label="Markdown"
+            />
+              
+            
+            </Grid>
+
             <Button
               variant="contained"
               color="primary"
