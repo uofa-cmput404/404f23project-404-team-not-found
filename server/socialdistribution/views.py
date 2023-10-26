@@ -124,9 +124,10 @@ class PostView(APIView):
     def delete(self, request, author_id, post_id):
         """
         remove the post whose id is POST_ID
-        TODO: not doing as it's another user story
         """
-        pass
+        post_object = get_object_or_404(Post, id=post_id, author__id=author_id)
+        post_object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get(self, request, author_id, post_id):
         """

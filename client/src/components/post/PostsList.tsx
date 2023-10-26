@@ -1,18 +1,22 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link } from "@mui/material";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
+import { getAuthorId } from "../../utils/localStorageUtils";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const PostsList = ({
-  posts,
+  posts, deletePost
 }: {
   posts: Post[];
+  deletePost: (postId: string) => void;
 }) => {
 
     return (
       <>
-        { posts.map(post => (
+        { posts.length > 0 ? (posts.map(post => (
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
@@ -26,6 +30,13 @@ const PostsList = ({
                     {post.author.displayName[0]}
                 </Avatar>
               }
+              action={
+                // TODO: Remake condition after Author is properly serialized on the backend
+                (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
+                <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
+                  <DeleteIcon />
+                </IconButton>
+              )}
               title={post.author.displayName}
               subheader={formatDateTime(post.published)}
               sx = {{margin:0}}
@@ -75,7 +86,9 @@ const PostsList = ({
             )}
             </CardContent>
           </Card>
-        ))}
+        ))): (
+          <Typography variant="body1">No posts available.</Typography>
+        )}
       </>
     );
 };

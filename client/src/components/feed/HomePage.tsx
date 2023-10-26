@@ -5,13 +5,12 @@ import Typography from "@mui/material/Typography";
 import { Box, CssBaseline, Paper } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import {useNavigate} from "react-router-dom";
-
+import { getAuthorId } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
 import axios from "axios";
 import {Post} from "../../interfaces/interfaces";
-import { getAuthorId } from "../../utils/localStorageUtils";
-
+import { toast } from "react-toastify";
 import Person from "@mui/icons-material/Person";
 import MailIcon from '@mui/icons-material/Mail';
 import ExploreIcon from '@mui/icons-material/Explore';
@@ -40,6 +39,17 @@ export default function HomePage() {
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    try {
+      const APIurl = postId;
+      await axios.delete(APIurl);
+      setPosts(currentPosts => currentPosts.filter(post => post.id !== postId));
+      toast.success("Post deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete post");
     }
   };
 
@@ -119,9 +129,7 @@ export default function HomePage() {
           </Grid>
         </Grid>
         <Grid item xs={6} justifyContent='center'>
-          <PostsList
-            posts={posts}
-          />
+        <PostsList posts={posts} deletePost={deletePost} />
         </Grid>
         <Grid item xs={3}>
           <Typography align="center">side</Typography>
