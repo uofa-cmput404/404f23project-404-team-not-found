@@ -150,7 +150,7 @@ class PostView(APIView):
             # save update and set updatedAt to current time
             serializer.save(updatedAt=timezone.now())
             return Response(serializer.data)
-
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, author_id, post_id):

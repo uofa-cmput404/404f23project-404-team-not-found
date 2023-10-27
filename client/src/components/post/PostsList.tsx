@@ -4,8 +4,13 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
+
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { MuiMarkdown } from 'mui-markdown';
+
 
 const PostsList = ({
   posts, deletePost
@@ -44,6 +49,16 @@ const PostsList = ({
             <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
+              {post.contentType === "text/markdown" && (
+                <CardContent sx={{ padding: 0}}>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                  <MuiMarkdown>{post.content}</MuiMarkdown>;
+                </div>
+                </CardContent>
+                   )}
+
+
+              
               {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
               <div>
               <Link href={post.content} target="_blank" noWrap> 
@@ -68,6 +83,15 @@ const PostsList = ({
             ):(
               post.contentType === "text/plain" && (
                 <Typography variant="body1">{post.content}</Typography>)
+            )}
+            {post.contentType === "text/markdown" && (
+                <CardContent sx={{ padding: 0}}>
+                  <div style={{ display: "flex", justifyContent: "flex-start" }}>
+
+                   {/* https://www.npmjs.com/package/mui-markdown */}
+                  <MuiMarkdown>{`* Some static markdown content`}</MuiMarkdown>
+                </div>
+                </CardContent>
             )}
             {post.contentType.includes("base64") && (
               <CardContent sx={{ padding: 0}}>
