@@ -205,10 +205,8 @@ const MakePostModal = ({
               >
               Post
             </Button>
-
           </Grid>
         </Box>
-
       </Modal>
     </>
   );

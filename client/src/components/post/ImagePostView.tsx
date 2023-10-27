@@ -120,8 +120,10 @@ const ImagePostView = (props: any) => {
               marginLeft: "auto",
               marginRight: "auto",
               maxHeight: 200,
+              maxWidth:"80%",
               border: 0,
               borderRadius: "5px",
+              alignSelf:"center"
           }}
         />
       </Grid>
