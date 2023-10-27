@@ -14,6 +14,8 @@ import axios from "axios";
 
 import { storeAuthorId, storeToken } from "../../utils/localStorageUtils";
 
+const APP_URI = process.env.REACT_APP_URI;
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -24,7 +26,7 @@ const Login = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    const requestUrl = "http://127.0.0.1:8000/socialdistribution/login/";
+    const requestUrl = `${APP_URI}login/`;
 
     const form = new FormData();
     form.append("username", formData.username);
