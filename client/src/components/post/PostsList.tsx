@@ -6,7 +6,11 @@ import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
+
+import { renderVisibility }from '../../utils/visibilityRenderUtils';
 import { MuiMarkdown } from 'mui-markdown';
+
+
 
 const PostsList = ({
   posts, deletePost
@@ -39,7 +43,7 @@ const PostsList = ({
                 </IconButton>
               )}
               title={post.author.displayName}
-              subheader={formatDateTime(post.published)}
+              subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
               sx = {{margin:0}}
             />
             <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
