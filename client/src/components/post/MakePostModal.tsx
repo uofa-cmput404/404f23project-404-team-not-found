@@ -1,7 +1,7 @@
 
 import { getAuthorId } from "../../utils/localStorageUtils";
 import React, { useState} from "react";
-import { Modal, Box, Button, IconButton, Grid, Typography} from "@mui/material";
+import { Modal, Box, Button, IconButton, Grid, Typography } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -13,6 +13,8 @@ import axios from "axios";
 import VisibilityMenu from "./VisibilityMenu";
 import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
+
+import { ShareType } from "../../enums/enums";
 
 const style = {
   display: "flex",
@@ -47,7 +49,7 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
-  const [visibility, setVisibility] = useState("PUBLIC");
+  const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
   const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
 
@@ -173,9 +175,6 @@ const MakePostModal = ({
               > 
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
-            </Grid>
-            <Grid item>
-
             </Grid>
             <Button
               variant="contained"

@@ -48,17 +48,17 @@ const VisibilityMenu = (props:any) => {
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          'aria-labelledby': 'basic-button',
+          'aria-labelledby': 'visibility-menu-button',
         }}
       >
         <MenuItem 
-        onClick={() => {
-          props.setVisibility(ShareType.PUBLIC);
-          props.setUnlisted(false);
-          setText("Public");
-          setIcon(<PublicIcon/>);
-          handleClose();
-        }}
+          onClick={() => {
+            props.setVisibility(ShareType.PUBLIC);
+            props.setUnlisted(false);
+            setText("Public");
+            setIcon(<PublicIcon/>);
+            handleClose();
+          }}
         >
           <ListItemIcon>
             <PublicIcon fontSize="small" />
@@ -66,13 +66,13 @@ const VisibilityMenu = (props:any) => {
           <ListItemText>Public</ListItemText>
         </MenuItem>
         <MenuItem 
-        onClick={() => {
-          props.setVisibility(ShareType.PRIVATE);
-          props.setUnlisted(false)
-          setText("Private");
-          setIcon(<LockIcon/>);
-          handleClose();
-        }}
+          onClick={() => {
+            props.setVisibility(ShareType.PRIVATE);
+            props.setUnlisted(false)
+            setText("Private");
+            setIcon(<LockIcon/>);
+            handleClose();
+          }}
         >
           <ListItemIcon>
             <LockIcon fontSize="small" />
@@ -80,13 +80,13 @@ const VisibilityMenu = (props:any) => {
           <ListItemText>Private</ListItemText>
         </MenuItem>
         <MenuItem 
-        onClick={() => {
-          props.setVisibility(ShareType.FRIENDS);
-          props.setUnlisted(false)
-          setText("Friends");
-          setIcon(<GroupIcon/>)
-          handleClose();
-        }}
+          onClick={() => {
+            props.setVisibility(ShareType.FRIENDS);
+            props.setUnlisted(false)
+            setText("Friends");
+            setIcon(<GroupIcon/>)
+            handleClose();
+          }}
         >
           <ListItemIcon>
             <GroupIcon fontSize="small" />
@@ -94,13 +94,13 @@ const VisibilityMenu = (props:any) => {
           <ListItemText>Friends</ListItemText>
         </MenuItem>
         <MenuItem 
-        onClick={() => {
-          props.setVisibility(ShareType.PUBLIC);
-          props.setUnlisted(true)
-          setText("Unlisted");
-          setIcon(<VisibilityOffIcon/>)
-          handleClose();
-        }}
+          onClick={() => {
+            props.setVisibility(ShareType.PUBLIC);
+            props.setUnlisted(true)
+            setText("Unlisted");
+            setIcon(<VisibilityOffIcon/>)
+            handleClose();
+          }}
         >
           <ListItemIcon>
             <VisibilityOffIcon fontSize="small" />
