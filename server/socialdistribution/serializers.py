@@ -8,10 +8,12 @@ from .utils import build_default_author_uri, build_default_post_uri, is_image
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+
+    # temporarily added will change based on profile page later on
     host = serializers.CharField(required=False)
     profileImage = serializers.URLField(required=False)
     url = serializers.URLField(required=False)
-    
+
     class Meta:
         model = Author
         fields = ("id", "createdAt", "displayName", "github", "host", "profileImage", "url")

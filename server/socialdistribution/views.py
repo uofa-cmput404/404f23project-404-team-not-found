@@ -30,9 +30,8 @@ class AuthorView(APIView):
     
     def put(self, request, author_id):
         
-        try:
-            author = Author.objects.get(id=author_id)
-        except Author.DoesNotExist:
+        author = Author.objects.filter(id=author_id).first()
+        if author is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = AuthorSerializer(author, data=request.data)
