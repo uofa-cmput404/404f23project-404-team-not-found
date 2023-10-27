@@ -1,6 +1,5 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
