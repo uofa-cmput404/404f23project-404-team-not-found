@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Typography, CssBaseline, Container } from "@mui/material";
+import { Typography, CssBaseline, Container, Button, Theme, Modal, Box, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
 import "./styles.css";
@@ -9,10 +9,11 @@ import { toast } from "react-toastify";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
+import EditIcon from '@mui/icons-material/Edit';
 
 const APP_URI = process.env.REACT_APP_URI;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   container: {
     backgroundColor: "#FAF8F1",
     paddingTop: "2rem",
@@ -44,11 +45,43 @@ const useStyles = makeStyles((theme) => ({
     color: "white",
     textDecoration: "none !important",
   },
+  edit_button: {
+      position: "absolute",
+      right: 0,
+  }, 
+  content: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+  }, 
+  modal: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    paper: {
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+    }, 
+    save_button: {
+      position: "absolute",
+      bottom: "10px",
+      right: "10px"
+    }
 }));
 
 const ProfilePage = () => {
-  const [AuthorData, setAuthorData] = useState("");
+  const [authorData, setAuthorData] = useState<Author | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [displayName, setDisplayName] = useState("");
+  const [githubLink, setGithubLink] = useState("");
+  const [open, setOpen] = useState(false);
+  const username = authorData?.displayName;
+  const github = authorData?.github;
+  
+  const classes = useStyles();
 
   const fetchAuthors = async () => {
     const AUTHOR_ID = getAuthorId();
@@ -92,34 +125,87 @@ const ProfilePage = () => {
     fetchPosts();
   }, []);
 
-  const username = AuthorData;
-  const classes = useStyles();
+  const handleOpen = () => {
+      if (authorData) {
+        setDisplayName(authorData.displayName ?? '');
+        setGithubLink(authorData.github ?? '');
+      }
+      setOpen(true);
+  };
+
+  const handleClose = () => {
+      setOpen(false);
+  };
+
+  const handleSave = async () => {
+      const AUTHOR_ID = getAuthorId();
+      const url = `${APP_URI}author/${AUTHOR_ID}/`;
+  
+      try {
+        await axios.put(url, {
+          displayName: displayName,
+          github: githubLink,
+        });
+        fetchAuthors();
+        toast.success("Profile updated successfully");
+        handleClose();
+      } catch (error) {
+        toast.error("Failed to update profile");
+      }
+  };
 
   return (
     <>
       <CssBaseline />
       <HeadBar />
       <main>
-        <div className={classes.container}>
-          <Container maxWidth="sm">
-            <img
-              src={require("../../assets/defaultprofile.jpg")}
-              alt="profile-pic"
-              className={classes.picture}
-            />
-            <Typography
-              variant="h2"
-              align="center"
-              color="black"
-              style={{ fontFamily: "Bree Serif, serif" }}
-            >
-              {username}
-            </Typography>
+          <div className={classes.container}>
+              <div className={classes.content}>
+                  <div>
+                      <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                      <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
+                          {username}
+                      </Typography>
+                  </div>
+                  <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
+                      <EditIcon />
+                      <Typography>. EDIT INFO</Typography>
+                  </Button>
+                  <Modal
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="modal-modal-title"
+                      aria-describedby="modal-modal-description"
+                      className={classes.modal}
+                  >
+                      <Box className={classes.paper}>
+                          <Typography id="modal-modal-title" variant="h6" component="h2">
+                              EDIT PROFILE
+                          </Typography>
+                          <TextField
+                              id="outlined-basic"
+                              label="Display Name"
+                              variant="outlined"
+                              fullWidth
+                              margin="normal"
+                          />
+                          <TextField
+                              id="outlined-basic"
+                              label="Github Link"
+                              variant="outlined"
+                              fullWidth
+                              margin="normal"
+                          />
+                          <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
+                              Save
+                          </Button>
+                      </Box>
+                  </Modal>
+              </div>
+          </div>
+          <Container className={classes.cardGrid} maxWidth="md">
+            <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
           </Container>
-        </div>
-        <Container className={classes.cardGrid} maxWidth="md">
-          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
-        </Container>
       </main>
     </>
   );
