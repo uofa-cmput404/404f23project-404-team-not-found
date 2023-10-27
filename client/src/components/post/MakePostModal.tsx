@@ -13,7 +13,7 @@ import axios from "axios";
 import VisibilityMenu from "./VisibilityMenu";
 import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
-import PostCategories from "./PostCategories";
+import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
 
@@ -159,9 +159,8 @@ const MakePostModal = ({
             />
           }
           <Grid container>
-            <PostCategories categories={categories} setCategories={setCategories} />
+            <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
-
           <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
             <Grid item>
               <IconButton 
