@@ -20,6 +20,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     paddingBottom: "2rem",
     display: "flex",
     flexDirection: "column",
+    justifyContent: "center", 
+    alignItems: "center"
   },
   picture: {
     width: "30%",
@@ -30,6 +32,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: "auto",
     marginTop: "20px",
     marginBottom: "20px",
+    border: "2px solid #000"
   },
   cardGrid: {
     paddingTop: "2rem",
@@ -158,61 +161,68 @@ const ProfilePage = () => {
 
     return (
     <>
-      <CssBaseline />
-      <HeadBar />
-      <main>
-          <div className={classes.container}>
-              <div className={classes.content}>
-                  <div>
-                      <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
-                      <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
-                          {username}
-                      </Typography>
-                  </div>
-                  <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
-                      <EditIcon />
-                      <Typography>. EDIT INFO</Typography>
-                  </Button>
-                  <Modal
-                      open={open}
-                      onClose={handleClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                      className={classes.modal}
-                  >
-                      <Box className={classes.paper}>
-                          <Typography id="modal-modal-title" variant="h6" component="h2">
-                              EDIT PROFILE
-                          </Typography>
-                          <TextField
-                              id="outlined-basic"
-                              label="Display Name"
-                              variant="outlined"
-                              fullWidth
-                              margin="normal"
-                              value={displayName}
-                              onChange={(e) => setDisplayName(e.target.value)}
-                          />
-                          <TextField
-                              id="outlined-basic"
-                              label="Github Link"
-                              variant="outlined"
-                              fullWidth
-                              margin="normal"
-                              value={githubLink}
-                              onChange={(e) => setGithubLink(e.target.value)}
-                          />
-                          <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
-                              Save
-                          </Button>
-                      </Box>
-                  </Modal>
-              </div>
-          </div>
-          <Container className={classes.cardGrid} maxWidth="md">
-              <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
-          </Container>
-      </main>
+        <CssBaseline />
+        <HeadBar />
+        <main>
+            <div className={classes.container}>
+                <div className={classes.content}>
+                    <div>
+                        <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                        <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
+                            {username}
+                        </Typography>
+                    </div>
+                    <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
+                        <EditIcon />
+                        <Typography>. EDIT INFO</Typography>
+                    </Button>
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                        className={classes.modal}
+                    >
+                        <Box className={classes.paper}>
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                EDIT PROFILE
+                            </Typography>
+                            <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Button variant="contained" className={classes.edit_button}>
+                                    <EditIcon />
+                                    <Typography>. Change Picture</Typography>
+                                </Button>
+                            </div>
+                            <TextField
+                                id="outlined-basic"
+                                label="Display Name"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
+                            />
+                            <TextField
+                                id="outlined-basic"
+                                label="Github Link"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                value={githubLink}
+                                onChange={(e) => setGithubLink(e.target.value)}
+                            />
+                            <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
+                                Save
+                            </Button>
+                        </Box>
+                    </Modal>
+                </div>
+            </div>
+            <Container className={classes.cardGrid} maxWidth="md">
+            <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
+            </Container>
+        </main>
     </>
   );
 };
