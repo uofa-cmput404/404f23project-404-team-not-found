@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useContext, useState } from "react";
 
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { storeAuthorId, storeToken } from "../../utils/localStorageUtils";
+import UserContext from "../../contexts/UserContext";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -22,6 +23,8 @@ const Login = () => {
     username: "",
     password: "",
   });
+
+  const { userToken, setUserToken } = useContext(UserContext);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -39,6 +42,7 @@ const Login = () => {
       .then((response: any) => {
         storeAuthorId(response.data.author_id);
         storeToken(response.data.token);
+        setUserToken(response.data.token);
 
         toast.success("You are now logged in");
 
