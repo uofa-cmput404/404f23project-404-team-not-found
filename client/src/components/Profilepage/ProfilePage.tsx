@@ -46,8 +46,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     textDecoration: "none !important",
   },
   edit_button: {
-      position: "absolute",
-      right: 0,
+      position: "relative",
+      left: "1%",
   }, 
   content: {
       display: "flex",
@@ -66,7 +66,8 @@ const useStyles = makeStyles((theme: Theme) => ({
       padding: theme.spacing(2, 4, 3),
     }, 
     save_button: {
-      position: "absolute",
+      position: "relative",
+      top: "10px",
       bottom: "10px",
       right: "10px"
     }
@@ -137,8 +138,8 @@ const ProfilePage = () => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}author/${AUTHOR_ID}/`;
         const updatedAuthorData = {
-            displayName: displayName,
-            github: githubLink,
+            displayName: displayName === "" ? authorData?.displayName : displayName,
+            github: githubLink === "" ? authorData?.github : githubLink,
         };
     
         try {
@@ -146,6 +147,7 @@ const ProfilePage = () => {
             if (response.status === 200) {
                 toast.success("Profile updated successfully");
                 handleClose(); // Close the modal after a successful update
+                fetchAuthors(); // Fetch the updated author data
             } else {
                 toast.error("Failed to update profile");
             }
