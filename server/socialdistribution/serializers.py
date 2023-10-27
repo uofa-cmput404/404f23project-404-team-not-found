@@ -4,13 +4,26 @@ from rest_framework.serializers import *
 import base64
 
 from .models import *
-from .utils import build_default_author_uri, build_default_post_uri, is_image
+from .utils import (
+    build_default_author_uri,
+    build_default_post_uri,
+    build_default_comment_uri,
+    is_image,
+)
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ("id", "createdAt", "displayName", "github", "host", "profileImage", "url")
+        fields = (
+            "id",
+            "createdAt",
+            "displayName",
+            "github",
+            "host",
+            "profileImage",
+            "url",
+        )
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -59,16 +72,33 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ("id", "author", "categories", "content", "contentType", "description", "title", "type", "source",
-                  "origin", "published", "updatedAt", "visibility", "unlisted")
+        fields = (
+            "id",
+            "author",
+            "categories",
+            "content",
+            "contentType",
+            "description",
+            "title",
+            "type",
+            "source",
+            "origin",
+            "published",
+            "updatedAt",
+            "visibility",
+            "unlisted",
+        )
 
     def get_id_url(self, obj):
         """id field needs to be a uri of the post"""
         return build_default_post_uri(obj=obj, request=self.context["request"])
- 
+
     def get_content(self, obj):
         """decode content as it's a binary field"""
-        if obj.contentType == Post.ContentType.PLAIN and obj.content:
+        if (
+            obj.contentType == (Post.ContentType.PLAIN or Post.ContentType.MARKDOWN)
+            and obj.content
+        ):
             return obj.content.decode("utf-8")
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
@@ -76,14 +106,22 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_origin_url(self, obj):
         """if source is given, pass in the origin, otherwise, build it using current request uri"""
-        return obj.origin if obj.origin else build_default_post_uri(obj=obj, request=self.context["request"])
+        return (
+            obj.origin
+            if obj.origin
+            else build_default_post_uri(obj=obj, request=self.context["request"])
+        )
 
     def get_type(self, obj):
         return "post"
 
     def get_source_url(self, obj):
         """if source is given, pass in the source, otherwise, build it using current request uri"""
-        return obj.source if obj.source else build_default_post_uri(obj=obj, request=self.context["request"])
+        return (
+            obj.source
+            if obj.source
+            else build_default_post_uri(obj=obj, request=self.context["request"])
+        )
 
 
 class InboxItemSerializer(serializers.ModelSerializer):
@@ -113,7 +151,24 @@ class InboxSerializer(serializers.ModelSerializer):
         return build_default_author_uri(obj=obj, request=self.context["request"])
 
     def get_items(self, obj):
-        return InboxItemSerializer(obj.items.all(), many=True, context=self.context).data
+        return InboxItemSerializer(
+            obj.items.all(), many=True, context=self.context
+        ).data
 
     def get_type(self, obj):
         return "inbox"
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    id = SerializerMethodField("get_id_url")
+    author = AuthorSerializer(many=False, read_only=True)
+
+    post = PostSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ("id", "post", "author", "comment", "published", "contentType")
+
+    def get_id_url(self, obj):
+        """id field needs to be a uri of the post"""
+        return build_default_comment_uri(obj=obj, request=self.context["request"])
