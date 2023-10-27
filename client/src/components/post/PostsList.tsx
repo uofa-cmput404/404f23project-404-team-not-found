@@ -7,6 +7,8 @@ import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { renderVisibility }from '../../utils/visibilityRenderUtils';
 import PostCategories from "./PostCategories";
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+
 
 const PostsList = ({
   posts, deletePost
@@ -33,7 +35,7 @@ const PostsList = ({
               }
               action={
                 // TODO: Remake condition after Author is properly serialized on the backend
-                (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
+                (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                 <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
                   <DeleteIcon />
                 </IconButton>

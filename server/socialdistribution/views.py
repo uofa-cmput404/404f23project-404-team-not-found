@@ -12,14 +12,20 @@ from .utils import *
 
 
 class AuthorView(APIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+    http_method_names = ["get", "post"]
 
     def get(self, request, author_id):
-        # get the author data whose id is AUTHOR_ID
-        author = Author.objects.get(id=author_id)
-        serializer = AuthorSerializer(author)
+        """
+        get the author data whose id is AUTHOR_ID
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(author_object, context={"request": request})
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, author_id):
+        # TODO: managing profile of an author user story
+        pass
 
 
 class FollowersView(APIView):

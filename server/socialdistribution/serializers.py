@@ -8,10 +8,22 @@ from .utils import build_default_author_uri, build_default_post_uri, is_image
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+    host = SerializerMethodField("get_host_url")
+    id = SerializerMethodField("get_id_url")
+    type = SerializerMethodField("get_type")
+
     class Meta:
         model = Author
-        fields = ("id", "createdAt", "displayName", "github", "host", "profileImage", "url")
+        fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")
 
+    def get_host_url(self, obj):
+        return f"{self.context['request'].build_absolute_uri('/')}"
+
+    def get_id_url(self, obj):
+        return build_default_author_uri(obj=obj, request=self.context["request"], source="author")
+
+    def get_type(self, obj):
+        return "author"
 
 class FollowSerializer(serializers.ModelSerializer):
     actor = serializers.JSONField()  # requestor
@@ -113,7 +125,7 @@ class InboxSerializer(serializers.ModelSerializer):
         fields = ("type", "author", "items")
 
     def get_author_url(self, obj):
-        return build_default_author_uri(obj=obj, request=self.context["request"])
+        return build_default_author_uri(obj=obj, request=self.context["request"], source = "inbox")
 
     def get_items(self, obj):
         return InboxItemSerializer(obj.items.all(), many=True, context=self.context).data
