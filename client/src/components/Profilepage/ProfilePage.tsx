@@ -8,6 +8,7 @@ import PostsList from "../post/PostsList";
 import { toast } from "react-toastify";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
+import { Author } from "../../interfaces/interfaces";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -55,7 +56,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.get(url);
-      setAuthorData(response.data.displayName);
+      setAuthorData(response.data);
     } catch (error) {
       console.error("Error fetching author", error);
     }
