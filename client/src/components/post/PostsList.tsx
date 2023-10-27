@@ -6,6 +6,7 @@ import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { MuiMarkdown } from 'mui-markdown';
 
 const PostsList = ({
   posts, deletePost
@@ -68,6 +69,15 @@ const PostsList = ({
             ):(
               post.contentType === "text/plain" && (
                 <Typography variant="body1">{post.content}</Typography>)
+            )}
+            {post.contentType === "text/markdown" && (
+                <CardContent sx={{ padding: 0}}>
+                  <div style={{ display: "flex", justifyContent: "flex-start" }}>
+
+                   {/* https://www.npmjs.com/package/mui-markdown */}
+                  <MuiMarkdown>{`* Some static markdown content`}</MuiMarkdown>
+                </div>
+                </CardContent>
             )}
             {post.contentType.includes("base64") && (
               <CardContent sx={{ padding: 0}}>
