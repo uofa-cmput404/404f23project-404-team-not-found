@@ -75,7 +75,7 @@ const PostsList = ({
                   <div style={{ display: "flex", justifyContent: "flex-start" }}>
 
                    {/* https://www.npmjs.com/package/mui-markdown */}
-                  <MuiMarkdown>{`* Some static markdown content`}</MuiMarkdown>
+                  <MuiMarkdown>{`${post.content}`}</MuiMarkdown>
                 </div>
                 </CardContent>
             )}
