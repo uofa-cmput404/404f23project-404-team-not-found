@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import PostsList from "../post/PostsList";
 import { toast } from "react-toastify";
 import { getAuthorId } from "../../utils/localStorageUtils";
+import { Author } from "../../interfaces/interfaces";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -47,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
 const ProfilePage = () => {
 
-    const [AuthorData, setAuthorData] = useState("");
+    const [authorData, setAuthorData] = useState<Author | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
 
     const fetchAuthors = async () => {
@@ -56,7 +57,7 @@ const ProfilePage = () => {
     
         try {
             const response = await axios.get(url);
-            setAuthorData(response.data.displayName);
+            setAuthorData(response.data);
         } catch (error) {
             console.error("Error fetching author", error);
         }
@@ -90,7 +91,7 @@ const ProfilePage = () => {
         fetchPosts();
     }, []);
 
-    const username = AuthorData;
+    const username = authorData?.displayName;
     const classes = useStyles();
 
     return (

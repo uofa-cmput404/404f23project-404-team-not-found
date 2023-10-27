@@ -20,6 +20,15 @@ class AuthorView(APIView):
         author = Author.objects.get(id=author_id)
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, author_id):
+        author = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(author, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowersView(APIView):
