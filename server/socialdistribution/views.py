@@ -11,6 +11,25 @@ from .models import *
 from .utils import *
 
 
+class AuthorsView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request):
+        """
+        retrieve all profiles on the server (paginated)
+        TODO: paginate response
+        """
+        authors = Author.objects.all()
+        serializer = AuthorSerializer(authors, many=True, context={"request": request})
+
+        return Response(
+            data={
+                "type": "authors",
+                "items": serializer.data
+            },
+            status=status.HTTP_200_OK)
+
+
 class AuthorView(APIView):
     http_method_names = ["get", "post"]
 
