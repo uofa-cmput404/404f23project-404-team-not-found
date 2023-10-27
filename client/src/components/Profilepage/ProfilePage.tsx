@@ -31,7 +31,8 @@ const useStyles = makeStyles((theme: Theme) => ({
         marginLeft: 'auto',
         marginRight: 'auto',
         marginTop: '20px',
-        marginBottom: '20px' 
+        marginBottom: '20px', 
+        border: '2px solid #000'
     }, 
     cardGrid: {
         paddingTop: "2rem",
@@ -61,18 +62,18 @@ const useStyles = makeStyles((theme: Theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
       },
-      paper: {
+    paper: {
         backgroundColor: theme.palette.background.paper,
         border: '2px solid #000',
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
-      }, 
-      save_button: {
+    }, 
+    save_button: {
         position: 'relative',
         top: '10px',
         bottom: '10px',
         right: '10px'
-      }
+    }
 }));
 
 const ProfilePage = () => {
@@ -193,6 +194,13 @@ const ProfilePage = () => {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 EDIT PROFILE
                             </Typography>
+                            <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Button variant="contained" className={classes.edit_button}>
+                                    <EditIcon />
+                                    <Typography>. Change Picture</Typography>
+                                </Button>
+                            </div>
                             <TextField
                                 id="outlined-basic"
                                 label="Display Name"
