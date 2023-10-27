@@ -6,7 +6,7 @@ import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { renderVisibility }from '../../utils/visibilityRenderUtils';
-
+import PostCategories from "./PostCategories";
 
 const PostsList = ({
   posts, deletePost
@@ -85,6 +85,9 @@ const PostsList = ({
                 </div>
               </CardContent>
             )}
+            </CardContent>
+            <CardContent>
+              <PostCategories categories={post.categories}/>
             </CardContent>
           </Card>
         ))): (
