@@ -5,3 +5,10 @@ export enum ContentType {
     PLAIN = "text/plain",
     PNG = "image/png;base64",
 }
+
+export enum ShareType {
+    FRIENDS = "FRIENDS",
+    PRIVATE = "PRIVATE",
+    PUBLIC = "PUBLIC",
+    UNLISTED = "UNLISTED",
+}
