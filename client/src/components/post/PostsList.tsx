@@ -73,8 +73,10 @@ const PostsList = ({
             )}
             {post.contentType === "text/markdown" && (
                 <CardContent sx={{ padding: 0}}>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                <ReactMarkdown children={post.content} remarkPlugins={[remarkGfm]} />
+                  <div style={{ display: "flex", justifyContent: "flex-start" }}>
+
+                   {/* https://www.npmjs.com/package/mui-markdown */}
+                  <MuiMarkdown>{`* Some static markdown content`}</MuiMarkdown>
                 </div>
                 </CardContent>
             )}
