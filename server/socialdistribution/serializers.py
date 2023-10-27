@@ -48,10 +48,13 @@ class FollowerSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    # Nik Tomazic, Using SerializerMethodField, Ocotber 20, 2023,
+    # Nik Tomazic, Using SerializerMethodField, October 20, 2023,
     # https://testdriven.io/blog/drf-serializers/
     id = SerializerMethodField("get_id_url")
     author = AuthorSerializer(many=False, read_only=True)
+    # Christie Ziegler, Using SlugRelatedField, October 26, 2023,
+    # https://medium.com/@chriziegler/slugrelatedfield-with-django-and-the-rest-framework-36717b07a197
+    categories = serializers.SlugRelatedField(many=True, queryset=Category.objects.all(), slug_field='category')
     content = SerializerMethodField("get_content")
     origin = SerializerMethodField("get_origin_url")
     source = SerializerMethodField("get_source_url")
@@ -65,7 +68,7 @@ class PostSerializer(serializers.ModelSerializer):
     def get_id_url(self, obj):
         """id field needs to be a uri of the post"""
         return build_default_post_uri(obj=obj, request=self.context["request"])
- 
+
     def get_content(self, obj):
         """decode content as it's a binary field"""
         if obj.contentType == Post.ContentType.PLAIN and obj.content:

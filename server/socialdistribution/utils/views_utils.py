@@ -4,6 +4,7 @@ import base64
 from socialdistribution.models.post import Post
 from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
+from socialdistribution.models.category import Category
 
 from .general_utils import *
 
@@ -48,6 +49,11 @@ def create_post(author, data, post_id=None):
     if "source" and "origin" in data:
         post.source = data["source"]
         post.origin = data["origin"]
+
+    categories = data.get('categories', [])
+    for category in categories:
+        category_object, created = Category.objects.get_or_create(category=category)
+        post.categories.add(category_object)
 
     # creating a binary-suitable object for content field
     if data["contentType"] == Post.ContentType.PLAIN:
