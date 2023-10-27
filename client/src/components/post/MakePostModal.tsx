@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Modal, Box, Button, TextField, IconButton, Grid, Typography, Switch, FormControlLabel, Checkbox } from "@mui/material";
+import React, { useState} from "react";
+import { Modal, Box, Button, TextField, IconButton, Grid, Typography,Switch,FormControlLabel,Checkbox} from "@mui/material";
 import { styled } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -58,18 +58,18 @@ const MakePostModal = ({
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
-  const handleClose = () => { setIsModalOpen(false); setImagePrev(''); handleTextContent() };
+  const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
 
-  const handleFileRead = async (event: any) => {
+  const handleFileRead = async (event:any) => {
     const file = event.target.files[0];
-    const base64: any = await convertBase64(file);
+    const base64:any = await convertBase64(file);
     setMarkdownCheckbox(false);
     console.log(file);
     setImagePrev(base64);
     setContent(base64);
   };
 
-  const convertBase64 = (file: any) => {
+  const convertBase64 = (file:any) => {
     setContentType(`${file.type};base64`);
     return new Promise((resolve, reject) => {
       const fileReader = new FileReader();
@@ -149,12 +149,12 @@ const MakePostModal = ({
               </IconButton>
             </Grid>
             <Grid item xs={6} textAlign="center">
-              <Typography
-                variant="h6"
-                sx={{ paddingTop: 0.2 }}
-              >
-                Create a Post
-              </Typography>
+                <Typography 
+                  variant="h6"
+                  sx={{paddingTop:0.2}}
+                >
+                  Create a Post 
+                </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
           </Grid>
@@ -186,26 +186,26 @@ const MakePostModal = ({
             }}
           />
 
-          {textType &&
+          {textType &&           
             <TextField
-              id="content-field"
-              required
-              label="content"
-              multiline rows={4}
-              defaultValue=""
-              sx={{
-                margin: 1,
-              }}
-              onChange={(e) => {
-                setContent(e.target.value);
-              }}
-            />}
-          {imageType &&
-            <Grid
+            id="content-field"
+            required
+            label="content"
+            multiline rows={4}
+            defaultValue=""
+            sx={{
+              margin: 1,
+            }}
+            onChange={(e) => {
+              setContent(e.target.value);
+            }}
+          />}
+          {imageType && 
+            <Grid 
               container
               alignItems="center"
               spacing={1}
-            >
+              >   
               <Grid item xs={9}>
                 <TextField
                   id="image-field"
@@ -213,7 +213,7 @@ const MakePostModal = ({
                   defaultValue=""
                   size="small"
                   fullWidth
-                  sx={{ margin: 1, }}
+                  sx={{margin:1, }}
                   onChange={(e) => {
                     setContent(e.target.value);
                     setImagePrev(e.target.value);
@@ -222,16 +222,16 @@ const MakePostModal = ({
                 />
               </Grid>
               <Grid item xs={3} display="inline-flex">
-                <Button
-                  disabled={content !== ""}
-                  component="label"
-                  color="primary"
-                  sx={{
-                    margin: 1,
-                    height: "100%",
-                    marginRight: 0,
-                  }}
-                  endIcon={<UploadIcon />}>
+                <Button 
+                disabled={content !== ""}
+                component="label"
+                color="primary"
+                sx={{
+                  margin:1,
+                  height: "100%",
+                  marginRight: 0,
+                }} 
+                endIcon={<UploadIcon/>}>
                   Upload
                   <VisuallyHiddenInput
                     disabled={content !== ""}
@@ -244,60 +244,60 @@ const MakePostModal = ({
                 </Button>
               </Grid>
               <img
-                alt=""
-                src={imagePrev}
-                style={{
-                  marginTop: 5,
-                  marginBottom: 10,
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  maxHeight: 200,
-                  border: 0,
-                  borderRadius: "5px",
-                }}
-              />
-            </Grid>
+              alt=""
+              src={imagePrev}
+              style={{
+                marginTop: 5,
+                marginBottom: 10,
+                marginLeft: "auto",
+                marginRight: "auto",
+                maxHeight: 200,
+                border: 0,
+                borderRadius: "5px",
+              }}
+            />
+          </Grid>
           }
-          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}>
+          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
             <Grid item>
-              <IconButton
-                color={textType ? "info" : "default"}
-                id="txt"
-                size="small"
-                onClick={handleTextContent}
+              <IconButton 
+              color={textType ? "info" : "default"}
+              id="txt"
+              size="small"
+              onClick={handleTextContent}
               >
-                <NotesIcon fontSize="medium" />
+                <NotesIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton
-                color={imageType ? "info" : "default"}
-                size="small"
-                sx={{ marginRight: 1 }}
-                onClick={handleImageContent}
-              >
-                <ImageIcon fontSize="medium" />
+              <IconButton 
+              color={imageType ? "info" : "default"}
+              size="small"
+              sx={{marginRight: 1}}
+              onClick={handleImageContent}
+              > 
+                <ImageIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
             <Grid item>
-
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={markdownCheckbox}
-                    onChange={handleMarkdownContent}
-                  />
-                }
-                label="Markdown"
-              />
-
-
+              
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={markdownCheckbox}
+                  onChange={handleMarkdownContent}
+                />
+              }
+              label="Markdown"
+            />
+              
+            
             </Grid>
 
             <Button
               variant="contained"
               color="primary"
-              disabled={content === "" || title === "" || description === ""}
+              disabled={content === "" || title === "" || description === ""} 
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -319,8 +319,8 @@ const MakePostModal = ({
                 setIsModalOpen(false);
                 handleTextContent();
               }}
-              endIcon={<SendIcon />}
-            >
+              endIcon={<SendIcon/>}
+              >
               Post
             </Button>
           </Grid>
