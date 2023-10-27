@@ -21,10 +21,9 @@ class AuthorView(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, author_id):
-        author = get_object_or_404(Author, id=author_id)
-        serializer = AuthorSerializer(author, data=request.data)
-
+    def update(self, request, *args, **kwargs):
+        author = self.get_object()
+        serializer = self.get_serializer(author, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
