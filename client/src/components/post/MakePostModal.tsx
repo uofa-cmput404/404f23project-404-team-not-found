@@ -1,13 +1,11 @@
 
 import { getAuthorId } from "../../utils/localStorageUtils";
 import React, { useState} from "react";
-import { Modal, Box, Button, TextField, IconButton, Grid, Typography} from "@mui/material";
-import { styled } from "@mui/material";
+import { Modal, Box, Button, IconButton, Grid, Typography} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
 import ImageIcon from '@mui/icons-material/Image';
-import UploadIcon from '@mui/icons-material/Upload';
 import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
@@ -72,7 +70,7 @@ const MakePostModal = ({
     content: string,
     contentType: string,
     visibility: string,
-    unlisted: boolean
+    unlisted: boolean,
   ) => {
     const payload = {
       title: title,
@@ -198,8 +196,8 @@ const MakePostModal = ({
                   description,
                   content,
                   contentType,
-                  "PUBLIC",
-                  false,
+                  visibility,
+                  unlisted
                 );
                 setIsModalOpen(false);
                 handleTextContent();
