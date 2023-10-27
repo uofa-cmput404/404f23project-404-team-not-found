@@ -70,6 +70,8 @@ class PostSerializer(serializers.ModelSerializer):
         """decode content as it's a binary field"""
         if obj.contentType == Post.ContentType.PLAIN and obj.content:
             return obj.content.decode("utf-8")
+        elif obj.contentType == Post.ContentType.MARKDOWN and obj.content:
+            return obj.content.decode("utf-8")
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
             return f"data:{obj.contentType},{base64_encoded.decode('utf-8')}"
