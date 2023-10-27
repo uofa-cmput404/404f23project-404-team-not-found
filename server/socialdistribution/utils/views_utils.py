@@ -4,6 +4,7 @@ import base64
 from socialdistribution.models.post import Post
 from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
+from socialdistribution.models.comment import Comment
 
 from .general_utils import *
 
@@ -57,3 +58,23 @@ def create_post(author, data, post_id=None):
         post.content = base64.b64decode(base64_content)
 
     return post
+
+
+def create_comment(author,post, data, comment_id=None):
+    """
+    Creating a comment given an author and its data.
+    ID can be randomly generated or given.
+    """
+    if not comment_id:
+        comment_id = uuid.uuid4()
+
+    comment_obj = Comment.objects.create(
+        id=comment_id,
+        author=author,
+        post= post,
+        comment=data["comment"],
+        contentType=data["contentType"],
+        
+    )
+
+    return comment_obj
