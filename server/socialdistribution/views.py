@@ -306,3 +306,35 @@ class SignUpView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class CommentView(APIView):
+    http_method_names = ["delete", "get", "post"]
+
+    def delete(self, request, post_id,comment_id):
+        """
+        Are authors/comment authors allowed to delete comments?
+        """
+        pass
+
+    def get(self, request, post_id,comment_id):
+        """
+        get the public comment whose id is COMMENT_ID
+        """
+        comment_object = get_object_or_404(Comment, id=comment_id, post__id=post_id)
+        serializer = CommentSerializer(comment_object, context={"request": request})
+
+        return Response(serializer.data)
+    
+    def post(self, request, post_id,author_id):
+        author_obj = get_object_or_404(Author, id=author_id)
+        post_obj = get_object_or_404(Post, id=post_id)
+        comment_object = create_comment(author_obj,post_obj, request.data)
+        serializer = CommentSerializer(instance=comment_object, data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save(author=author_obj,post=post_obj)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
