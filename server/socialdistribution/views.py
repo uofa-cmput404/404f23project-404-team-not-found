@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-
+import logging
 from .serializers import *
 from .models import *
 from .utils import *
@@ -42,13 +42,21 @@ class AuthorView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def update(self, request, *args, **kwargs):
-        author = self.get_object()
-        serializer = self.get_serializer(author, data=request.data, partial=True)
+    def put(self, request, author_id):
+        
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = AuthorSerializer(author, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # cleanup later
+            logger.error(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, author_id):
         # TODO: managing profile of an author user story

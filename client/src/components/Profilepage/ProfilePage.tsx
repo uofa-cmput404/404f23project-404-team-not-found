@@ -125,36 +125,36 @@ const ProfilePage = () => {
     fetchPosts();
   }, []);
 
-  const handleOpen = () => {
-      if (authorData) {
-        setDisplayName(authorData.displayName ?? '');
-        setGithubLink(authorData.github ?? '');
-      }
-      setOpen(true);
-  };
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    
+    const handleClose = () => {
+        setOpen(false);
+    };
+    
+    const handleSave = async () => {
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}author/${AUTHOR_ID}/`;
+        const updatedAuthorData = {
+            displayName: displayName,
+            github: githubLink,
+        };
+    
+        try {
+            const response = await axios.put(url, updatedAuthorData);
+            if (response.status === 200) {
+                toast.success("Profile updated successfully");
+                handleClose(); // Close the modal after a successful update
+            } else {
+                toast.error("Failed to update profile");
+            }
+        } catch (error) {
+            toast.error("Failed to update profile");
+        }
+    };
 
-  const handleClose = () => {
-      setOpen(false);
-  };
-
-  const handleSave = async () => {
-      const AUTHOR_ID = getAuthorId();
-      const url = `${APP_URI}author/${AUTHOR_ID}/`;
-  
-      try {
-        await axios.put(url, {
-          displayName: displayName,
-          github: githubLink,
-        });
-        fetchAuthors();
-        toast.success("Profile updated successfully");
-        handleClose();
-      } catch (error) {
-        toast.error("Failed to update profile");
-      }
-  };
-
-  return (
+    return (
     <>
       <CssBaseline />
       <HeadBar />
@@ -188,6 +188,8 @@ const ProfilePage = () => {
                               variant="outlined"
                               fullWidth
                               margin="normal"
+                              value={displayName}
+                              onChange={(e) => setDisplayName(e.target.value)}
                           />
                           <TextField
                               id="outlined-basic"
@@ -195,6 +197,8 @@ const ProfilePage = () => {
                               variant="outlined"
                               fullWidth
                               margin="normal"
+                              value={githubLink}
+                              onChange={(e) => setGithubLink(e.target.value)}
                           />
                           <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
                               Save
@@ -204,7 +208,7 @@ const ProfilePage = () => {
               </div>
           </div>
           <Container className={classes.cardGrid} maxWidth="md">
-            <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
+              <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
           </Container>
       </main>
     </>
