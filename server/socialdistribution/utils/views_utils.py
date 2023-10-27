@@ -50,7 +50,7 @@ def create_post(author, data, post_id=None):
         post.source = data["source"]
         post.origin = data["origin"]
 
-    categories = data.get('categories', [])
+    categories = data.get("categories", [])
     for category in categories:
         category_object, created = Category.objects.get_or_create(category=category)
         post.categories.add(category_object)

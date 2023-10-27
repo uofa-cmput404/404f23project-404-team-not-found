@@ -45,11 +45,16 @@ class TestPostsView(TestCase):
         data = {
             "title": "Test Title",
             "description": "Test Description",
+            "categories": ["test", "test1", "test2"],
             "contentType": Post.ContentType.PLAIN,
             "content": "TEST",
             "visibility": Post.Visibility.PUBLIC,
             "unlisted": False
         }
         response = self.client.post(self.url, data, format="json")
+        json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(json_obj["title"], data["title"])
+        self.assertEqual(json_obj["description"], data["description"])
+        self.assertEqual(json_obj["content"], data["content"])
