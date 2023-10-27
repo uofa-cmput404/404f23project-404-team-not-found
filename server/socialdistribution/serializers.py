@@ -4,7 +4,7 @@ from rest_framework.serializers import *
 import base64
 
 from .models import *
-from .utils import build_default_author_uri, build_default_post_uri, is_image
+from .utils import build_default_author_uri, build_default_post_uri, is_image, is_text
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -68,9 +68,7 @@ class PostSerializer(serializers.ModelSerializer):
  
     def get_content(self, obj):
         """decode content as it's a binary field"""
-        if obj.contentType == Post.ContentType.PLAIN and obj.content:
-            return obj.content.decode("utf-8")
-        elif obj.contentType == Post.ContentType.MARKDOWN and obj.content:
+        if is_text(obj.contentType) and obj.content:
             return obj.content.decode("utf-8")
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
