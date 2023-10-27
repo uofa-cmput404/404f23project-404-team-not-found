@@ -126,33 +126,32 @@ const ProfilePage = () => {
         fetchPosts();
     }, []);
 
-
     const handleOpen = () => {
-        if (authorData) {
-          setDisplayName(authorData.displayName ?? '');
-          setGithubLink(authorData.github ?? '');
-        }
         setOpen(true);
     };
-
+    
     const handleClose = () => {
         setOpen(false);
     };
-
+    
     const handleSave = async () => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}author/${AUTHOR_ID}/`;
-    
-        try {
-          await axios.put(url, {
+        const updatedAuthorData = {
             displayName: displayName,
             github: githubLink,
-          });
-          fetchAuthors();
-          toast.success("Profile updated successfully");
-          handleClose();
+        };
+    
+        try {
+            const response = await axios.put(url, updatedAuthorData);
+            if (response.status === 200) {
+                toast.success("Profile updated successfully");
+                handleClose(); // Close the modal after a successful update
+            } else {
+                toast.error("Failed to update profile");
+            }
         } catch (error) {
-          toast.error("Failed to update profile");
+            toast.error("Failed to update profile");
         }
     };
 
@@ -198,6 +197,8 @@ const ProfilePage = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
+                                value={displayName}
+                                onChange={(e) => setDisplayName(e.target.value)}
                             />
                             <TextField
                                 id="outlined-basic"
@@ -205,6 +206,8 @@ const ProfilePage = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
+                                value={githubLink}
+                                onChange={(e) => setGithubLink(e.target.value)}
                             />
                             <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
                                 Save

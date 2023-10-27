@@ -5,15 +5,22 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-
+import logging
 from .serializers import *
 from .models import *
 from .utils import *
 
 
+# clean this up later 
+import logging
+
+# clean this up later 
+logger = logging.getLogger(__name__)
+
 class AuthorView(APIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    http_method_names = ["delete", "get", "put"]
 
     def get(self, request, author_id):
         # get the author data whose id is AUTHOR_ID
@@ -21,13 +28,21 @@ class AuthorView(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def update(self, request, *args, **kwargs):
-        author = self.get_object()
-        serializer = self.get_serializer(author, data=request.data, partial=True)
+    def put(self, request, author_id):
+        
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = AuthorSerializer(author, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # cleanup later
+            logger.error(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowersView(APIView):
