@@ -1,13 +1,17 @@
-import React from 'react';
+import { useState, useContext, useEffect, useCallback } from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton, InputBase, TextField, Grid } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { renderVisibility }from '../../utils/visibilityRenderUtils';
+import { renderVisibility } from '../../utils/visibilityRenderUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MakeCommentModal from "../post/MakeCommentModal";
+
 
 
 const PostsList = ({
@@ -16,44 +20,81 @@ const PostsList = ({
   posts: Post[];
   deletePost: (postId: string) => void;
 }) => {
+  const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+  const handlelike = () => { };
 
-    return (
-      <>
-        { posts.length > 0 ? (posts.map(post => (
-          <Card key={post.id} 
-            style={{ 
-              margin: "auto", 
-              width: "40vw", 
-              borderRadius: 0, 
-            }} 
-              variant='outlined'>
-            <CardHeader
-              avatar={
-                <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
-                    {post.author.displayName[0]}
-                </Avatar>
-              }
-              action={
-                // TODO: Remake condition after Author is properly serialized on the backend
-                (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
+  const openMakeCommentModal = () => {
+    setIsMakeCommentModalOpen(true);
+  };
+
+
+  return (
+    <>
+      {posts.length > 0 ? (posts.map(post => (
+        <Card key={post.id}
+          style={{
+            margin: "auto",
+            width: "40vw",
+            borderRadius: 0,
+          }}
+          variant='outlined'>
+          <CardHeader
+            avatar={
+              <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
+                {post.author.displayName[0]}
+              </Avatar>
+            }
+            action={
+              // TODO: Remake condition after Author is properly serialized on the backend
+              (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
                 <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
                   <DeleteIcon />
                 </IconButton>
               )}
-              title={post.author.displayName}
-              subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
-              sx = {{margin:0}}
-            />
-            <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
-              <Typography variant="h6">{post.title}</Typography>
-              <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
-              {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+            title={post.author.displayName}
+            subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
+            sx={{ margin: 0 }}
+          />
+          <CardContent sx={{ paddingTop: 0, paddingLeft: 9 }}>
+            <Typography variant="h6">{post.title}</Typography>
+            <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
+            {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
               <div>
-              <Link href={post.content} target="_blank" noWrap> 
-                <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
-                  {post.content}
-                </Typography> 
-              </Link>
+                <Link href={post.content} target="_blank" noWrap>
+                  <Typography noWrap sx={{ marginTop: 1, marginBottom: 0.5 }}>
+                    {post.content}
+                  </Typography>
+                </Link>
+                <CardContent sx={{ padding: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <CardMedia
+                      component="img"
+                      style={{
+                        maxWidth: "100%",
+                        width: "auto",
+                        borderRadius: 12,
+                      }}
+                      image={post.content}
+                    />
+                  </div>
+                </CardContent>
+              </div>
+            ) : (
+              post.contentType === "text/plain" && (
+                <Typography variant="body1">{post.content}</Typography>)
+            )}
+            {post.contentType === "text/markdown" && (
+              <CardContent sx={{ padding: 0 }}>
+                <div style={{ display: "flex", justifyContent: "flex-start" }}>
+
+                  {/* https://www.npmjs.com/package/mui-markdown */}
+                  <MuiMarkdown>{`${post.content}`}</MuiMarkdown>
+                </div>
+              </CardContent>
+            )}
+            {post.contentType.includes("base64") && (
               <CardContent sx={{ padding: 0 }}>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <CardMedia
@@ -67,45 +108,51 @@ const PostsList = ({
                   />
                 </div>
               </CardContent>
-              </div>
-            ):(
-              post.contentType === "text/plain" && (
-                <Typography variant="body1">{post.content}</Typography>)
             )}
-            {post.contentType === "text/markdown" && (
-                <CardContent sx={{ padding: 0}}>
-                  <div style={{ display: "flex", justifyContent: "flex-start" }}>
+          </CardContent>
+          <CardContent >
+            <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
 
-                   {/* https://www.npmjs.com/package/mui-markdown */}
-                  <MuiMarkdown>{`${post.content}`}</MuiMarkdown>
-                </div>
-                </CardContent>
-            )}
-            {post.contentType.includes("base64") && (
-              <CardContent sx={{ padding: 0}}>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <CardMedia
-                    component="img"
-                    style={{
-                      maxWidth: "100%",
-                      width: "auto",
-                      borderRadius: 12,
-                    }}
-                    image={post.content}
-                  />
-                </div>
-              </CardContent>
-            )}
-            </CardContent>
-            <CardContent>
-              <PostCategories categories={post.categories}/>
-            </CardContent>
-          </Card>
-        ))): (
-          <Typography variant="body1">No posts available.</Typography>
-        )}
-      </>
-    );
+
+              <Grid item>
+                <IconButton
+
+                  id="like"
+                  size="small"
+                  onClick={handlelike}
+                >
+                  <FavoriteBorderIcon fontSize="medium" />
+                </IconButton>
+              </Grid>
+              <Grid item>
+                <IconButton
+
+                  size="small"
+                  sx={{ marginRight: 1 }}
+                  onClick={openMakeCommentModal}
+                >
+                  <ChatBubbleOutlineIcon fontSize="medium" />
+                </IconButton>
+              </Grid>
+            </Grid>
+
+          </CardContent>
+          <CardContent>
+            <PostCategories categories={post.categories} />
+          </CardContent>
+
+
+        </Card>
+      ))) : (
+        <Typography variant="body1">No posts available.</Typography>
+      )}
+      <MakeCommentModal
+        isCmodalOpen={isMakeCommentModalOpen}
+
+        setIsCModalOpen={setIsMakeCommentModalOpen}
+      />
+    </>
+  );
 };
 
 export default PostsList;
