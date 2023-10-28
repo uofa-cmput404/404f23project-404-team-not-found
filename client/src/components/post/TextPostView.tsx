@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, TextField } from "@mui/material";
+import { isText } from "../../utils/postUtils";
 
 
 const TextPostView = (props: any) => {
@@ -37,7 +38,7 @@ const TextPostView = (props: any) => {
         required
         label="content"
         multiline rows={4}
-        defaultValue={(props.content.slice(0, 4) != "http" && props.contentType === "text/plain") ? props.content : ""}
+        defaultValue={isText(props) ? props.content : ""}
         sx={{
           margin: 1,
         }}

@@ -95,9 +95,9 @@ const MoreMenu = ({
         onPostEdited={onPostEdited}
         setIsModalOpen={setIsEditPostModalOpen}
         post={post}
-        image={(post.content.slice(0, 4) === "http" && post.contentType === "text/plain") || post.contentType.includes("base64")}
-        text={(post.content.slice(0, 4) != "http" && post.contentType === "text/plain")}
-        copyPost={post}
+        image={isImage(post)}
+        text={isText(post)}
+      />
       <DeletePostModal
         isModalOpen={IsDeletePostModalOpen}
         deletePost={deletePost}

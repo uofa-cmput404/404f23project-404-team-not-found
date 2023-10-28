@@ -1,22 +1,19 @@
-
-import React, { useState} from "react";
-import { Modal, Box, Button, IconButton, Grid, Typography } from "@mui/material";
-import { getAuthorId } from "../../../utils/localStorageUtils";
+import React, { useEffect, useState } from "react";
+import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, Modal, Typography } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
 import ImageIcon from '@mui/icons-material/Image';
-import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
 
 import VisibilityMenu from "../VisibilityMenu";
-
 import TextPostView from "../TextPostView";
 import ImagePostView from "../ImagePostView";
 import PostCategoriesField from "../PostCategoriesField";
-import { ShareType } from "../../../enums/enums";
 import { Post } from "../../../interfaces/interfaces";
+import { compareStringArray, isImage } from "../../../utils/postUtils";
+import { ContentType } from "../../../enums/enums";
 
 const style = {
   display: "flex",
@@ -33,16 +30,13 @@ const style = {
   borderRadius: "8px",
 };
 
-const APP_URI = process.env.REACT_APP_URI;
-
 const EditPostModal = ({
   isModalOpen,
   onPostEdited,
   setIsModalOpen,
   post,
   text,
-  image,
-  copyPost,
+  image
 }: {
   isModalOpen: boolean;
   onPostEdited: () => void;
@@ -50,7 +44,6 @@ const EditPostModal = ({
   post: Post;
   text: boolean;
   image: boolean;
-  copyPost: Post;
 }) => {
   const [title, setTitle] = useState(post.title);
   const [description, setDescription] = useState(post.description);
@@ -63,11 +56,11 @@ const EditPostModal = ({
   const [visibility, setVisibility] = useState(post.visibility);
   const [unlisted, setUnlisted] = useState(post.unlisted);
   const handleClose = () => {setIsModalOpen(false)};
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(post.contentType === ContentType.MARKDOWN);
 
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
-    setCategories([]);
   }
 
   const handleImageContent = () => {
@@ -93,7 +86,6 @@ const EditPostModal = ({
       visibility: visibility,
       unlisted: unlisted,
     };
-    const AUTHOR_ID = getAuthorId();
     const url = `${post.id}/`;
 
     try {
@@ -106,9 +98,7 @@ const EditPostModal = ({
   };
 
   const textOrImage = () => {
-    if ((post.content.slice(0, 4) === "http" && post.contentType === "text/plain") ||
-        post.contentType.includes("base64")
-    ) {
+    if (isImage(post)) {
         setImageType(true);
         setTextType(false);
     } else {
@@ -116,6 +106,17 @@ const EditPostModal = ({
         setTextType(true);
     }
   };
+
+  useEffect(() => {
+    setTitle(post.title);
+    setDescription(post.description);
+    setCategories(post.categories);
+    setContent(post.content);
+    setContentType(post.contentType);
+    textOrImage();
+    setVisibility(post.visibility);
+    setUnlisted(post.unlisted);
+}, [post]);
 
   return (
     <>
@@ -205,7 +206,15 @@ const EditPostModal = ({
             <Button
               variant="contained"
               color="primary"
-              disabled={content === post.content && title === post.title && description === post.description} 
+              disabled={(
+                content === post.content &&
+                contentType === post.contentType &&
+                title === post.title &&
+                description === post.description &&
+                visibility === post.visibility &&
+                unlisted === post.unlisted &&
+                compareStringArray(categories, post.categories)
+              )}
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
