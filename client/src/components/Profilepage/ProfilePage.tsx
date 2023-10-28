@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Typography, CssBaseline, Container, Button, Theme, Modal, Box, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
@@ -82,6 +82,8 @@ const ProfilePage = () => {
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
   const defaultSrc = require('../../assets/defaultprofile.jpg')
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   
   const classes = useStyles();
 
@@ -134,21 +136,81 @@ const ProfilePage = () => {
     const handleClose = () => {
         setOpen(false);
     };
+
+    function convertImageFileToBase64(file: File, maxSizeInBytes: number): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+            const base64URL = reader.result as string;
+            const byteString = atob(base64URL.split(',')[1]);
+            const byteStringLength = byteString.length;
+      
+            if (byteStringLength <= maxSizeInBytes) {
+                resolve(base64URL);
+            } else {
+                const scaleFactor = maxSizeInBytes / byteStringLength;
+                const newLength = Math.floor(byteStringLength * scaleFactor);
+                const resizedBase64 = base64URL.substr(0, base64URL.indexOf(',') + 1) + btoa(byteString.slice(0, newLength));
+                resolve(resizedBase64);
+            }
+        };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files[0]) {
+            const selectedFile = files[0];
+      
+            convertImageFileToBase64(selectedFile, 4096) 
+            .then((base64URL) => {
+                setSelectedImage(selectedFile);
+                setProfileImage(base64URL);
+                console.log(base64URL);
+            })
+            .catch((error) => {
+                console.error("Error converting image to base64:", error);
+            });
+        }
+    };
+
     
     const handleSave = async () => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}author/${AUTHOR_ID}/`;
-        const updatedAuthorData = {
-            displayName: displayName === "" ? authorData?.displayName : displayName,
-            github: githubLink === "" ? authorData?.github : githubLink,
-        };
+
+        const formData = new FormData();
+
+        if (displayName) {
+            formData.append('displayName', displayName);
+        } else {
+            formData.append('displayName', username ?? "");
+        }
     
+        if (githubLink) {
+            formData.append('github', githubLink);
+        } else {
+            formData.append('github', github ?? "");
+        }
+        
+        if (profileImage) {
+            formData.append('profileImage', profileImage);
+        } else {
+            formData.append('profileImage', profilePic ?? "");
+        }
+
         try {
-            const response = await axios.post(url, updatedAuthorData);
+            const response = await axios.post(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             if (response.status === 200) {
                 toast.success("Profile updated successfully");
-                handleClose(); // Close the modal after a successful update
-                fetchAuthors(); // Fetch the updated author data
+                handleClose(); 
+                fetchAuthors();
             } else {
                 toast.error("Failed to update profile");
             }
@@ -177,10 +239,10 @@ const ProfilePage = () => {
                     </div>
                 </div>
                 <div>
-                <Button variant="contained" style={{top: "10px"}} onClick={handleOpen}>
-                    <EditIcon />
-                    <Typography>. EDIT INFO</Typography>
-                </Button>
+                    <Button variant="contained" style={{top: "10px"}} onClick={handleOpen}>
+                        <EditIcon />
+                        <Typography>. EDIT INFO</Typography>
+                    </Button>
                     <Modal
                         open={open}
                         onClose={handleClose}
@@ -192,12 +254,14 @@ const ProfilePage = () => {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 EDIT PROFILE
                             </Typography>
-                            <img src={profilePic === "https://placeholder.com" ? defaultSrc : profilePic} alt="profile-pic" className={classes.picture} />
+                            <img src={profileImage || defaultSrc} alt="profile-pic" className={classes.picture} />
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                {/* <Button variant="contained" className={classes.edit_button}>
-                                    <EditIcon />
-                                    <Typography>. Change Picture</Typography>
-                                </Button> */}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    id="imageInput"
+                                />
                             </div>
                             <TextField
                                 id="outlined-basic"

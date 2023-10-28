@@ -12,9 +12,9 @@ class AuthorSerializer(serializers.ModelSerializer):
     id = SerializerMethodField("get_id_url")
     type = SerializerMethodField("get_type")
     url = SerializerMethodField("get_id_url")
-
-    profileImage = serializers.URLField(required=False)
     
+    # profileImage = serializers.URLField(required=False)
+
     class Meta:
         model = Author
         fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")
