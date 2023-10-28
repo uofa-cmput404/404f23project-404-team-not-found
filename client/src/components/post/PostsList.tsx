@@ -15,10 +15,11 @@ import MoreMenu from './edit/MoreMenu';
 
 
 const PostsList = ({
-  posts, deletePost
+  posts, deletePost, onPostEdited
 }: {
   posts: Post[];
   deletePost: (postId: string) => void;
+  onPostEdited: () => void;
 }) => {
 
 
@@ -40,10 +41,16 @@ const PostsList = ({
               }
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                  <MoreMenu/>
+                  <MoreMenu
+                    post={post}
+                    deletePost={deletePost}
+                    onPostEdited={onPostEdited}
+                  />
               )}
               title={post.author.displayName}
-              subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
+              subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
+              `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
+              }
               sx = {{margin:0}}
             />
             <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
