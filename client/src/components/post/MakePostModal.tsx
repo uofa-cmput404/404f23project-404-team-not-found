@@ -13,6 +13,7 @@ import axios from "axios";
 import VisibilityMenu from "./VisibilityMenu";
 import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
+import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
 
@@ -44,6 +45,7 @@ const MakePostModal = ({
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [contentType, setContentType] = useState("text/plain");
   const [textType, setTextType] = useState(true);
@@ -56,6 +58,7 @@ const MakePostModal = ({
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
+    setCategories([]);
     setContent("");
     setImagePrev("")
   }
@@ -69,6 +72,7 @@ const MakePostModal = ({
   const handleSubmit = async (
     title: string,
     description: string,
+    categories: string[],
     content: string,
     contentType: string,
     visibility: string,
@@ -77,6 +81,7 @@ const MakePostModal = ({
     const payload = {
       title: title,
       description: description,
+      categories: categories,
       content: content,
       contentType: contentType,
       visibility: visibility,
@@ -153,6 +158,9 @@ const MakePostModal = ({
               setImagePrev={setImagePrev}
             />
           }
+          <Grid container>
+            <PostCategoriesField categories={categories} setCategories={setCategories} />
+          </Grid>
           <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
             <Grid item>
               <IconButton 
@@ -193,6 +201,7 @@ const MakePostModal = ({
                 handleSubmit(
                   title,
                   description,
+                  categories,
                   content,
                   contentType,
                   visibility,

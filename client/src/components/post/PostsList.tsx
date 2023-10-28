@@ -1,13 +1,12 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { renderVisibility }from '../../utils/visibilityRenderUtils';
-
+import PostCategories from "./PostCategories";
 
 const PostsList = ({
   posts, deletePost
@@ -86,6 +85,9 @@ const PostsList = ({
                 </div>
               </CardContent>
             )}
+            </CardContent>
+            <CardContent>
+              <PostCategories categories={post.categories}/>
             </CardContent>
           </Card>
         ))): (

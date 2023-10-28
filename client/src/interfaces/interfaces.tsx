@@ -10,14 +10,10 @@ export interface Author {
   url: string;
 }
 
-export interface Category {
-  category: string;
-}
-
 export interface Post {
   id: string;
   author: Author;
-  categories: Category[];
+  categories: string[];
   content: string;
   contentType: ContentType;
   description: string;

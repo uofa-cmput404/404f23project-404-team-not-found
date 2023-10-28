@@ -62,6 +62,8 @@ def create_follower(author, follower_author):
 
 
 def create_plain_text_post(author):
+    categories = ["test", "test1", "test2"]
+
     post_obj = Post.objects.create(
         author=author,
         title="Test Post",
@@ -70,6 +72,10 @@ def create_plain_text_post(author):
         content="This is test content.".encode("utf-8"),
         visibility=Post.Visibility.PUBLIC
     )
+
+    for category in categories:
+        category_object, created = Category.objects.get_or_create(category=category)
+        post_obj.categories.add(category_object)
 
     return post_obj
 

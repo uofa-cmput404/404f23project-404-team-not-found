@@ -36,6 +36,7 @@ class TestPostView(TestCase):
         post_obj = create_plain_text_post(self.author)
         data = {
             "title": "Update the title",
+            "categories": ["test", "test1", "test2"],
             "description": "Update the description"
         }
         url = reverse('single_post', args=[self.author.id, post_obj.id])
@@ -55,6 +56,7 @@ class TestPostView(TestCase):
             "id": post_id,
             "title": "PUT: Test Title",
             "description": "PUT: Test Description",
+            "categories": ["test", "test1", "test2"],
             "contentType": Post.ContentType.PLAIN,
             "content": "TEST",
             "visibility": Post.Visibility.PUBLIC,
@@ -69,3 +71,5 @@ class TestPostView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(json_obj["id"], f"{uri}api/author/{self.author.id}/posts/{post_id}")
         self.assertEqual(json_obj["title"], data["title"])
+        self.assertEqual(json_obj["description"], data["description"])
+        self.assertEqual(json_obj["content"], data["content"])
