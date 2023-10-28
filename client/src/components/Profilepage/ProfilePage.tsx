@@ -16,12 +16,12 @@ const APP_URI = process.env.REACT_APP_URI;
 const useStyles = makeStyles((theme: Theme) => ({
     container : {
         backgroundColor: "#FAF8F1",
-        paddingTop: "2rem",
-        paddingBottom: "2rem",
+        padding: "2rem",
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center'
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
     }, 
     picture :{
         width: '30%',
@@ -48,13 +48,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         color: "white",
         textDecoration: "none !important"
     }, 
-    edit_button: {
-        position: 'relative',
-        left: '1%',
-    }, 
     content: {
         display: 'flex',
-        justifyContent: 'space-between',
+        flexDirection: 'column', // Center vertically
         alignItems: 'center'
     }, 
     modal: {
@@ -186,10 +182,12 @@ const ProfilePage = () => {
                             </Typography>
                         </a>
                     </div>
-                    <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
-                        <EditIcon />
-                        <Typography>. EDIT INFO</Typography>
-                    </Button>
+                </div>
+                <div>
+                <Button variant="contained" style={{top: "10px"}} onClick={handleOpen}>
+                    <EditIcon />
+                    <Typography>. EDIT INFO</Typography>
+                </Button>
                     <Modal
                         open={open}
                         onClose={handleClose}
@@ -215,6 +213,7 @@ const ProfilePage = () => {
                                 fullWidth
                                 margin="normal"
                                 value={displayName}
+                                placeholder={username ?? ""}
                                 onChange={(e) => setDisplayName(e.target.value)}
                             />
                             <TextField
@@ -224,6 +223,7 @@ const ProfilePage = () => {
                                 fullWidth
                                 margin="normal"
                                 value={githubLink}
+                                placeholder={github ?? ""}
                                 onChange={(e) => setGithubLink(e.target.value)}
                             />
                             <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
