@@ -55,8 +55,9 @@ const EditPostModal = ({
   const [imagePrev, setImagePrev] = useState(post.content);
   const [visibility, setVisibility] = useState(post.visibility);
   const [unlisted, setUnlisted] = useState(post.unlisted);
-  const handleClose = () => {setIsModalOpen(false)};
   const [markdownCheckbox, setMarkdownCheckbox] = useState(post.contentType === ContentType.MARKDOWN);
+
+  const handleClose = () => {setIsModalOpen(false)};
 
   const handleTextContent = () => {
     setTextType(true);
@@ -67,6 +68,13 @@ const EditPostModal = ({
     setImageType(true);
     setTextType(false);
   }
+
+  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMarkdownCheckbox(event.target.checked);
+    console.log(event.target.checked)
+    if (event.target.checked) setContentType(ContentType.MARKDOWN);
+    else setContentType(ContentType.PLAIN);
+  };
 
   const handleSubmit = async (
     title: string,
@@ -180,7 +188,7 @@ const EditPostModal = ({
           <Grid container>
             <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
-          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
+          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
             <Grid item>
               <IconButton 
               color={textType ? "info" : "default"}
@@ -203,6 +211,19 @@ const EditPostModal = ({
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
+            {textType &&
+              <Grid item>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={markdownCheckbox}
+                      onChange={handleMarkdownContent}
+                    />
+                  }
+                  label="Markdown"
+                />
+              </Grid>
+            }
             <Button
               variant="contained"
               color="primary"

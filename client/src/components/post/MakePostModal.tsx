@@ -174,7 +174,7 @@ const MakePostModal = ({
           <Grid container>
             <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
-          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
+          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
             <Grid item>
               <IconButton 
               color={textType ? "info" : "default"}
@@ -197,20 +197,19 @@ const MakePostModal = ({
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
-             <Grid item>
-
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={markdownCheckbox}
-                  onChange={handleMarkdownContent}
+            {textType &&
+              <Grid item>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={markdownCheckbox}
+                      onChange={handleMarkdownContent}
+                    />
+                  }
+                  label="Markdown"
                 />
-              }
-              label="Markdown"
-            />
-
-
-            </Grid>
+              </Grid>
+            }
             <Button
               variant="contained"
               color="primary"
