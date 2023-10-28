@@ -127,7 +127,7 @@ export default function HomePage() {
           </Grid>
         </Grid>
         <Grid item xs={6} justifyContent="center">
-          <PostsList posts={posts} deletePost={deletePost} />
+          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts}/>
         </Grid>
         <Grid item xs={3.5}>
           <Typography align="center">side</Typography>
