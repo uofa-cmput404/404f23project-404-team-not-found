@@ -143,7 +143,7 @@ const ProfilePage = () => {
         };
     
         try {
-            const response = await axios.put(url, updatedAuthorData);
+            const response = await axios.post(url, updatedAuthorData);
             if (response.status === 200) {
                 toast.success("Profile updated successfully");
                 handleClose(); // Close the modal after a successful update

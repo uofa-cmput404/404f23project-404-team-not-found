@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class AuthorView(APIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-    http_method_names = ["delete", "get", "put"]
+    http_method_names = ["delete", "get", "post"]
 
     def get(self, request, author_id):
         # get the author data whose id is AUTHOR_ID
@@ -28,7 +28,7 @@ class AuthorView(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, author_id):
+    def post(self, request, author_id):
         
         author = Author.objects.filter(id=author_id).first()
         if author is None:
@@ -42,7 +42,6 @@ class AuthorView(APIView):
             # cleanup later
             logger.error(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class FollowersView(APIView):
     http_method_names = ["get"]
