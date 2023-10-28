@@ -9,7 +9,7 @@ const TextPostView = (props: any) => {
         id="title-text"
         required
         label="Title"
-        defaultValue=""
+        defaultValue={props.title}
         sx={{
           margin: 1,
         }}
@@ -22,7 +22,7 @@ const TextPostView = (props: any) => {
         id="description-text"
         required
         label="Description"
-        defaultValue=""
+        defaultValue={props.description}
         sx={{
           marginLeft: 1,
           marginRight: 1,
@@ -37,7 +37,7 @@ const TextPostView = (props: any) => {
         required
         label="content"
         multiline rows={4}
-        defaultValue=""
+        defaultValue={(props.content.slice(0, 4) != "http" && props.contentType === "text/plain") ? props.content : ""}
         sx={{
           margin: 1,
         }}
