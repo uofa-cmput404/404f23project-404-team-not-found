@@ -57,13 +57,20 @@ def create_post(author, data, post_id=None):
         post.categories.add(category_object)
 
     # creating a binary-suitable object for content field
-    if is_text(data["contentType"]):
-        post.content = data["content"].encode("utf-8")
-    elif is_image(data["contentType"]):
-        base64_content = data["content"].split("base64,")[1]
-        post.content = base64.b64decode(base64_content)
+    update_post_content(data["content"], data["contentType"], post)
 
     return post
+
+
+def update_post_content(content, content_type, post_object):
+    """
+    creating a binary-suitable object for content field
+    """
+    if is_text(content_type):
+        post_object.content = content.encode("utf-8")
+    elif is_image(content_type):
+        base64_content = content.split("base64,")[1]
+        post_object.content = base64.b64decode(base64_content)
 
 
 def update_post_categories(categories, post_object):
