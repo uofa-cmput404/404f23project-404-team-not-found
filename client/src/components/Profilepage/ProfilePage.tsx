@@ -180,9 +180,11 @@ const ProfilePage = () => {
                         <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
                             {username}
                         </Typography>
-                        <Typography align="center">
-                            {github}
-                        </Typography>
+                        <a href={github ?? ''} target="_blank" rel="noopener noreferrer">
+                            <Typography align="center" variant="body2" color="primary">
+                                {github}
+                            </Typography>
+                        </a>
                     </div>
                     <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
                         <EditIcon />
@@ -201,10 +203,10 @@ const ProfilePage = () => {
                             </Typography>
                             <img src={profilePic === "https://placeholder.com" ? defaultSrc : profilePic} alt="profile-pic" className={classes.picture} />
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                <Button variant="contained" className={classes.edit_button}>
+                                {/* <Button variant="contained" className={classes.edit_button}>
                                     <EditIcon />
                                     <Typography>. Change Picture</Typography>
-                                </Button>
+                                </Button> */}
                             </div>
                             <TextField
                                 id="outlined-basic"
