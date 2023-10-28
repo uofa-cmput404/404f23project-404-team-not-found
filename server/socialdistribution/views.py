@@ -238,7 +238,7 @@ class InboxView(APIView):
 
         if data['type'] == "Follow":
             follow_object = create_follow(author_object, request.data)
-            serializer = FollowSerializer(instance=follow_object, data=data)
+            serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
 
             if serializer.is_valid():
                 # create follow instance
