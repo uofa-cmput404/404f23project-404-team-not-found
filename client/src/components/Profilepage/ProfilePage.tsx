@@ -75,7 +75,7 @@ const ProfilePage = () => {
 
   const deletePost = async (postId: string) => {
     try {
-      const APIurl = postId;
+      const APIurl = `${postId}/`;
       await axios.delete(APIurl);
       setPosts((currentPosts) =>
         currentPosts.filter((post) => post.id !== postId)

@@ -1,22 +1,24 @@
 import * as React from 'react';
 import { useState } from 'react';
-import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import { Grid, Typography, IconButton } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { Post } from '../../../interfaces/interfaces';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import EditPostModal from './EditPostModal';
+import DeletePostModal from "./DeletePostModal";
+import { isImage, isText } from "../../../utils/postUtils";
 
-import { ShareType } from '../../../enums/enums';
 
 const MoreMenu = ({
-    post, deletePost, onPostEdited
+    post,
+    deletePost,
+    onPostEdited
 }:{
     post: Post;
     deletePost: (postId: string) => void;
@@ -24,6 +26,7 @@ const MoreMenu = ({
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [IsEditPostModalOpen, setIsEditPostModalOpen] = useState(false);
+  const [IsDeletePostModalOpen, setIsDeletePostModalOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -34,6 +37,9 @@ const MoreMenu = ({
     setAnchorEl(null);
   };
 
+  const openDeletePostModal = () => {
+    setIsDeletePostModalOpen(true);
+  }
 
   const openEditPostModal = () => {
     setIsEditPostModalOpen(true);
@@ -47,7 +53,7 @@ const MoreMenu = ({
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        sx={{marginLeft:1, marginRight: "auto"}}
+        sx={{marginLeft: 1, marginRight: "auto"}}
         size="medium"
       >
         <MoreHorizIcon/>
@@ -74,7 +80,7 @@ const MoreMenu = ({
         </MenuItem>
         <MenuItem 
           onClick={() => {
-            deletePost(post.id)
+            openDeletePostModal();
             handleClose();
           }}
         >
@@ -92,6 +98,11 @@ const MoreMenu = ({
         image={(post.content.slice(0, 4) === "http" && post.contentType === "text/plain") || post.contentType.includes("base64")}
         text={(post.content.slice(0, 4) != "http" && post.contentType === "text/plain")}
         copyPost={post}
+      <DeletePostModal
+        isModalOpen={IsDeletePostModalOpen}
+        deletePost={deletePost}
+        setIsModalOpen={setIsDeletePostModalOpen}
+        post={post}
       />
     </Grid>
   );
