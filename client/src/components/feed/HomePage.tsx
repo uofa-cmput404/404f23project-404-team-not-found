@@ -66,7 +66,7 @@ export default function HomePage() {
       <HeadBar />
       <Grid
         container
-        style={{ width: "100%", margin: "0 auto", marginTop: 60 }}
+        style={{ width: "100vw", margin: "0 auto", marginTop: 60 }}
       >
         <Grid item xs={3} style={{ height: "80vh" }}>
           <Grid
@@ -127,9 +127,9 @@ export default function HomePage() {
           </Grid>
         </Grid>
         <Grid item xs={6} justifyContent="center">
-          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts}/>
+          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
         </Grid>
-        <Grid item xs={3.5}>
+        <Grid item xs={3}>
           <Typography align="center">side</Typography>
         </Grid>
         <MakePostModal

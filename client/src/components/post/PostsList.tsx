@@ -29,7 +29,7 @@ const PostsList = ({
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
-              width: "100%", 
+              width: "40vw", 
               borderRadius: 0, 
             }} 
               variant='outlined'>
