@@ -117,7 +117,7 @@ const ProfilePage = () => {
           </Container>
         </div>
         <Container className={classes.cardGrid} maxWidth="md">
-          <PostsList posts={posts} deletePost={deletePost} />
+          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
         </Container>
       </main>
     </>
