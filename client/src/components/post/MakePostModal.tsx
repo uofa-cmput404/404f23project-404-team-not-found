@@ -1,7 +1,10 @@
 
 import { getAuthorId } from "../../utils/localStorageUtils";
 import React, { useState} from "react";
-import { Modal, Box, Button, IconButton, Grid, Typography } from "@mui/material";
+
+import { Modal, Box, Button, TextField, IconButton, Grid, Typography,Switch,FormControlLabel,Checkbox} from "@mui/material";
+import { styled } from "@mui/material";
+
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -51,9 +54,13 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
+
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
+
   const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
+  
 
   const handleTextContent = () => {
     setTextType(true);
@@ -61,6 +68,7 @@ const MakePostModal = ({
     setCategories([]);
     setContent("");
     setImagePrev("")
+    setMarkdownCheckbox(false);
   }
 
   const handleImageContent = () => {
@@ -68,6 +76,11 @@ const MakePostModal = ({
     setTextType(false);
     setContent("");
   }
+  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMarkdownCheckbox(event.target.checked);
+    if (event.target.checked) setContentType("text/markdown");
+    else setContentType("text/plain");
+  };
 
   const handleSubmit = async (
     title: string,
@@ -183,6 +196,20 @@ const MakePostModal = ({
               > 
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
+            </Grid>
+             <Grid item>
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={markdownCheckbox}
+                  onChange={handleMarkdownContent}
+                />
+              }
+              label="Markdown"
+            />
+
+
             </Grid>
             <Button
               variant="contained"
