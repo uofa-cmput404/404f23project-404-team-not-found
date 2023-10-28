@@ -36,7 +36,7 @@ class TestPostView(TestCase):
         post_obj = create_plain_text_post(self.author)
         data = {
             "title": "Update the title",
-            "categories": ["test", "test1", "test2"],
+            "categories": ["changed", "wazzup"],
             "description": "Update the description"
         }
         url = reverse('single_post', args=[self.author.id, post_obj.id])
@@ -48,7 +48,9 @@ class TestPostView(TestCase):
         # see that only title and description are changed from previous post_obj
         self.assertEqual(json_obj["title"], data["title"])
         self.assertEqual(json_obj["description"], data["description"])
+        self.assertEqual(json_obj["categories"], data["categories"])
         self.assertEqual(json_obj["content"], post_obj.content.decode("utf-8"))
+        self.assertEqual(json_obj["contentType"], post_obj.contentType)
 
     def test_put_create_post_given_id(self):
         post_id = uuid.uuid4()
@@ -73,3 +75,4 @@ class TestPostView(TestCase):
         self.assertEqual(json_obj["title"], data["title"])
         self.assertEqual(json_obj["description"], data["description"])
         self.assertEqual(json_obj["content"], data["content"])
+        self.assertEqual(json_obj["categories"], data["categories"])
