@@ -42,7 +42,7 @@ class AuthorView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def put(self, request, author_id):
+    def post(self, request, author_id):
         
         author = Author.objects.filter(id=author_id).first()
         if author is None:
@@ -53,13 +53,7 @@ class AuthorView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            # cleanup later
-            logger.error(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request, author_id):
-        # TODO: managing profile of an author user story
-        pass
 
 
 class FollowersView(APIView):
