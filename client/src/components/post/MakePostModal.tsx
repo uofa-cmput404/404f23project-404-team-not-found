@@ -2,7 +2,7 @@
 import { getAuthorId } from "../../utils/localStorageUtils";
 import React, { useState} from "react";
 
-import { Modal, Box, Button, TextField, IconButton, Grid, Typography,Switch,FormControlLabel,Checkbox} from "@mui/material";
+import { Modal, Box, Button, IconButton, Grid, Typography,FormControlLabel,Checkbox} from "@mui/material";
 import { styled } from "@mui/material";
 
 
@@ -171,6 +171,7 @@ const MakePostModal = ({
               setImagePrev={setImagePrev}
             />
           }
+          
           <Grid container>
             <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
