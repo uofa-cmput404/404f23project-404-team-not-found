@@ -34,7 +34,6 @@ const PostsList = ({
                 </Avatar>
               }
               action={
-                // TODO: Remake condition after Author is properly serialized on the backend
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                 <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
                   <DeleteIcon />
