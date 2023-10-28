@@ -80,7 +80,6 @@ const MakePostModal = ({
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType("text/markdown");
     else setContentType("text/plain");
-    console.log(setMarkdownCheckbox);
   };
 
   const handleSubmit = async (
