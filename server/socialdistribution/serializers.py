@@ -70,7 +70,10 @@ class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(many=False, read_only=True)
     # Christie Ziegler, Using SlugRelatedField, October 26, 2023,
     # https://medium.com/@chriziegler/slugrelatedfield-with-django-and-the-rest-framework-36717b07a197
-    categories = serializers.SlugRelatedField(many=True, queryset=Category.objects.all(), slug_field="category")
+    categories = serializers.SlugRelatedField(many=True,
+                                              queryset=Category.objects.all(),
+                                              slug_field="category",
+                                              required=False)
     content = SerializerMethodField("get_content")
     origin = SerializerMethodField("get_origin_url")
     source = SerializerMethodField("get_source_url")

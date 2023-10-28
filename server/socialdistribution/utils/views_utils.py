@@ -51,6 +51,7 @@ def create_post(author, data, post_id=None):
         post.origin = data["origin"]
 
     categories = data.get("categories", [])
+
     for category in categories:
         category_object, created = Category.objects.get_or_create(category=category)
         post.categories.add(category_object)
@@ -63,3 +64,18 @@ def create_post(author, data, post_id=None):
         post.content = base64.b64decode(base64_content)
 
     return post
+
+
+def update_post_categories(categories, post_object):
+    current_categories = set(post_object.categories.values_list('category', flat=True))
+    updated_categories = set(categories)
+
+    # Add new categories
+    for category in updated_categories - current_categories:
+        category_object, created = Category.objects.get_or_create(category=category)
+        post_object.categories.add(category_object)
+
+    # Remove categories that aren't in the updated list
+    for category in current_categories - updated_categories:
+        category_object = Category.objects.get(category=category)
+        post_object.categories.remove(category_object)
