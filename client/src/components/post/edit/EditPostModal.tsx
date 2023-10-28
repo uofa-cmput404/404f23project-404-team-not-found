@@ -16,6 +16,7 @@ import TextPostView from "../TextPostView";
 import ImagePostView from "../ImagePostView";
 import PostCategoriesField from "../PostCategoriesField";
 import { ShareType } from "../../../enums/enums";
+import { Post } from "../../../interfaces/interfaces";
 
 const style = {
   display: "flex",
@@ -36,37 +37,42 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const EditPostModal = ({
   isModalOpen,
-  onPostCreated,
+  onPostEdited,
   setIsModalOpen,
+  post,
+  text,
+  image,
+  copyPost,
 }: {
   isModalOpen: boolean;
-  onPostCreated: () => void;
+  onPostEdited: () => void;
   setIsModalOpen: (isOpen: boolean) => void;
+  post: Post;
+  text: boolean;
+  image: boolean;
+  copyPost: Post;
 }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [content, setContent] = useState("");
-  const [contentType, setContentType] = useState("text/plain");
-  const [textType, setTextType] = useState(true);
-  const [imageType, setImageType] = useState(false);
-  const [imagePrev, setImagePrev] = useState("");
-  const [visibility, setVisibility] = useState(ShareType.PUBLIC);
-  const [unlisted, setUnlisted] = useState(false);
-  const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
+  const [title, setTitle] = useState(post.title);
+  const [description, setDescription] = useState(post.description);
+  const [categories, setCategories] = useState<string[]>(post.categories);
+  const [content, setContent] = useState(post.content);
+  const [contentType, setContentType] = useState(post.contentType);
+  const [textType, setTextType] = useState(text);
+  const [imageType, setImageType] = useState(image);
+  const [imagePrev, setImagePrev] = useState(post.content);
+  const [visibility, setVisibility] = useState(post.visibility);
+  const [unlisted, setUnlisted] = useState(post.unlisted);
+  const handleClose = () => {setIsModalOpen(false)};
 
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
     setCategories([]);
-    setContent("");
-    setImagePrev("")
   }
 
   const handleImageContent = () => {
     setImageType(true);
     setTextType(false);
-    setContent("");
   }
 
   const handleSubmit = async (
@@ -88,14 +94,26 @@ const EditPostModal = ({
       unlisted: unlisted,
     };
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${post.id}/`;
 
     try {
       await axios.post(url, payload);
-      onPostCreated();
+      onPostEdited();
       handleClose();
     } catch (error) {
       console.error("Failed to post", error);
+    }
+  };
+
+  const textOrImage = () => {
+    if ((post.content.slice(0, 4) === "http" && post.contentType === "text/plain") ||
+        post.contentType.includes("base64")
+    ) {
+        setImageType(true);
+        setTextType(false);
+    } else {
+        setImageType(false);
+        setTextType(true);
     }
   };
 
@@ -121,7 +139,7 @@ const EditPostModal = ({
                   variant="h6"
                   sx={{paddingTop:0.2}}
                 >
-                  Create a Post 
+                  Edit Post 
                 </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
@@ -187,7 +205,7 @@ const EditPostModal = ({
             <Button
               variant="contained"
               color="primary"
-              disabled={content === "" || title === "" || description === ""} 
+              disabled={content === post.content && title === post.title && description === post.description} 
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -210,9 +228,8 @@ const EditPostModal = ({
                 setIsModalOpen(false);
                 handleTextContent();
               }}
-              endIcon={<SendIcon/>}
               >
-              Post
+              Done
             </Button>
           </Grid>
         </Box>

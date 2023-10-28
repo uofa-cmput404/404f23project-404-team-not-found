@@ -5,19 +5,25 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import { Grid, Typography } from '@mui/material';
+import { Grid, Typography, IconButton } from '@mui/material';
 
-import PublicIcon from '@mui/icons-material/Public';
-import LockIcon from '@mui/icons-material/Lock';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import GroupIcon from '@mui/icons-material/Group';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { Post } from '../../../interfaces/interfaces';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import EditPostModal from './EditPostModal';
 
 import { ShareType } from '../../../enums/enums';
 
-const MoreMenu = (props:any) => {
+const MoreMenu = ({
+    post, deletePost, onPostEdited
+}:{
+    post: Post;
+    deletePost: (postId: string) => void;
+    onPostEdited: () => void;
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [text, setText] = useState("Public")
-  const [icon, setIcon] = useState(<PublicIcon/>)
+  const [IsEditPostModalOpen, setIsEditPostModalOpen] = useState(false);
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -28,22 +34,24 @@ const MoreMenu = (props:any) => {
     setAnchorEl(null);
   };
 
-  const [IsEditPostModalOpen, setIsEditPostModalOpen] = useState(false)
+
+  const openEditPostModal = () => {
+    setIsEditPostModalOpen(true);
+  }
 
   return (
     <Grid container direction="column">
-      <Button
+      <IconButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        startIcon={icon}
         sx={{marginLeft:1, marginRight: "auto"}}
         size="medium"
       >
-        <Typography textTransform="none">{text}</Typography>
-      </Button>
+        <MoreHorizIcon/>
+      </IconButton>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -55,25 +63,36 @@ const MoreMenu = (props:any) => {
       >
         <MenuItem 
           onClick={() => {
+            openEditPostModal();
             handleClose();
           }}
         >
           <ListItemIcon>
-            <PublicIcon fontSize="small" />
+            <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Edit</ListItemText>
         </MenuItem>
         <MenuItem 
           onClick={() => {
+            deletePost(post.id)
             handleClose();
           }}
         >
           <ListItemIcon>
-            <LockIcon fontSize="small" />
+            <DeleteIcon fontSize="small" sx={{color: "#ef5350"}} />
           </ListItemIcon>
-          <ListItemText color='error'>Delete</ListItemText>
+          <ListItemText sx={{color: "#ef5350"}}>Delete</ListItemText>
         </MenuItem>
       </Menu>
+      <EditPostModal
+        isModalOpen={IsEditPostModalOpen}
+        onPostEdited={onPostEdited}
+        setIsModalOpen={setIsEditPostModalOpen}
+        post={post}
+        image={(post.content.slice(0, 4) === "http" && post.contentType === "text/plain") || post.contentType.includes("base64")}
+        text={(post.content.slice(0, 4) != "http" && post.contentType === "text/plain")}
+        copyPost={post}
+      />
     </Grid>
   );
 }
