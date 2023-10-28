@@ -85,6 +85,8 @@ const ProfilePage = () => {
     const [open, setOpen] = useState(false);
     const username = authorData?.displayName;
     const github = authorData?.github;
+    const profilePic = authorData?.profileImage;
+    const defaultSrc = require('../../assets/defaultprofile.jpg')
     
     const classes = useStyles();
 
@@ -174,9 +176,12 @@ const ProfilePage = () => {
             <div className={classes.container}>
                 <div className={classes.content}>
                     <div>
-                        <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                    <img src={profilePic === "https://placeholder.com" ? defaultSrc : profilePic} alt="profile-pic" className={classes.picture} />
                         <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
                             {username}
+                        </Typography>
+                        <Typography align="center">
+                            {github}
                         </Typography>
                     </div>
                     <Button variant="contained" className={classes.edit_button} onClick={handleOpen}>
@@ -194,7 +199,7 @@ const ProfilePage = () => {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 EDIT PROFILE
                             </Typography>
-                            <img src={require('../../assets/defaultprofile.jpg')} alt="profile-pic" className={classes.picture} />
+                            <img src={profilePic === "https://placeholder.com" ? defaultSrc : profilePic} alt="profile-pic" className={classes.picture} />
                             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <Button variant="contained" className={classes.edit_button}>
                                     <EditIcon />
