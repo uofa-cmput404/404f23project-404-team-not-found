@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Post } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
 import { theme } from "../../index";
@@ -10,6 +10,8 @@ import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreMenu from './edit/MoreMenu';
 
 
 const PostsList = ({
@@ -19,13 +21,14 @@ const PostsList = ({
   deletePost: (postId: string) => void;
 }) => {
 
+
     return (
       <>
         { posts.length > 0 ? (posts.map(post => (
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
-              width: "40vw", 
+              width: "100%", 
               borderRadius: 0, 
             }} 
               variant='outlined'>
@@ -37,9 +40,7 @@ const PostsList = ({
               }
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
-                  <DeleteIcon />
-                </IconButton>
+                  <MoreMenu/>
               )}
               title={post.author.displayName}
               subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}

@@ -129,7 +129,7 @@ export default function HomePage() {
         <Grid item xs={6} justifyContent="center">
           <PostsList posts={posts} deletePost={deletePost} />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={3.5}>
           <Typography align="center">side</Typography>
         </Grid>
         <MakePostModal
