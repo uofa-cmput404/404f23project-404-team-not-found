@@ -21,9 +21,6 @@ def create_auth_user():
     return user_obj
 
 def create_auth_author(user_obj):
-    # TODO: update when author/user implementation is done for better testing
-
-    
     author_data = {"displayName": "test_author", 
                     "github": "https://placeholder.com", 
                     "host": "https://placeholder.com",
@@ -40,6 +37,3 @@ def create_auth_author(user_obj):
                                     user=user_obj)
 
     return auth_obj
-
-def deserialize_response(response):
-    return json.loads(response.content.decode('utf-8').replace("'", "\""))

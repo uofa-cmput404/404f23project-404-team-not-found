@@ -7,6 +7,9 @@ from socialdistribution.models import Follower, Author
 from socialdistribution.tests.utils.auth_tests_utils import (
     create_auth_user,
     create_auth_author,
+)
+
+from socialdistribution.tests.utils import (
     deserialize_response
 )
 
@@ -34,6 +37,10 @@ class TestSignUp(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_obj["displayName"], "test_author")
+        self.assertEqual(json_obj["github"], "https://placeholder.com")
+        self.assertEqual(json_obj["host"], "https://placeholder.com")
+        self.assertEqual(json_obj["profileImage"], "https://placeholder.com")
+        self.assertEqual(json_obj["url"], "https://placeholder.com")
 
     def test_duplicated_username(self):
         user_obj = create_auth_user()

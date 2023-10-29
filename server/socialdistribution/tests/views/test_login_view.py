@@ -7,6 +7,9 @@ from socialdistribution.models import Follower, Author
 from socialdistribution.tests.utils.auth_tests_utils import (
     create_auth_user,
     create_auth_author,
+)
+
+from socialdistribution.tests.utils import (
     deserialize_response
 )
 
