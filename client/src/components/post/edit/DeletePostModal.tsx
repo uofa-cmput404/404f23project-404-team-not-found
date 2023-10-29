@@ -50,9 +50,7 @@ const DeletePostModal = ({
         PaperProps={{ className: styles.dialog }}
       >
         <DialogTitle id="alert-dialog-title">
-          <Typography variant="h6" color="textPrimary">
-            Delete Post?
-          </Typography>
+          Delete Post?
         </DialogTitle>
         <Divider />
         <Box m={2}>

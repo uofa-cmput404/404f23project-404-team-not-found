@@ -36,7 +36,7 @@ const TextPostView = (props: any) => {
       <TextField
         id="content-field"
         required
-        label="content"
+        label="Content"
         multiline rows={4}
         defaultValue={isText(props) ? props.content : ""}
         sx={{
