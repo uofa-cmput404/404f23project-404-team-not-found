@@ -137,42 +137,19 @@ const ProfilePage = () => {
         setOpen(false);
     };
 
-    function convertImageFileToBase64(file: File, maxSizeInBytes: number): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-            const base64URL = reader.result as string;
-            const byteString = atob(base64URL.split(',')[1]);
-            const byteStringLength = byteString.length;
-      
-            if (byteStringLength <= maxSizeInBytes) {
-                resolve(base64URL);
-            } else {
-                const scaleFactor = maxSizeInBytes / byteStringLength;
-                const newLength = Math.floor(byteStringLength * scaleFactor);
-                const resizedBase64 = base64URL.substr(0, base64URL.indexOf(',') + 1) + btoa(byteString.slice(0, newLength));
-                resolve(resizedBase64);
-            }
-        };
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
+    
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files[0]) {
             const selectedFile = files[0];
-      
-            convertImageFileToBase64(selectedFile, 4096) 
-            .then((base64URL) => {
-                setSelectedImage(selectedFile);
-                setProfileImage(base64URL);
-                console.log(base64URL);
-            })
-            .catch((error) => {
-                console.error("Error converting image to base64:", error);
-            });
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(selectedFile);
+            fileReader.onload = () => {
+                const base64Image = fileReader?.result as string;
+                console.log(base64Image);
+                setProfileImage(base64Image);
+            };
         }
     };
 
