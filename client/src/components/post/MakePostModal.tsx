@@ -59,7 +59,13 @@ const MakePostModal = ({
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
 
-  const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setImagePrev('');
+    handleTextContent();
+    setTitle("");
+    setDescription("");
+  };
   
 
   const handleTextContent = () => {
@@ -67,7 +73,7 @@ const MakePostModal = ({
     setImageType(false);
     setCategories([]);
     setContent("");
-    setImagePrev("")
+    setImagePrev("");
     setMarkdownCheckbox(false);
   }
 

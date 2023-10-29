@@ -57,7 +57,10 @@ const EditPostModal = ({
   const [unlisted, setUnlisted] = useState(post.unlisted);
   const [markdownCheckbox, setMarkdownCheckbox] = useState(post.contentType === ContentType.MARKDOWN);
 
-  const handleClose = () => {setIsModalOpen(false)};
+  const handleClose = () => {
+    setIsModalOpen(false)
+    onPostEdited();
+  };
 
   const handleTextContent = () => {
     setTextType(true);
@@ -71,7 +74,6 @@ const EditPostModal = ({
 
   const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMarkdownCheckbox(event.target.checked);
-    console.log(event.target.checked)
     if (event.target.checked) setContentType(ContentType.MARKDOWN);
     else setContentType(ContentType.PLAIN);
   };
@@ -122,8 +124,10 @@ const EditPostModal = ({
     setContent(post.content);
     setContentType(post.contentType);
     textOrImage();
+    setImagePrev(post.content);
     setVisibility(post.visibility);
     setUnlisted(post.unlisted);
+    setMarkdownCheckbox(post.contentType === ContentType.MARKDOWN);
 }, [post]);
 
   return (

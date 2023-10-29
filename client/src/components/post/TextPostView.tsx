@@ -44,7 +44,6 @@ const TextPostView = (props: any) => {
         }}
         onChange={(e) => {
           props.setContent(e.target.value);
-          props.setContentType("text/plain");
         }}
       />
     </Grid>
