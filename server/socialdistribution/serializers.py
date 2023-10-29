@@ -13,8 +13,6 @@ class AuthorSerializer(serializers.ModelSerializer):
     type = SerializerMethodField("get_type")
     url = SerializerMethodField("get_id_url")
     
-    profileImage = SerializerMethodField("get_profile_image")
-
     class Meta:
         model = Author
         fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")
@@ -27,16 +25,6 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "author"
-
-    def get_profile_image(self, obj):
-        if obj.profileImage:
-            if obj.profileImage.startswith('http'):
-                return obj.profileImage
-            if obj.profileImage.startswith('data'):
-                with open(obj.profileImage, 'rb') as image_file:
-                    base64_encoded = base64.b64encode(image_file.read()).decode('utf-8')
-                return f"data:image/png;base64,{base64_encoded}"
-        return None
 
 
 class FollowSerializer(serializers.ModelSerializer):

@@ -136,23 +136,6 @@ const ProfilePage = () => {
     const handleClose = () => {
         setOpen(false);
     };
-
-    
-
-    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files && files[0]) {
-            const selectedFile = files[0];
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(selectedFile);
-            fileReader.onload = () => {
-                const base64Image = fileReader?.result as string;
-                console.log(base64Image);
-                setProfileImage(base64Image);
-            };
-        }
-    };
-
     
     const handleSave = async () => {
         const AUTHOR_ID = getAuthorId();
@@ -232,21 +215,12 @@ const ProfilePage = () => {
                                 EDIT PROFILE
                             </Typography>
                             <img src={profileImage || defaultSrc} alt="profile-pic" className={classes.picture} />
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    id="imageInput"
-                                />
-                            </div>
                             <TextField
                                 id="outlined-basic"
                                 label="Display Name"
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                value={displayName}
                                 placeholder={username ?? ""}
                                 onChange={(e) => setDisplayName(e.target.value)}
                             />
@@ -256,9 +230,17 @@ const ProfilePage = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                value={githubLink}
                                 placeholder={github ?? ""}
                                 onChange={(e) => setGithubLink(e.target.value)}
+                            />
+                            <TextField
+                                id="outlined-basic"
+                                label="Image Link"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                placeholder={profileImage ?? ""}
+                                onChange={(e) => setProfileImage(e.target.value)}
                             />
                             <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
                                 Save
