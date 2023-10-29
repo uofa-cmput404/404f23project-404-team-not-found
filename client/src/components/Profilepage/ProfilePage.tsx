@@ -75,8 +75,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const ProfilePage = () => {
   const [authorData, setAuthorData] = useState<Author | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [displayName, setDisplayName] = useState("");
-  const [githubLink, setGithubLink] = useState("");
   const [open, setOpen] = useState(false);
   const username = authorData?.displayName;
   const github = authorData?.github;
@@ -84,6 +82,7 @@ const ProfilePage = () => {
   const defaultSrc = require('../../assets/defaultprofile.jpg')
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
   
   const classes = useStyles();
 
@@ -94,6 +93,7 @@ const ProfilePage = () => {
     try {
       const response = await axios.get(url);
       setAuthorData(response.data);
+      setUserinfo({displayName: response.data.displayName, github: response.data.github, profileImage: response.data.profileImage});
     } catch (error) {
       console.error("Error fetching author", error);
     }
@@ -143,20 +143,20 @@ const ProfilePage = () => {
 
         const formData = new FormData();
 
-        if (displayName) {
-            formData.append('displayName', displayName);
+        if (userinfo.displayName) {
+            formData.append('displayName', userinfo.displayName);
         } else {
             formData.append('displayName', username ?? "");
         }
     
-        if (githubLink) {
-            formData.append('github', githubLink);
+        if (userinfo.github) {
+            formData.append('github', userinfo.github);
         } else {
             formData.append('github', github ?? "");
         }
         
-        if (profileImage) {
-            formData.append('profileImage', profileImage);
+        if (userinfo.profileImage) {
+            formData.append('profileImage', userinfo.profileImage);
         } else {
             formData.append('profileImage', profilePic ?? "");
         }
@@ -214,15 +214,15 @@ const ProfilePage = () => {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 EDIT PROFILE
                             </Typography>
-                            <img src={profileImage || defaultSrc} alt="profile-pic" className={classes.picture} />
+                            <img src={userinfo.profileImage || defaultSrc} alt="profile-pic" className={classes.picture} />
                             <TextField
                                 id="outlined-basic"
                                 label="Display Name"
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                placeholder={username ?? ""}
-                                onChange={(e) => setDisplayName(e.target.value)}
+                                value={userinfo.displayName}    
+                                onChange={(e) => setUserinfo({...userinfo, displayName: e.target.value})}
                             />
                             <TextField
                                 id="outlined-basic"
@@ -230,8 +230,8 @@ const ProfilePage = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                placeholder={github ?? ""}
-                                onChange={(e) => setGithubLink(e.target.value)}
+                                value={userinfo.github}
+                                onChange={(e) => setUserinfo({...userinfo, github: e.target.value})}
                             />
                             <TextField
                                 id="outlined-basic"
@@ -239,8 +239,8 @@ const ProfilePage = () => {
                                 variant="outlined"
                                 fullWidth
                                 margin="normal"
-                                placeholder={profileImage ?? ""}
-                                onChange={(e) => setProfileImage(e.target.value)}
+                                value={userinfo.profileImage}
+                                onChange={(e) => setUserinfo({...userinfo, profileImage: e.target.value})}
                             />
                             <Button variant="contained" color="primary" className={classes.save_button} onClick={handleSave}>
                                 Save
