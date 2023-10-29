@@ -11,15 +11,40 @@ from .models import *
 from .utils import *
 
 
+class AuthorsView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request):
+        """
+        retrieve all profiles on the server (paginated)
+        TODO: paginate response
+        """
+        authors = Author.objects.all()
+        serializer = AuthorSerializer(authors, many=True, context={"request": request})
+
+        return Response(
+            data={
+                "type": "authors",
+                "items": serializer.data
+            },
+            status=status.HTTP_200_OK)
+
+
 class AuthorView(APIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+    http_method_names = ["get", "post"]
 
     def get(self, request, author_id):
-        # get the author data whose id is AUTHOR_ID
-        author = Author.objects.get(id=author_id)
-        serializer = AuthorSerializer(author)
+        """
+        get the author data whose id is AUTHOR_ID
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(author_object, context={"request": request})
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, author_id):
+        # TODO: managing profile of an author user story
+        pass
 
 
 class FollowersView(APIView):
@@ -31,10 +56,12 @@ class FollowersView(APIView):
         """
         author_object = get_object_or_404(Author, id=author_id)
         followers = Follower.objects.filter(author=author_object)
-        return Response({
-            "type": "followers",
-            "items": [follower_object.follower_author for follower_object in followers]
-        })
+        return Response(
+            data={
+                "type": "followers",
+                "items": [follower_object.follower_author for follower_object in followers]
+            },
+            status=status.HTTP_200_OK)
 
 
 class FollowerView(APIView):
@@ -211,7 +238,7 @@ class InboxView(APIView):
 
         if data['type'] == "Follow":
             follow_object = create_follow(author_object, request.data)
-            serializer = FollowSerializer(instance=follow_object, data=data)
+            serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
 
             if serializer.is_valid():
                 # create follow instance

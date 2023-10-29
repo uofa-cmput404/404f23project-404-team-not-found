@@ -8,20 +8,36 @@ from .utils import build_default_author_uri, build_default_post_uri, is_image, i
 
 
 class AuthorSerializer(serializers.ModelSerializer):
+    host = SerializerMethodField("get_host_url")
+    id = SerializerMethodField("get_id_url")
+    type = SerializerMethodField("get_type")
+
     class Meta:
         model = Author
-        fields = ("id", "createdAt", "displayName", "github", "host", "profileImage", "url")
+        fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")
+
+    def get_host_url(self, obj):
+        return f"{self.context['request'].build_absolute_uri('/')}"
+
+    def get_id_url(self, obj):
+        return build_default_author_uri(obj=obj, request=self.context["request"], source="author")
+
+    def get_type(self, obj):
+        return "author"
 
 
 class FollowSerializer(serializers.ModelSerializer):
     actor = serializers.JSONField()  # requestor
-    object = AuthorSerializer(many=False, read_only=True)  # recipient
+    object = SerializerMethodField("get_object")  # recipient
     summary = SerializerMethodField("get_summary")
     type = SerializerMethodField("get_type")
 
     class Meta:
         model = Follow
         fields = ("type", "summary", "actor", "object")
+
+    def get_object(self, obj):
+        return AuthorSerializer(obj.object, context=self.context).data
 
     def get_summary(self, obj):
         actor_display_name = obj.actor["displayName"]
@@ -41,7 +57,7 @@ class FollowerSerializer(serializers.ModelSerializer):
         fields = ("type", "actor", "object")
 
     def get_object(self, obj):
-        return AuthorSerializer(obj.author).data
+        return AuthorSerializer(obj.author, context=self.context).data
 
     def get_type(self, obj):
         return "follower"
@@ -97,9 +113,9 @@ class InboxItemSerializer(serializers.ModelSerializer):
     # https://stackoverflow.com/questions/19976202/django-rest-framework-django-polymorphic-modelserialization
     def to_representation(self, obj):
         if isinstance(obj.content_object, Follow):
-            return FollowSerializer(obj.content_object).data
+            return FollowSerializer(instance=obj.content_object, context=self.context).data
         elif isinstance(obj.content_object, Post):
-            return PostSerializer(obj.content_object).data
+            return PostSerializer(instance=obj.content_object, context=self.context).data
         # TODO: later on, handle serializing likes and comments in inbox
 
 
@@ -113,7 +129,7 @@ class InboxSerializer(serializers.ModelSerializer):
         fields = ("type", "author", "items")
 
     def get_author_url(self, obj):
-        return build_default_author_uri(obj=obj, request=self.context["request"])
+        return build_default_author_uri(obj=obj, request=self.context["request"], source = "inbox")
 
     def get_items(self, obj):
         return InboxItemSerializer(obj.items.all(), many=True, context=self.context).data

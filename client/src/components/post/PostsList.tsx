@@ -8,6 +8,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { renderVisibility }from '../../utils/visibilityRenderUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+
 
 
 const PostsList = ({
@@ -34,8 +36,7 @@ const PostsList = ({
                 </Avatar>
               }
               action={
-                // TODO: Remake condition after Author is properly serialized on the backend
-                (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
+                (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                 <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
                   <DeleteIcon />
                 </IconButton>
