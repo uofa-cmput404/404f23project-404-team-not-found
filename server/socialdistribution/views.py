@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-import logging
+
 from .serializers import *
 from .models import *
 from .utils import *
@@ -38,17 +38,14 @@ class AuthorView(APIView):
         get the author data whose id is AUTHOR_ID
         """
         author_object = get_object_or_404(Author, id=author_id)
-        serializer = AuthorSerializer(author_object, context={"request": request})
+        serializer = AuthorSerializer(instance=author_object, context={"request": request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, author_id):
-        author = Author.objects.filter(id=author_id).first()
-        if author is None:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(instance=author_object, data=request.data, context={"request": request})
 
-        serializer = AuthorSerializer(author, data=request.data)
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
