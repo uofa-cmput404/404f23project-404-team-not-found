@@ -6,6 +6,10 @@ export const getToken = () => {
   return localStorage.getItem("authToken");
 };
 
+export const removeToken = () => {
+  return localStorage.removeItem("authToken");
+};
+
 export const storeAuthorId = (authorId: string) => {
   localStorage.setItem("author_id", authorId);
 };
