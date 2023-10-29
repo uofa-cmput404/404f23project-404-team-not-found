@@ -1,16 +1,20 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { Routes, Route } from "react-router-dom";
 
 import HomePage from "./components/feed/HomePage";
 import Login from "./components/authentication/Login";
 import SignUp from "./components/authentication/SignUp";
+import ProfilePage from "./components/Profilepage/ProfilePage";
+import NotFound from "./components/NotFound";
 
 import "./App.css";
-import ProfilePage from "./components/Profilepage/ProfilePage";
 import { ToastContainer } from "react-toastify";
 import { getToken } from "./utils/localStorageUtils";
+
 import ProtectedRoute from "./components/ProtectedRoute";
+import LoggedInRestrictedRoute from "./components/LoggedInRestrictedRoute";
+
 import UserContext from "./contexts/UserContext";
 
 const App = () => {
@@ -33,8 +37,30 @@ const App = () => {
         theme="light"
       />
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute user={userToken}>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <LoggedInRestrictedRoute user={userToken}>
+              <Login />
+            </LoggedInRestrictedRoute>
+          }
+        />
+        <Route
+          path="/sign-up"
+          element={
+            <LoggedInRestrictedRoute user={userToken}>
+              <SignUp />
+            </LoggedInRestrictedRoute>
+          }
+        />
         <Route
           path="/home-page"
           element={
@@ -51,6 +77,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </UserContext.Provider>
   );
