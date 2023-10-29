@@ -14,7 +14,7 @@ class Author(models.Model):
     displayName = models.CharField(max_length=STRING_MAXLEN)
     github = models.URLField(max_length=URL_MAXLEN, null=True)
     host = models.URLField(max_length=URL_MAXLEN)   # home host of the author
-    profileImage = models.CharField(max_length=CONTENT_MAXLEN)
+    profileImage = models.CharField(max_length=CONTENT_MAXLEN, null=True)
     url = models.URLField(max_length=URL_MAXLEN)     # url to the author's profile
 
     # TODO: Currently have user field as nullable

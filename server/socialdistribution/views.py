@@ -43,12 +43,12 @@ class AuthorView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request, author_id):
-        
         author = Author.objects.filter(id=author_id).first()
         if author is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         serializer = AuthorSerializer(author, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
