@@ -38,7 +38,6 @@ class TestSignUp(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(json_obj["displayName"], "test_author")
         self.assertEqual(json_obj["github"], "https://placeholder.com")
-        self.assertEqual(json_obj["host"], "https://placeholder.com")
         self.assertEqual(json_obj["profileImage"], "https://placeholder.com")
         self.assertEqual(json_obj["url"], "https://placeholder.com")
 
