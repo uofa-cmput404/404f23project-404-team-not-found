@@ -96,7 +96,7 @@ class PostSerializer(serializers.ModelSerializer):
     def get_content(self, obj):
         """decode content as it's a binary field"""
         if is_text(obj.contentType) and obj.content:
-            return obj.content.decode("utf-8")
+            return bytes(obj.content).decode("utf-8")
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
             return f"data:{obj.contentType},{base64_encoded.decode('utf-8')}"
