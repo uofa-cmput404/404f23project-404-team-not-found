@@ -9,6 +9,7 @@ import HomePage from "../feed/HomePage";
 import { removeToken, removeAuthorId } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
 import { Link } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 
 const HeadBar = () => {
@@ -53,18 +54,17 @@ const HeadBar = () => {
       </Link>
 
       <Button
-        variant="contained"
-        color="success"
         size="small"
         style={{
-          color: "white",
+          color: "black",
           height: "70%",
           alignSelf: "center",
-          marginRight: "5px",
+          marginRight: "10px",
         }}
         onClick={handleSignOut}
+        endIcon={<LogoutIcon/>}
       >
-        Sign Out
+        <Typography textTransform="none">Sign Out</Typography>
       </Button>
     </AppBar>
   );
