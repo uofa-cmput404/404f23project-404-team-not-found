@@ -69,29 +69,34 @@ const PostsList = ({
               }
               sx = {{margin:0}}
             />
-            <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
+            <CardContent 
+              sx={{
+                paddingTop: 0, 
+                paddingLeft: 9, 
+                paddingBottom: 0, 
+                }}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
               {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
-              <div>
-              <Link href={post.content} target="_blank" noWrap> 
-                <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
-                  {post.content}
-                </Typography> 
-              </Link>
-              <CardContent sx={{ padding: 0 }}>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <CardMedia
-                    component="img"
-                    style={{
-                      maxWidth: "100%",
-                      width: "auto",
-                      borderRadius: 12,
-                    }}
-                    image={post.content}
-                  />
-                </div>
-              </CardContent>
+              <div style={{paddingBottom: 0}}>
+                <Link href={post.content} target="_blank" noWrap> 
+                  <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
+                    {post.content}
+                  </Typography> 
+                </Link>
+                <CardContent sx={{ padding: 0, paddingBottom:0 }}>
+                  <div style={{ paddingBottom: 0 }}>
+                    <CardMedia
+                      component="img"
+                      style={{
+                        maxWidth: "100%",
+                        width: "auto",
+                        borderRadius: 12,
+                      }}
+                      image={post.content}
+                    />
+                  </div>
+                </CardContent>
               </div>
             ):(
               post.contentType === "text/plain" && (
@@ -122,61 +127,49 @@ const PostsList = ({
               </CardContent>
             )}
             </CardContent>
-            <CardContent>
-            <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
-
-
-                  <Grid item>
-                    <Tooltip title="Like" placement="bottom-end">
-                    <IconButton
-
-                      id="like"
-                      size="small"
-                      onClick={handlelike}
-                    >
-                      <FavoriteBorderIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Comment" placement="bottom-end">
-                    <IconButton
-
-                      size="small"
-                      
-                      onClick={openMakeCommentModal}
-                    >
-                      <ChatBubbleOutlineIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                    
-                    
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Share" placement="bottom-end">
-                    <IconButton
-
-                      size="small"
-                      sx={{ marginRight: 1 }}
-                      onClick={handleShare}
-                    >
-                      <ShareIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                    
-                    
-                  </Grid>
-
-                  </Grid>
-
-
-            </CardContent>
-            <CardContent>
-              <Button size="small">View all comments</Button>
-          </CardContent>
-            <CardContent sx={{paddingLeft: 9}}>
+            <CardContent sx={{paddingLeft: 9, paddingTop: 0, paddingBottom: 0}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
+            <CardContent sx={{paddingTop: 0.5, paddingBottom: 0}}>
+              <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
+                <Grid item>
+                  <Tooltip title="Like" placement="bottom-end">
+                  <IconButton
+                    id="like"
+                    size="small"
+                    onClick={handlelike}
+                  >
+                    <FavoriteBorderIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip title="Comment" placement="bottom-end">
+                  <IconButton
+                    size="small"
+                    onClick={openMakeCommentModal}
+                  >
+                    <ChatBubbleOutlineIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip title="Share" placement="bottom-end">
+                  <IconButton
+                    size="small"
+                    sx={{ marginRight: 1 }}
+                    onClick={handleShare}
+                  >
+                    <ShareIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardContent sx={{paddingTop: 0}}>
+              <Button size="small">View all comments</Button>
+            </CardContent>
+
           </Card>
         ))): (
 
