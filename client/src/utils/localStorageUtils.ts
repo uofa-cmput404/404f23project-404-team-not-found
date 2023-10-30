@@ -17,3 +17,7 @@ export const storeAuthorId = (authorId: string) => {
 export const getAuthorId = () => {
   return localStorage.getItem("author_id");
 };
+
+export const removeAuthorId = () => {
+  return localStorage.removeItem("author_id");
+};
