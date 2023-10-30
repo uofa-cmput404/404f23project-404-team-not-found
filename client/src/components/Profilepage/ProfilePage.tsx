@@ -10,6 +10,7 @@ import { getAuthorId } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
+import { ImageLink } from "../../enums/enums";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -81,7 +82,7 @@ const ProfilePage = () => {
   const username = authorData?.displayName;
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
-  const defaultSrc = require('../../assets/defaultprofile.jpg')
+  const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
   
   const classes = useStyles();
