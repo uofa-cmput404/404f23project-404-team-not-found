@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoggedInRestrictedRoute from "./components/LoggedInRestrictedRoute";
 
 import UserContext from "./contexts/UserContext";
+import ScrollToTop from "./utils/ScrollToTop";
 
 const App = () => {
   // TODO: Find a way to validate token
@@ -36,6 +37,7 @@ const App = () => {
         pauseOnHover
         theme="light"
       />
+      <ScrollToTop/>
       <Routes>
         <Route
           path="/"

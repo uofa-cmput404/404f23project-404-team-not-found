@@ -46,16 +46,15 @@ const PostsList = ({
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
-              width: "40vw", 
+              width: "100%", 
               borderRadius: 0, 
+              borderLeft: 0,
+              borderRight: 0,
+              borderTop: 0
             }} 
               variant='outlined'>
             <CardHeader
-              avatar={
-                <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
-                    {post.author.displayName[0]}
-                </Avatar>
-              }
+              avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                   <MoreMenu
@@ -70,29 +69,34 @@ const PostsList = ({
               }
               sx = {{margin:0}}
             />
-            <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>
+            <CardContent 
+              sx={{
+                paddingTop: 0, 
+                paddingLeft: 9, 
+                paddingBottom: 0, 
+                }}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
               {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
-              <div>
-              <Link href={post.content} target="_blank" noWrap> 
-                <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
-                  {post.content}
-                </Typography> 
-              </Link>
-              <CardContent sx={{ padding: 0 }}>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <CardMedia
-                    component="img"
-                    style={{
-                      maxWidth: "100%",
-                      width: "auto",
-                      borderRadius: 12,
-                    }}
-                    image={post.content}
-                  />
-                </div>
-              </CardContent>
+              <div style={{paddingBottom: 0}}>
+                <Link href={post.content} target="_blank" noWrap> 
+                  <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
+                    {post.content}
+                  </Typography> 
+                </Link>
+                <CardContent sx={{ padding: 0, paddingBottom:0 }}>
+                  <div style={{ paddingBottom: 0 }}>
+                    <CardMedia
+                      component="img"
+                      style={{
+                        maxWidth: "100%",
+                        width: "auto",
+                        borderRadius: 12,
+                      }}
+                      image={post.content}
+                    />
+                  </div>
+                </CardContent>
               </div>
             ):(
               post.contentType === "text/plain" && (
@@ -123,64 +127,61 @@ const PostsList = ({
               </CardContent>
             )}
             </CardContent>
-            <CardContent>
-            <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
-
-
-                  <Grid item>
-                    <Tooltip title="Like" placement="bottom-end">
-                    <IconButton
-
-                      id="like"
-                      size="small"
-                      onClick={handlelike}
-                    >
-                      <FavoriteBorderIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Comment" placement="bottom-end">
-                    <IconButton
-
-                      size="small"
-                      
-                      onClick={openMakeCommentModal}
-                    >
-                      <ChatBubbleOutlineIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                    
-                    
-                  </Grid>
-                  <Grid item>
-                    <Tooltip title="Share" placement="bottom-end">
-                    <IconButton
-
-                      size="small"
-                      sx={{ marginRight: 1 }}
-                      onClick={handleShare}
-                    >
-                      <ShareIcon fontSize="medium" />
-                    </IconButton>
-                    </Tooltip>
-                    
-                    
-                  </Grid>
-
-                  </Grid>
-
-
-            </CardContent>
-            <CardContent>
-              <Button size="small">View all comments</Button>
-          </CardContent>
-            <CardContent>
+            <CardContent sx={{paddingLeft: 3, paddingTop: 0, paddingBottom: 0}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
+            <CardContent sx={{paddingTop: 0.5, paddingBottom: 0}}>
+              <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
+                <Grid item>
+                  <Tooltip title="Like" placement="bottom-end">
+                  <IconButton
+                    id="like"
+                    size="small"
+                    onClick={handlelike}
+                  >
+                    <FavoriteBorderIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip title="Comment" placement="bottom-end">
+                  <IconButton
+                    size="small"
+                    onClick={openMakeCommentModal}
+                  >
+                    <ChatBubbleOutlineIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Tooltip title="Share" placement="bottom-end">
+                  <IconButton
+                    size="small"
+                    sx={{ marginRight: 1 }}
+                    onClick={handleShare}
+                  >
+                    <ShareIcon fontSize="medium" />
+                  </IconButton>
+                  </Tooltip>
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardContent sx={{paddingTop: 0}}>
+              <Button size="small">View all comments</Button>
+            </CardContent>
+
           </Card>
         ))): (
-          <Typography variant="body1">No posts available.</Typography>
+
+            <Typography variant="h6"
+              align='center'
+              sx={{
+                marginTop: 5,
+                color: "#858585"
+              }}
+            >
+              No posts available...
+            </Typography>
         )}
          <MakeCommentModal
         isCmodalOpen={isMakeCommentModalOpen}

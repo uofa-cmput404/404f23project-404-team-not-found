@@ -37,6 +37,6 @@
   }
 }
 
-html {
-  overflow: scroll;
+body {
+  overscroll-behavior: none;
 }
