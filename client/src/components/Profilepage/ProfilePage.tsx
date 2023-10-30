@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Typography, CssBaseline, Container, Button, Theme, Modal, Box, TextField } from "@mui/material"
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
@@ -10,6 +10,7 @@ import { getAuthorId } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
+import { ImageLink } from "../../enums/enums";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -80,8 +81,6 @@ const ProfilePage = () => {
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
   const defaultSrc = require('../../assets/defaultprofile.jpg')
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
   
   const classes = useStyles();
@@ -144,21 +143,21 @@ const ProfilePage = () => {
         const formData = new FormData();
 
         if (userinfo.displayName) {
-            formData.append('displayName', userinfo.displayName);
+            formData.append("displayName", userinfo.displayName);
         } else {
-            formData.append('displayName', username ?? "");
+            formData.append("displayName", username ?? "");
         }
     
         if (userinfo.github) {
-            formData.append('github', userinfo.github);
+            formData.append("github", userinfo.github);
         } else {
-            formData.append('github', github ?? "");
+            formData.append("github", "");
         }
-        
+
         if (userinfo.profileImage) {
-            formData.append('profileImage', userinfo.profileImage);
+            formData.append("profileImage", userinfo.profileImage);
         } else {
-            formData.append('profileImage', profilePic ?? "");
+            formData.append("profileImage", defaultSrc);
         }
 
         try {
@@ -187,11 +186,11 @@ const ProfilePage = () => {
             <div className={classes.container}>
                 <div className={classes.content}>
                     <div>
-                    <img src={profilePic === "https://placeholder.com" ? defaultSrc : profilePic} alt="profile-pic" className={classes.picture} />
+                    <img src={profilePic || defaultSrc} alt="profile-pic" className={classes.picture} />
                         <Typography variant="h2" align="center" color="textPrimary" style={{ fontFamily: 'Bree Serif, serif' }}>
                             {username}
                         </Typography>
-                        <a href={github ?? ''} target="_blank" rel="noopener noreferrer">
+                        <a href={github ?? ""} target="_blank" rel="noopener noreferrer">
                             <Typography align="center" variant="body2" color="primary">
                                 {github}
                             </Typography>

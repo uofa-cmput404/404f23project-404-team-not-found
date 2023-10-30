@@ -9,6 +9,12 @@ from django.contrib.contenttypes.models import ContentType
 from .serializers import *
 from .models import *
 from .utils import *
+from socialdistribution.utils.views_utils import (
+    create_author,
+    create_post,
+    create_follower,
+    create_follow
+)
 
 
 class AuthorsView(APIView):
@@ -324,26 +330,20 @@ class SignUpView(APIView):
             data = {"message": "Username already exists"}
             return Response(data, status=status.HTTP_409_CONFLICT)
         except:
-            # TODO: This one is currently a placeholder
-            author_data = {"displayName": displayName, 
-                            "github": "https://placeholder.com", 
-                            "host": "https://placeholder.com",
-                            "profileImage": "https://placeholder.com",
-                            "url": "https://placeholder.com"}
+            author_data = {
+                "displayName": displayName,
+                "profileImage": DEFAULT_PIC_LINK,
+            }
+            user_object = User.objects.create_user(username=username,
+                                                   email=email,
+                                                   password=password)
+            author_object = create_author(author_data, request, user_object)
+            author_data["host"] = author_object.host
+            author_data["url"] = author_object.url
 
-
-            post_object = Author.objects.create(displayName=author_data["displayName"], 
-                                                github=author_data["github"],
-                                                host=author_data["host"],
-                                                profileImage=author_data["profileImage"],
-                                                url=author_data["url"],
-                                                user=User.objects.create_user(username=username, 
-                                                                            email=email, 
-                                                                            password=password))
-    
-            serializer = AuthorSerializer(instance=post_object, 
-                                        data=author_data, 
-                                        context={"request": request})
+            serializer = AuthorSerializer(instance=author_object,
+                                          data=author_data,
+                                          context={"request": request})
 
             if serializer.is_valid():
                 # save update and set updatedAt to current time

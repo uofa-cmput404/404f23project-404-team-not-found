@@ -4,7 +4,11 @@ from rest_framework.serializers import *
 import base64
 
 from .models import *
-from .utils import build_default_author_uri, build_default_post_uri, is_image, is_text
+from socialdistribution.utils.serializers_utils import (
+    build_default_author_uri,
+    build_default_post_uri
+)
+from socialdistribution.utils.general_utils import is_image, is_text
 
 
 class AuthorSerializer(serializers.ModelSerializer):
