@@ -13,6 +13,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
 import { useNavigate } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
+import DiscoverModal from "../follow/DiscoveryModal";
+import InboxModal from "../inbox/InboxModal";
 
 import Person from "@mui/icons-material/Person";
 import MailIcon from "@mui/icons-material/Mail";
@@ -88,6 +90,8 @@ const ProfilePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [open, setOpen] = useState(false);
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
+  const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
+  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
   const username = authorData?.displayName;
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
@@ -120,6 +124,14 @@ const ProfilePage = () => {
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
+  };
+
+  const openInboxModal = () => {
+    setIsInboxModalOpen(true);
+  };
+
+  const openDiscoveryModal = () => {
+    setIsDiscoveryModalOpen(true);
   };
 
   const fetchPosts = async () => {
@@ -248,6 +260,7 @@ const ProfilePage = () => {
               </Button>
               <Button
                 style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+                onClick={openInboxModal}
               >
                 <MailIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
@@ -256,6 +269,7 @@ const ProfilePage = () => {
               </Button>
               <Button
                 style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+                onClick={openDiscoveryModal}
               >
                 <ExploreIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
@@ -410,6 +424,14 @@ const ProfilePage = () => {
 							onPostCreated={fetchPosts}
 							setIsModalOpen={setIsMakePostModalOpen}
 						/>
+            <InboxModal
+              isModalOpen={isInboxModalOpen}
+              setIsModalOpen={setIsInboxModalOpen}
+            />
+            <DiscoverModal
+              isModalOpen={isDiscoveryModalOpen}
+              setIsModalOpen={setIsDiscoveryModalOpen}
+            />
 				</div>
         <Container className={classes.cardGrid} maxWidth="md">
         </Container>
