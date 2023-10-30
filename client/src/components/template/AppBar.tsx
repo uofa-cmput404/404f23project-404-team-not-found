@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 
 import { removeToken, removeAuthorId } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
+import { Link } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 const HeadBar = () => {
   const { userToken, setUserToken } = useContext(UserContext);
@@ -24,38 +27,43 @@ const HeadBar = () => {
     <AppBar
       position="fixed"
       style={{
-        color: "#FFFFFF",
         height: 60,
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
+        background: "transparent",
+        backdropFilter: "blur(15px)",
+        boxShadow: "none",
+        borderBottom: "1px solid #dbd9d9",
       }}
     >
-      <Typography
-        variant="h4"
-        align="left"
-        style={{
-          marginLeft: 20,
-          color: "white",
-          marginTop: 10,
-          marginBottom: 10,
-        }}
-      >
-        socialdistribution
-      </Typography>
+      <Link to="/home-page" style={{ textDecoration: "none"}}>
+        <Typography
+          variant="h4"
+          align="left"
+          color="primary"
+          style={{
+            marginLeft: 20,
+            marginTop: 10,
+            marginBottom: 10,
+          }}
+        >
+          distributed
+        </Typography>
+      </Link>
+
       <Button
-        variant="contained"
-        color="success"
         size="small"
         style={{
-          color: "white",
+          color: "black",
           height: "70%",
           alignSelf: "center",
-          marginRight: "5px",
+          marginRight: "10px",
         }}
         onClick={handleSignOut}
+        endIcon={<LogoutIcon/>}
       >
-        Sign Out
+        <Typography textTransform="none">Sign Out</Typography>
       </Button>
     </AppBar>
   );

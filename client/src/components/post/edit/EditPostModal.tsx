@@ -103,7 +103,7 @@ const EditPostModal = ({
       await axios.post(url, payload);
       onPostEdited();
       handleClose();
-      toast.error("Post edited successfully")
+      toast.success("Post edited successfully")
     } catch (error) {
       toast.error("Failed to edit post")
     }
@@ -265,7 +265,7 @@ const EditPostModal = ({
                 handleTextContent();
               }}
               >
-              Done
+              Save
             </Button>
           </Grid>
         </Box>
