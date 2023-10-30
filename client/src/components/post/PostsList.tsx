@@ -174,7 +174,7 @@ const PostsList = ({
             <CardContent>
               <Button size="small">View all comments</Button>
           </CardContent>
-            <CardContent>
+            <CardContent sx={{paddingLeft: 9}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
           </Card>
