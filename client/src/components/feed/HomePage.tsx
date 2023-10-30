@@ -14,16 +14,28 @@ import Person from "@mui/icons-material/Person";
 import MailIcon from "@mui/icons-material/Mail";
 import ExploreIcon from "@mui/icons-material/Explore";
 import HeadBar from "../template/AppBar";
+import DiscoverModal from "../follow/DiscoveryModal";
+import InboxModal from "../inbox/InboxModal";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
+  const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
+  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
+  };
+
+  const openInboxModal = () => {
+    setIsInboxModalOpen(true);
+  };
+
+  const openDiscoveryModal = () => {
+    setIsDiscoveryModalOpen(true);
   };
 
   const handleProfileClick = () => {
@@ -101,6 +113,7 @@ export default function HomePage() {
               </Button>
               <Button
                 style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+                onClick={openInboxModal}
               >
                 <MailIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
@@ -109,6 +122,7 @@ export default function HomePage() {
               </Button>
               <Button
                 style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+                onClick={openDiscoveryModal}
               >
                 <ExploreIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
@@ -136,6 +150,14 @@ export default function HomePage() {
           isModalOpen={isMakePostModalOpen}
           onPostCreated={fetchPosts}
           setIsModalOpen={setIsMakePostModalOpen}
+        />
+        <InboxModal
+          isModalOpen={isInboxModalOpen}
+          setIsModalOpen={setIsInboxModalOpen}
+        />
+        <DiscoverModal
+          isModalOpen={isDiscoveryModalOpen}
+          setIsModalOpen={setIsDiscoveryModalOpen}
         />
       </Grid>
     </>
