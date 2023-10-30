@@ -9,7 +9,6 @@ Contributors / Licensing
 ========================
 
 Authors:
-
     
 * Kaye Ena Crayzhel Misay
 * Kaustubh Mukherjee
