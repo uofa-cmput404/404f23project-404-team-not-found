@@ -58,3 +58,4 @@ class TestPostsView(TestCase):
         self.assertEqual(json_obj["title"], data["title"])
         self.assertEqual(json_obj["description"], data["description"])
         self.assertEqual(json_obj["content"], data["content"])
+        self.assertEqual(json_obj["categories"], data["categories"])

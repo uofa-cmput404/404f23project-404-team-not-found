@@ -171,6 +171,17 @@ class PostView(APIView):
         TODO: update this when authentication is implemented
         """
         post_object = get_object_or_404(Post, id=post_id, author__id=author_id)
+        # takes care of updating categories
+        categories = request.data.get("categories", [])
+        if categories:
+            update_post_categories(categories, post_object)
+
+        # takes care of updating content
+        content = request.data.get("content", "")
+        content_type = request.data.get("contentType", "")
+        if content and content_type:
+            update_post_content(content, content_type, post_object)
+
         serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
 
         if serializer.is_valid():

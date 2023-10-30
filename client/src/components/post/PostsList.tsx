@@ -1,22 +1,23 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
-import DeleteIcon from '@mui/icons-material/Delete';
-import { renderVisibility }from '../../utils/visibilityRenderUtils';
+import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 
+import MoreMenu from './edit/MoreMenu';
 
 
 const PostsList = ({
-  posts, deletePost
+  posts, deletePost, onPostEdited
 }: {
   posts: Post[];
   deletePost: (postId: string) => void;
+  onPostEdited: () => void;
 }) => {
 
     return (
@@ -37,12 +38,16 @@ const PostsList = ({
               }
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
-                  <DeleteIcon />
-                </IconButton>
+                  <MoreMenu
+                    post={post}
+                    deletePost={deletePost}
+                    onPostEdited={onPostEdited}
+                  />
               )}
               title={post.author.displayName}
-              subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
+              subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
+              `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
+              }
               sx = {{margin:0}}
             />
             <CardContent sx={{paddingTop: 0, paddingLeft: 9}}>

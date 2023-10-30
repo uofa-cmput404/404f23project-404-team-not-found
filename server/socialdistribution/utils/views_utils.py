@@ -51,15 +51,38 @@ def create_post(author, data, post_id=None):
         post.origin = data["origin"]
 
     categories = data.get("categories", [])
+
     for category in categories:
         category_object, created = Category.objects.get_or_create(category=category)
         post.categories.add(category_object)
 
     # creating a binary-suitable object for content field
-    if is_text(data["contentType"]):
-        post.content = data["content"].encode("utf-8")
-    elif is_image(data["contentType"]):
-        base64_content = data["content"].split("base64,")[1]
-        post.content = base64.b64decode(base64_content)
+    update_post_content(data["content"], data["contentType"], post)
 
     return post
+
+
+def update_post_content(content, content_type, post_object):
+    """
+    creating a binary-suitable object for content field
+    """
+    if is_text(content_type):
+        post_object.content = content.encode("utf-8")
+    elif is_image(content_type):
+        base64_content = content.split("base64,")[1]
+        post_object.content = base64.b64decode(base64_content)
+
+
+def update_post_categories(categories, post_object):
+    current_categories = set(post_object.categories.values_list('category', flat=True))
+    updated_categories = set(categories)
+
+    # Add new categories
+    for category in updated_categories - current_categories:
+        category_object, created = Category.objects.get_or_create(category=category)
+        post_object.categories.add(category_object)
+
+    # Remove categories that aren't in the updated list
+    for category in current_categories - updated_categories:
+        category_object = Category.objects.get(category=category)
+        post_object.categories.remove(category_object)
