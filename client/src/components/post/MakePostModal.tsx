@@ -17,6 +17,7 @@ import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
+import {toast} from "react-toastify";
 
 const style = {
   display: "flex",
@@ -112,7 +113,7 @@ const MakePostModal = ({
       onPostCreated();
       handleClose();
     } catch (error) {
-      console.error("Failed to post", error);
+      toast.error("Failed to create post")
     }
   };
 

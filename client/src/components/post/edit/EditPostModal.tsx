@@ -14,6 +14,7 @@ import PostCategoriesField from "../PostCategoriesField";
 import { Post } from "../../../interfaces/interfaces";
 import { compareStringArray, isImage } from "../../../utils/postUtils";
 import { ContentType } from "../../../enums/enums";
+import { toast } from "react-toastify";
 
 const style = {
   display: "flex",
@@ -102,8 +103,9 @@ const EditPostModal = ({
       await axios.post(url, payload);
       onPostEdited();
       handleClose();
+      toast.error("Post edited successfully")
     } catch (error) {
-      console.error("Failed to post", error);
+      toast.error("Failed to edit post")
     }
   };
 
