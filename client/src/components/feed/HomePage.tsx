@@ -10,9 +10,11 @@ import PostsList from "../post/PostsList";
 import axios from "axios";
 import { Post } from "../../interfaces/interfaces";
 import { toast } from "react-toastify";
+
 import Person from "@mui/icons-material/Person";
 import MailIcon from "@mui/icons-material/Mail";
 import ExploreIcon from "@mui/icons-material/Explore";
+import HomeIcon from '@mui/icons-material/Home';
 import HeadBar from "../template/AppBar";
 import DiscoverModal from "../follow/DiscoveryModal";
 import InboxModal from "../inbox/InboxModal";
@@ -40,6 +42,10 @@ export default function HomePage() {
 
   const handleProfileClick = () => {
     navigate("/profile-page");
+  };
+
+  const handleHomeClick = () => {
+    navigate("/home-page");
   };
 
   const fetchPosts = async () => {
@@ -78,7 +84,13 @@ export default function HomePage() {
       <HeadBar />
       <Grid
         container
-        style={{ width: "100%", margin: "0 auto", marginTop: "6vh", overscrollBehavior: "none" }}
+        style={{ 
+          width: "100%",
+          height: "100vh", 
+          margin: "0 auto", 
+          marginTop: 60, 
+          overscrollBehavior: "none"
+        }}
       >
         <Grid item xs={3.6} style={{ height: "80vh" }}>
           <Grid container 
@@ -88,7 +100,7 @@ export default function HomePage() {
               position: "fixed",
               paddingTop: 5,
               paddingRight: 2,
-              width:"30%", 
+              width:"30vw", 
               height: "100vh", 
             }}
             >
@@ -98,7 +110,15 @@ export default function HomePage() {
               width={"50%"}
               marginRight={2}
             >
-              <Button>
+              <Button onClick={handleHomeClick}>
+                <HomeIcon fontSize="large" />
+                <Typography variant="h6" textTransform="none" paddingLeft={2}>
+                  <strong>Home</strong>
+                </Typography>
+              </Button>
+              <Button onClick={handleProfileClick}
+                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
+              >
                 <Person fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
                   Profile
@@ -125,35 +145,29 @@ export default function HomePage() {
               <Button
                 variant="contained"
                 size="large"
-                style={{ marginTop: 20, width: "100%", borderRadius: 20 }}
+                style={{ marginTop: 20, width: "90%", borderRadius: 100 }}
                 onClick={openMakePostModal}
               >
-                Post
+                <Typography 
+                  textTransform="none" 
+                  padding={0.5}
+                  variant="subtitle1"
+								>
+									<strong>Post</strong>
+								</Typography>
               </Button>
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={4.8} justifyContent='center'
-        sx={{
-          minHeight: "94vh",
-          maxHeight: "auto",
-          marginTop: 0,
-          borderLeft: "1px solid #dbd9d9",
-          borderRight: "1px solid #dbd9d9",
-
-
-        }}
+          sx={{
+            minHeight: "calc(100vh - 60px)",
+            maxHeight: "auto",
+            borderLeft: "1px solid #dbd9d9",
+            borderRight: "1px solid #dbd9d9",
+          }}
         >
           <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
-        </Grid>
-        <Grid item 
-          xs={3.6}
-          position="fixed"
-          sx ={{
-            width: "30vw",
-            marginLeft: "70vw"
-          }}
-          >
         </Grid>
         <MakePostModal
           isModalOpen={isMakePostModalOpen}
