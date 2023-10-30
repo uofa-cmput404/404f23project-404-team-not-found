@@ -127,7 +127,7 @@ const PostsList = ({
               </CardContent>
             )}
             </CardContent>
-            <CardContent sx={{paddingLeft: 9, paddingTop: 0, paddingBottom: 0}}>
+            <CardContent sx={{paddingLeft: 3, paddingTop: 0, paddingBottom: 0}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
             <CardContent sx={{paddingTop: 0.5, paddingBottom: 0}}>
