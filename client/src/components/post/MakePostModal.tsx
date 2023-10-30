@@ -1,13 +1,10 @@
 
 import { getAuthorId } from "../../utils/localStorageUtils";
-
 import React, { useState} from "react";
 
 import { Modal, Box, Button, IconButton, Grid, Typography,FormControlLabel,Checkbox} from "@mui/material";
 import { styled } from "@mui/material";
 
-
-import { Modal, Box, Button, IconButton, Grid, Typography, FormControlLabel, Checkbox } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -22,7 +19,6 @@ import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
-import {toast} from "react-toastify";
 
 const style = {
   display: "flex",
@@ -63,13 +59,7 @@ const MakePostModal = ({
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
 
-  const handleClose = () => {
-    setIsModalOpen(false);
-    setImagePrev("");
-    handleTextContent();
-    setTitle("");
-    setDescription("");
-  };
+  const handleClose = () => {setIsModalOpen(false); setImagePrev(''); handleTextContent()};
   
 
   const handleTextContent = () => {
@@ -77,7 +67,7 @@ const MakePostModal = ({
     setImageType(false);
     setCategories([]);
     setContent("");
-    setImagePrev("");
+    setImagePrev("")
     setMarkdownCheckbox(false);
   }
 
@@ -118,7 +108,7 @@ const MakePostModal = ({
       onPostCreated();
       handleClose();
     } catch (error) {
-      toast.error("Failed to create post")
+      console.error("Failed to post", error);
     }
   };
 
@@ -185,7 +175,7 @@ const MakePostModal = ({
           <Grid container>
             <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
-          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
+          <Grid container spacing={0} justifyContent="flex-end" paddingLeft={0.5}> 
             <Grid item>
               <IconButton 
               color={textType ? "info" : "default"}
@@ -208,19 +198,20 @@ const MakePostModal = ({
                 <ImageIcon fontSize="medium"/> 
               </IconButton>
             </Grid>
-            {textType &&
-              <Grid item>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={markdownCheckbox}
-                      onChange={handleMarkdownContent}
-                    />
-                  }
-                  label="Markdown"
+             <Grid item>
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={markdownCheckbox}
+                  onChange={handleMarkdownContent}
                 />
-              </Grid>
-            }
+              }
+              label="Markdown"
+            />
+
+
+            </Grid>
             <Button
               variant="contained"
               color="primary"

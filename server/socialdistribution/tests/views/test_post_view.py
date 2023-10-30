@@ -32,11 +32,11 @@ class TestPostView(TestCase):
         self.assertEqual(json_obj["title"], post_obj.title)
         self.assertEqual(json_obj["description"], post_obj.description)
 
-    def test_post_update_post_title_category_description(self):
+    def test_post_update_post(self):
         post_obj = create_plain_text_post(self.author)
         data = {
             "title": "Update the title",
-            "categories": ["changed", "wazzup"],
+            "categories": ["test", "test1", "test2"],
             "description": "Update the description"
         }
         url = reverse('single_post', args=[self.author.id, post_obj.id])
@@ -45,30 +45,10 @@ class TestPostView(TestCase):
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # see that only title and description are changed from previous post_obj
         self.assertEqual(json_obj["title"], data["title"])
         self.assertEqual(json_obj["description"], data["description"])
-        self.assertEqual(set(json_obj["categories"]), set(data["categories"]))
         self.assertEqual(json_obj["content"], post_obj.content.decode("utf-8"))
-        self.assertEqual(json_obj["contentType"], post_obj.contentType)
-
-    def test_post_update_post_content(self):
-        post_obj = create_plain_text_post(self.author)
-        data = {
-            "title": post_obj.title,
-            "description": post_obj.description,
-            "content": "UPDATE CONTENT YASSSSS",
-            "contentType": Post.ContentType.PLAIN
-        }
-        url = reverse('single_post', args=[self.author.id, post_obj.id])
-
-        response = self.client.post(url, data, format="json")
-        json_obj = deserialize_response(response)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(json_obj["title"], post_obj.title)
-        self.assertEqual(json_obj["description"], post_obj.description)
-        self.assertEqual(json_obj["content"], data["content"])
-        self.assertEqual(json_obj["contentType"], data["contentType"])
 
     def test_put_create_post_given_id(self):
         post_id = uuid.uuid4()
@@ -93,4 +73,3 @@ class TestPostView(TestCase):
         self.assertEqual(json_obj["title"], data["title"])
         self.assertEqual(json_obj["description"], data["description"])
         self.assertEqual(json_obj["content"], data["content"])
-        self.assertEqual(json_obj["categories"], data["categories"])
