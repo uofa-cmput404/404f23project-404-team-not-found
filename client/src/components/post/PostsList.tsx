@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useCallback } from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton, InputBase, TextField, Grid } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton, InputBase, TextField, Grid , Button} from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -11,6 +11,9 @@ import PostCategories from "./PostCategories";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
+import ShareIcon from '@mui/icons-material/Share';
+import Tooltip from '@mui/material/Tooltip';
+
 
 
 
@@ -23,7 +26,10 @@ const PostsList = ({
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState("");
+  // TODO : implement like modal
   const handlelike = () => { };
+  // TODO : implement share modal
+  const handleShare = () => { };
 
   const openMakeCommentModal = () => {
     setIsMakeCommentModalOpen(true);
@@ -115,6 +121,7 @@ const PostsList = ({
 
 
               <Grid item>
+                <Tooltip title="Like" placement="bottom-end">
                 <IconButton
 
                   id="like"
@@ -123,19 +130,42 @@ const PostsList = ({
                 >
                   <FavoriteBorderIcon fontSize="medium" />
                 </IconButton>
+                </Tooltip>
               </Grid>
               <Grid item>
+                <Tooltip title="Comment" placement="bottom-end">
                 <IconButton
 
                   size="small"
-                  sx={{ marginRight: 1 }}
+                  
                   onClick={openMakeCommentModal}
                 >
                   <ChatBubbleOutlineIcon fontSize="medium" />
                 </IconButton>
+                </Tooltip>
+                
+                
               </Grid>
+              <Grid item>
+                <Tooltip title="Share" placement="bottom-end">
+                <IconButton
+
+                  size="small"
+                  sx={{ marginRight: 1 }}
+                  onClick={handleShare}
+                >
+                  <ShareIcon fontSize="medium" />
+                </IconButton>
+                </Tooltip>
+                
+                
+              </Grid>
+              
             </Grid>
 
+          </CardContent>
+          <CardContent>
+          <Button size="small">View all comments</Button>
           </CardContent>
           <CardContent>
             <PostCategories categories={post.categories} />
