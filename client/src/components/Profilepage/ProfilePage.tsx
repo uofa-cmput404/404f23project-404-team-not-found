@@ -223,6 +223,7 @@ const ProfilePage = () => {
 			style={{ 
 				width: "100%", 
 				margin: "0 auto", 
+        height: "100vh",
 				marginTop: 60, 
 				overscrollBehavior: "none" }}
 			>
@@ -433,8 +434,6 @@ const ProfilePage = () => {
               setIsModalOpen={setIsDiscoveryModalOpen}
             />
 				</div>
-        <Container className={classes.cardGrid} maxWidth="md">
-        </Container>
       </Grid>
     </>
   );
