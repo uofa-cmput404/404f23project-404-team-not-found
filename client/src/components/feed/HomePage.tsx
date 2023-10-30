@@ -78,34 +78,27 @@ export default function HomePage() {
       <HeadBar />
       <Grid
         container
-        style={{ width: "100vw", margin: "0 auto", marginTop: 60 }}
+        style={{ width: "100%", margin: "0 auto", marginTop: "6vh", overscrollBehavior: "none" }}
       >
-        <Grid item xs={3} style={{ height: "80vh" }}>
-          <Grid
-            container
+        <Grid item xs={3.6} style={{ height: "80vh" }}>
+          <Grid container 
             alignItems="flex-end"
             direction="column"
             sx={{
               position: "fixed",
               paddingTop: 5,
               paddingRight: 2,
-              width: "30vw",
-              height: "100vh",
-              border: 1,
-              borderTop: 0,
-              borderColor: "#dbd9d9",
+              width:"30%", 
+              height: "100vh", 
             }}
-          >
-            <Grid
-              container
+            >
+            <Grid container
               direction="column"
               alignItems="flex-start"
               width={"50%"}
+              marginRight={2}
             >
-              <Button
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-                onClick={handleProfileClick}
-              >
+              <Button>
                 <Person fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
                   Profile
@@ -132,7 +125,7 @@ export default function HomePage() {
               <Button
                 variant="contained"
                 size="large"
-                style={{ marginTop: 20, width: "90%", borderRadius: 20 }}
+                style={{ marginTop: 20, width: "100%", borderRadius: 20 }}
                 onClick={openMakePostModal}
               >
                 Post
@@ -140,11 +133,27 @@ export default function HomePage() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={6} justifyContent="center">
+        <Grid item xs={4.8} justifyContent='center'
+        sx={{
+          minHeight: "94vh",
+          maxHeight: "auto",
+          marginTop: 0,
+          borderLeft: "1px solid #dbd9d9",
+          borderRight: "1px solid #dbd9d9",
+
+
+        }}
+        >
           <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
         </Grid>
-        <Grid item xs={3}>
-          <Typography align="center">side</Typography>
+        <Grid item 
+          xs={3.6}
+          position="fixed"
+          sx ={{
+            width: "30vw",
+            marginLeft: "70vw"
+          }}
+          >
         </Grid>
         <MakePostModal
           isModalOpen={isMakePostModalOpen}
