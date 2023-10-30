@@ -6,10 +6,6 @@ export enum ContentType {
     PNG = "image/png;base64",
 }
 
-export enum ImageLink {
-    DEFAULT_PROFILE_PIC = "https://i.imgur.com/DKrKvCI.jpg"
-}
-
 export enum ShareType {
     FRIENDS = "FRIENDS",
     PRIVATE = "PRIVATE",

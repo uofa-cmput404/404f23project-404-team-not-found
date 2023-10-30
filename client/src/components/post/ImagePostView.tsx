@@ -46,7 +46,7 @@ const ImagePostView = (props: any) => {
         id="title-text"
         required
         label="Title"
-        defaultValue={props.title}
+        defaultValue=""
         sx={{
           margin: 1,
         }}
@@ -59,7 +59,7 @@ const ImagePostView = (props: any) => {
         id="description-text"
         required
         label="Description"
-        defaultValue={props.description}
+        defaultValue=""
         sx={{
           marginLeft: 1,
           marginRight: 1,
@@ -78,7 +78,7 @@ const ImagePostView = (props: any) => {
           <TextField
             id="image-field"
             label="Image url"
-            defaultValue={props.content.slice(0, 4) === "http" ? props.content : ""}
+            defaultValue=""
             size="small"
             fullWidth
             sx={{margin:1, }}
@@ -113,7 +113,7 @@ const ImagePostView = (props: any) => {
         </Grid>
         <img
           alt=""
-          src={props.content}
+          src={props.imagePrev}
           style={{
               marginTop: 5,
               marginBottom: 10,

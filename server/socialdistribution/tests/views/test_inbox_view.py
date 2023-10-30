@@ -9,6 +9,7 @@ from socialdistribution.tests.utils import (
     create_author_dict,
     create_follow,
     create_follow_inbox_item,
+    create_follower,
     deserialize_response
 )
 
