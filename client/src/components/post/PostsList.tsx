@@ -54,11 +54,7 @@ const PostsList = ({
             }} 
               variant='outlined'>
             <CardHeader
-              avatar={
-                <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
-                    {post.author.displayName[0]}
-                </Avatar>
-              }
+              avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                   <MoreMenu
