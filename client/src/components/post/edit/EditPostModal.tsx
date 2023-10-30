@@ -1,28 +1,20 @@
-
-import { getAuthorId } from "../../utils/localStorageUtils";
-
-import React, { useState} from "react";
-
-import { Modal, Box, Button, IconButton, Grid, Typography,FormControlLabel,Checkbox} from "@mui/material";
-import { styled } from "@mui/material";
-
-
-import { Modal, Box, Button, IconButton, Grid, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, Modal, Typography } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
 import ImageIcon from '@mui/icons-material/Image';
-import SendIcon from '@mui/icons-material/Send';
 
 import axios from "axios";
 
-import VisibilityMenu from "./VisibilityMenu";
-import TextPostView from "./TextPostView";
-import ImagePostView from "./ImagePostView";
-import PostCategoriesField from "./PostCategoriesField";
-
-import { ShareType } from "../../enums/enums";
-import {toast} from "react-toastify";
+import VisibilityMenu from "../VisibilityMenu";
+import TextPostView from "../TextPostView";
+import ImagePostView from "../ImagePostView";
+import PostCategoriesField from "../PostCategoriesField";
+import { Post } from "../../../interfaces/interfaces";
+import { compareStringArray, isImage } from "../../../utils/postUtils";
+import { ContentType } from "../../../enums/enums";
+import { toast } from "react-toastify";
 
 const style = {
   display: "flex",
@@ -39,57 +31,52 @@ const style = {
   borderRadius: "8px",
 };
 
-const APP_URI = process.env.REACT_APP_URI;
-
-const MakePostModal = ({
+const EditPostModal = ({
   isModalOpen,
-  onPostCreated,
+  onPostEdited,
   setIsModalOpen,
+  post,
+  text,
+  image
 }: {
   isModalOpen: boolean;
-  onPostCreated: () => void;
+  onPostEdited: () => void;
   setIsModalOpen: (isOpen: boolean) => void;
+  post: Post;
+  text: boolean;
+  image: boolean;
 }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [categories, setCategories] = useState<string[]>([]);
-  const [content, setContent] = useState("");
-  const [contentType, setContentType] = useState("text/plain");
-  const [textType, setTextType] = useState(true);
-  const [imageType, setImageType] = useState(false);
-  const [imagePrev, setImagePrev] = useState("");
-
-  const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
-  const [visibility, setVisibility] = useState(ShareType.PUBLIC);
-  const [unlisted, setUnlisted] = useState(false);
+  const [title, setTitle] = useState(post.title);
+  const [description, setDescription] = useState(post.description);
+  const [categories, setCategories] = useState<string[]>(post.categories);
+  const [content, setContent] = useState(post.content);
+  const [contentType, setContentType] = useState(post.contentType);
+  const [textType, setTextType] = useState(text);
+  const [imageType, setImageType] = useState(image);
+  const [imagePrev, setImagePrev] = useState(post.content);
+  const [visibility, setVisibility] = useState(post.visibility);
+  const [unlisted, setUnlisted] = useState(post.unlisted);
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(post.contentType === ContentType.MARKDOWN);
 
   const handleClose = () => {
-    setIsModalOpen(false);
-    setImagePrev("");
-    handleTextContent();
-    setTitle("");
-    setDescription("");
+    setIsModalOpen(false)
+    onPostEdited();
   };
-  
 
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
-    setCategories([]);
-    setContent("");
-    setImagePrev("");
-    setMarkdownCheckbox(false);
   }
 
   const handleImageContent = () => {
     setImageType(true);
     setTextType(false);
-    setContent("");
   }
+
   const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMarkdownCheckbox(event.target.checked);
-    if (event.target.checked) setContentType("text/markdown");
-    else setContentType("text/plain");
+    if (event.target.checked) setContentType(ContentType.MARKDOWN);
+    else setContentType(ContentType.PLAIN);
   };
 
   const handleSubmit = async (
@@ -110,17 +97,40 @@ const MakePostModal = ({
       visibility: visibility,
       unlisted: unlisted,
     };
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${post.id}/`;
 
     try {
       await axios.post(url, payload);
-      onPostCreated();
+      onPostEdited();
       handleClose();
+      toast.error("Post edited successfully")
     } catch (error) {
-      toast.error("Failed to create post")
+      toast.error("Failed to edit post")
     }
   };
+
+  const textOrImage = () => {
+    if (isImage(post)) {
+        setImageType(true);
+        setTextType(false);
+    } else {
+        setImageType(false);
+        setTextType(true);
+    }
+  };
+
+  useEffect(() => {
+    setTitle(post.title);
+    setDescription(post.description);
+    setCategories(post.categories);
+    setContent(post.content);
+    setContentType(post.contentType);
+    textOrImage();
+    setImagePrev(post.content);
+    setVisibility(post.visibility);
+    setUnlisted(post.unlisted);
+    setMarkdownCheckbox(post.contentType === ContentType.MARKDOWN);
+}, [post]);
 
   return (
     <>
@@ -144,7 +154,7 @@ const MakePostModal = ({
                   variant="h6"
                   sx={{paddingTop:0.2}}
                 >
-                  Create a Post 
+                  Edit Post 
                 </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
@@ -181,7 +191,6 @@ const MakePostModal = ({
               setImagePrev={setImagePrev}
             />
           }
-          
           <Grid container>
             <PostCategoriesField categories={categories} setCategories={setCategories} />
           </Grid>
@@ -224,7 +233,15 @@ const MakePostModal = ({
             <Button
               variant="contained"
               color="primary"
-              disabled={content === "" || title === "" || description === ""} 
+              disabled={(
+                content === post.content &&
+                contentType === post.contentType &&
+                title === post.title &&
+                description === post.description &&
+                visibility === post.visibility &&
+                unlisted === post.unlisted &&
+                compareStringArray(categories, post.categories)
+              )}
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -247,9 +264,8 @@ const MakePostModal = ({
                 setIsModalOpen(false);
                 handleTextContent();
               }}
-              endIcon={<SendIcon/>}
               >
-              Post
+              Done
             </Button>
           </Grid>
         </Box>
@@ -258,4 +274,4 @@ const MakePostModal = ({
   );
 };
 
-export default MakePostModal;
+export default EditPostModal;

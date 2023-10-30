@@ -1,27 +1,30 @@
 import { useState, useContext, useEffect, useCallback } from 'react';
 import { Post } from "../../interfaces/interfaces";
+
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton, InputBase, TextField, Grid , Button} from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
-import DeleteIcon from '@mui/icons-material/Delete';
-import { renderVisibility } from '../../utils/visibilityRenderUtils';
+import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
 
+import MoreMenu from './edit/MoreMenu';
 
 
 
 const PostsList = ({
-  posts, deletePost
+  posts, deletePost, onPostEdited
 }: {
   posts: Post[];
   deletePost: (postId: string) => void;
+  onPostEdited: () => void;
 }) => {
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   const [comments, setComments] = useState([]);
@@ -36,29 +39,31 @@ const PostsList = ({
   };
 
 
-  return (
-    <>
-      {posts.length > 0 ? (posts.map(post => (
-        <Card key={post.id}
-          style={{
-            margin: "auto",
-            width: "40vw",
-            borderRadius: 0,
-          }}
-          variant='outlined'>
-          <CardHeader
-            avatar={
-              <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
-                {post.author.displayName[0]}
-              </Avatar>
-            }
-            action={
-              // TODO: Remake condition after Author is properly serialized on the backend
-              (post.author.id === getAuthorId() && post.visibility === 'PUBLIC') && (
-                <IconButton onClick={() => deletePost(post.id)} aria-label="settings">
-                  <DeleteIcon />
-                </IconButton>
+    return (
+      <>
+        { posts.length > 0 ? (posts.map(post => (
+          <Card key={post.id} 
+            style={{ 
+              margin: "auto", 
+              width: "40vw", 
+              borderRadius: 0, 
+            }} 
+              variant='outlined'>
+            <CardHeader
+              avatar={
+                <Avatar sx={{ bgcolor: theme.palette.primary.main }} aria-label="recipe">
+                    {post.author.displayName[0]}
+                </Avatar>
+              }
+              action={
+                (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
+                  <MoreMenu
+                    post={post}
+                    deletePost={deletePost}
+                    onPostEdited={onPostEdited}
+                  />
               )}
+             
             title={post.author.displayName}
             subheader={`${formatDateTime(post.published)} • ${renderVisibility(post)}`}
             sx={{ margin: 0 }}
@@ -67,6 +72,7 @@ const PostsList = ({
             <Typography variant="h6">{post.title}</Typography>
             <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
             {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+
               <div>
                 <Link href={post.content} target="_blank" noWrap>
                   <Typography noWrap sx={{ marginTop: 1, marginBottom: 0.5 }}>

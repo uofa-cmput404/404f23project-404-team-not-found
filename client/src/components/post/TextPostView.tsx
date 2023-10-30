@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, TextField } from "@mui/material";
+import { isText } from "../../utils/postUtils";
 
 
 const TextPostView = (props: any) => {
@@ -9,7 +10,7 @@ const TextPostView = (props: any) => {
         id="title-text"
         required
         label="Title"
-        defaultValue=""
+        defaultValue={props.title}
         sx={{
           margin: 1,
         }}
@@ -22,7 +23,7 @@ const TextPostView = (props: any) => {
         id="description-text"
         required
         label="Description"
-        defaultValue=""
+        defaultValue={props.description}
         sx={{
           marginLeft: 1,
           marginRight: 1,
@@ -35,15 +36,14 @@ const TextPostView = (props: any) => {
       <TextField
         id="content-field"
         required
-        label="content"
+        label="Content"
         multiline rows={4}
-        defaultValue=""
+        defaultValue={isText(props) ? props.content : ""}
         sx={{
           margin: 1,
         }}
         onChange={(e) => {
           props.setContent(e.target.value);
-          props.setContentType("text/plain");
         }}
       />
     </Grid>

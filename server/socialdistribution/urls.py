@@ -5,6 +5,7 @@ from .utils import SERVICE
 urlpatterns = [
     # API endpoints based on the outlined spec for the Distributed Social Networking app:
     # https://github.com/uofa-cmput404/project-socialdistribution/blob/master/project.org
+    path(f"{SERVICE}authors/", AuthorsView.as_view(), name="authors"),
     path(f"{SERVICE}author/<uuid:author_id>/", AuthorView.as_view(), name="author"),
     path(f"{SERVICE}author/<uuid:author_id>/posts/", PostsView.as_view(), name="posts"),
     path(f"{SERVICE}author/<uuid:author_id>/posts/<uuid:post_id>/", PostView.as_view(), name="single_post"),

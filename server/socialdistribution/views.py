@@ -9,17 +9,56 @@ from django.contrib.contenttypes.models import ContentType
 from .serializers import *
 from .models import *
 from .utils import *
+from socialdistribution.utils.views_utils import (
+    create_author,
+    create_follow,
+    create_follower,
+    create_post,
+    update_post_categories,
+    update_post_content
+)
+
+
+class AuthorsView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request):
+        """
+        retrieve all profiles on the server (paginated)
+        TODO: paginate response
+        """
+        authors = Author.objects.all()
+        serializer = AuthorSerializer(authors, many=True, context={"request": request})
+
+        return Response(
+            data={
+                "type": "authors",
+                "items": serializer.data
+            },
+            status=status.HTTP_200_OK)
 
 
 class AuthorView(APIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+    http_method_names = ["get", "post"]
 
     def get(self, request, author_id):
-        # get the author data whose id is AUTHOR_ID
-        author = Author.objects.get(id=author_id)
-        serializer = AuthorSerializer(author)
+        """
+        get the author data whose id is AUTHOR_ID
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(instance=author_object, context={"request": request})
+
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request, author_id):
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(instance=author_object, data=request.data, context={"request": request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowersView(APIView):
@@ -31,10 +70,12 @@ class FollowersView(APIView):
         """
         author_object = get_object_or_404(Author, id=author_id)
         followers = Follower.objects.filter(author=author_object)
-        return Response({
-            "type": "followers",
-            "items": [follower_object.follower_author for follower_object in followers]
-        })
+        return Response(
+            data={
+                "type": "followers",
+                "items": [follower_object.follower_author for follower_object in followers]
+            },
+            status=status.HTTP_200_OK)
 
 
 class FollowerView(APIView):
@@ -144,6 +185,17 @@ class PostView(APIView):
         TODO: update this when authentication is implemented
         """
         post_object = get_object_or_404(Post, id=post_id, author__id=author_id)
+        # takes care of updating categories
+        categories = request.data.get("categories", [])
+        if categories:
+            update_post_categories(categories, post_object)
+
+        # takes care of updating content
+        content = request.data.get("content", "")
+        content_type = request.data.get("contentType", "")
+        if content and content_type:
+            update_post_content(content, content_type, post_object)
+
         serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
 
         if serializer.is_valid():
@@ -211,7 +263,7 @@ class InboxView(APIView):
 
         if data['type'] == "Follow":
             follow_object = create_follow(author_object, request.data)
-            serializer = FollowSerializer(instance=follow_object, data=data)
+            serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
 
             if serializer.is_valid():
                 # create follow instance
@@ -280,26 +332,20 @@ class SignUpView(APIView):
             data = {"message": "Username already exists"}
             return Response(data, status=status.HTTP_409_CONFLICT)
         except:
-            # TODO: This one is currently a placeholder
-            author_data = {"displayName": displayName, 
-                            "github": "https://placeholder.com", 
-                            "host": "https://placeholder.com",
-                            "profileImage": "https://placeholder.com",
-                            "url": "https://placeholder.com"}
+            author_data = {
+                "displayName": displayName,
+                "profileImage": DEFAULT_PIC_LINK,
+            }
+            user_object = User.objects.create_user(username=username,
+                                                   email=email,
+                                                   password=password)
+            author_object = create_author(author_data, request, user_object)
+            author_data["host"] = author_object.host
+            author_data["url"] = author_object.url
 
-
-            post_object = Author.objects.create(displayName=author_data["displayName"], 
-                                                github=author_data["github"],
-                                                host=author_data["host"],
-                                                profileImage=author_data["profileImage"],
-                                                url=author_data["url"],
-                                                user=User.objects.create_user(username=username, 
-                                                                            email=email, 
-                                                                            password=password))
-    
-            serializer = AuthorSerializer(instance=post_object, 
-                                        data=author_data, 
-                                        context={"request": request})
+            serializer = AuthorSerializer(instance=author_object,
+                                          data=author_data,
+                                          context={"request": request})
 
             if serializer.is_valid():
                 # save update and set updatedAt to current time
