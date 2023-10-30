@@ -1,6 +1,6 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -8,6 +8,12 @@ import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MakeCommentModal from "../post/MakeCommentModal";
+import ShareIcon from '@mui/icons-material/Share';
+import Tooltip from '@mui/material/Tooltip';
+import { useState } from 'react';
 
 import MoreMenu from './edit/MoreMenu';
 
@@ -19,6 +25,20 @@ const PostsList = ({
   deletePost: (postId: string) => void;
   onPostEdited: () => void;
 }) => {
+
+  const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
+  // TODO : implement backend requests
+  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState("");
+  // TODO : implement like modal
+  const handlelike = () => { };
+  // TODO : implement share modal
+  const handleShare = () => { };
+
+  const openMakeCommentModal = () => {
+    setIsMakeCommentModalOpen(true);
+  };
+  
 
     return (
       <>
@@ -104,12 +124,69 @@ const PostsList = ({
             )}
             </CardContent>
             <CardContent>
+            <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
+
+
+                  <Grid item>
+                    <Tooltip title="Like" placement="bottom-end">
+                    <IconButton
+
+                      id="like"
+                      size="small"
+                      onClick={handlelike}
+                    >
+                      <FavoriteBorderIcon fontSize="medium" />
+                    </IconButton>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item>
+                    <Tooltip title="Comment" placement="bottom-end">
+                    <IconButton
+
+                      size="small"
+                      
+                      onClick={openMakeCommentModal}
+                    >
+                      <ChatBubbleOutlineIcon fontSize="medium" />
+                    </IconButton>
+                    </Tooltip>
+                    
+                    
+                  </Grid>
+                  <Grid item>
+                    <Tooltip title="Share" placement="bottom-end">
+                    <IconButton
+
+                      size="small"
+                      sx={{ marginRight: 1 }}
+                      onClick={handleShare}
+                    >
+                      <ShareIcon fontSize="medium" />
+                    </IconButton>
+                    </Tooltip>
+                    
+                    
+                  </Grid>
+
+                  </Grid>
+
+
+            </CardContent>
+            <CardContent>
+              <Button size="small">View all comments</Button>
+          </CardContent>
+            <CardContent>
               <PostCategories categories={post.categories}/>
             </CardContent>
           </Card>
         ))): (
           <Typography variant="body1">No posts available.</Typography>
         )}
+         <MakeCommentModal
+        isCmodalOpen={isMakeCommentModalOpen}
+
+        setIsCModalOpen={setIsMakeCommentModalOpen}
+      />
       </>
     );
 };
