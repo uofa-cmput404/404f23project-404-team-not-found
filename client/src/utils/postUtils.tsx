@@ -15,8 +15,8 @@ export function isText(post: Post) {
     (post.contentType === "text/plain" || post.contentType === "text/markdown"))
 }
 
-export function renderVisibility(post: any) {
-    if (post.unlisted === true) {
+export function renderVisibility(post: Post) {
+    if (post.unlisted) {
       return "Unlisted";    
     } else if (post.visibility === "PUBLIC") {
       return "Public";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, IconButton } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link } from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -9,7 +9,6 @@ import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import MoreMenu from './edit/MoreMenu';
 
 
