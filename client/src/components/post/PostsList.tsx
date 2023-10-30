@@ -46,8 +46,11 @@ const PostsList = ({
           <Card key={post.id} 
             style={{ 
               margin: "auto", 
-              width: "40vw", 
+              width: "100%", 
               borderRadius: 0, 
+              borderLeft: 0,
+              borderRight: 0,
+              borderTop: 0
             }} 
               variant='outlined'>
             <CardHeader
@@ -180,7 +183,16 @@ const PostsList = ({
             </CardContent>
           </Card>
         ))): (
-          <Typography variant="body1">No posts available.</Typography>
+
+            <Typography variant="h6"
+              align='center'
+              sx={{
+                marginTop: 5,
+                color: "#858585"
+              }}
+            >
+              No posts available...
+            </Typography>
         )}
          <MakeCommentModal
         isCmodalOpen={isMakeCommentModalOpen}
