@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import { Box, CssBaseline, Paper } from "@mui/material";
-import AppBar from "@mui/material/AppBar";
+import { CssBaseline } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getAuthorId, removeToken } from "../../utils/localStorageUtils";
+import { getAuthorId } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
 import axios from "axios";
@@ -14,8 +13,7 @@ import { toast } from "react-toastify";
 import Person from "@mui/icons-material/Person";
 import MailIcon from "@mui/icons-material/Mail";
 import ExploreIcon from "@mui/icons-material/Explore";
-
-import UserContext from "../../contexts/UserContext";
+import HeadBar from "../template/AppBar";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -23,7 +21,6 @@ export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const navigate = useNavigate();
-  const { userToken, setUserToken } = useContext(UserContext);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
@@ -63,54 +60,10 @@ export default function HomePage() {
     fetchPosts();
   }, []);
 
-  const handleSignOut = () => {
-    removeToken();
-    setUserToken(null);
-    toast.success(
-      "You have successfuly logged out! Please log in again to use our service!"
-    );
-  };
-
   return (
     <>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        style={{
-          color: "#FFFFFF",
-          height: 60,
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
-      >
-        <Typography
-          variant="h4"
-          align="left"
-          style={{
-            marginLeft: 20,
-            color: "white",
-            marginTop: 10,
-            marginBottom: 10,
-          }}
-        >
-          socialdistribution
-        </Typography>
-        <Button
-          variant="contained"
-          color="success"
-          size="small"
-          style={{
-            color: "white",
-            height: "70%",
-            alignSelf: "center",
-            marginRight: "5px",
-          }}
-          onClick={handleSignOut}
-        >
-          Sign Out
-        </Button>
-      </AppBar>
+      <HeadBar />
       <Grid
         container
         style={{ width: "100%", margin: "0 auto", marginTop: 60 }}
@@ -143,8 +96,7 @@ export default function HomePage() {
               >
                 <Person fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  {" "}
-                  Profile{" "}
+                  Profile
                 </Typography>
               </Button>
               <Button
@@ -152,8 +104,7 @@ export default function HomePage() {
               >
                 <MailIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  {" "}
-                  Inbox{" "}
+                  Inbox
                 </Typography>
               </Button>
               <Button
@@ -161,8 +112,7 @@ export default function HomePage() {
               >
                 <ExploreIcon fontSize="large" />
                 <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  {" "}
-                  Discover{" "}
+                  Discover
                 </Typography>
               </Button>
               <Button
