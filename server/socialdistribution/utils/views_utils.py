@@ -5,8 +5,25 @@ from socialdistribution.models.post import Post
 from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
 from socialdistribution.models.category import Category
+from socialdistribution.models.author import Author
 
 from .general_utils import *
+from .serializers_utils import build_default_author_uri
+
+
+def create_author(author_data, request, user_object):
+    host = f"{request.build_absolute_uri('/')}"
+
+    author = Author.objects.create(
+        displayName=author_data["displayName"],
+        host=host,
+        profileImage=author_data["profileImage"],
+        user=user_object,
+    )
+
+    author.url = build_default_author_uri(obj=author, request=request, source="author")
+
+    return author
 
 
 def create_follow(author, data):

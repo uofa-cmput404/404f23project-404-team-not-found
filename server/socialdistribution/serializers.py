@@ -4,14 +4,19 @@ from rest_framework.serializers import *
 import base64
 
 from .models import *
-from .utils import build_default_author_uri, build_default_post_uri, is_image, is_text
+from socialdistribution.utils.serializers_utils import (
+    build_default_author_uri,
+    build_default_post_uri
+)
+from socialdistribution.utils.general_utils import is_image, is_text
 
 
 class AuthorSerializer(serializers.ModelSerializer):
     host = SerializerMethodField("get_host_url")
     id = SerializerMethodField("get_id_url")
     type = SerializerMethodField("get_type")
-
+    url = SerializerMethodField("get_id_url")
+    
     class Meta:
         model = Author
         fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")

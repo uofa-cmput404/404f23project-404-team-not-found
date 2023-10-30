@@ -9,6 +9,14 @@ from django.contrib.contenttypes.models import ContentType
 from .serializers import *
 from .models import *
 from .utils import *
+from socialdistribution.utils.views_utils import (
+    create_author,
+    create_follow,
+    create_follower,
+    create_post,
+    update_post_categories,
+    update_post_content
+)
 
 
 class AuthorsView(APIView):
@@ -38,13 +46,19 @@ class AuthorView(APIView):
         get the author data whose id is AUTHOR_ID
         """
         author_object = get_object_or_404(Author, id=author_id)
-        serializer = AuthorSerializer(author_object, context={"request": request})
+        serializer = AuthorSerializer(instance=author_object, context={"request": request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
+    
     def post(self, request, author_id):
-        # TODO: managing profile of an author user story
-        pass
+        author_object = get_object_or_404(Author, id=author_id)
+        serializer = AuthorSerializer(instance=author_object, data=request.data, context={"request": request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowersView(APIView):
@@ -318,26 +332,20 @@ class SignUpView(APIView):
             data = {"message": "Username already exists"}
             return Response(data, status=status.HTTP_409_CONFLICT)
         except:
-            # TODO: This one is currently a placeholder
-            author_data = {"displayName": displayName, 
-                            "github": "https://placeholder.com", 
-                            "host": "https://placeholder.com",
-                            "profileImage": "https://placeholder.com",
-                            "url": "https://placeholder.com"}
+            author_data = {
+                "displayName": displayName,
+                "profileImage": DEFAULT_PIC_LINK,
+            }
+            user_object = User.objects.create_user(username=username,
+                                                   email=email,
+                                                   password=password)
+            author_object = create_author(author_data, request, user_object)
+            author_data["host"] = author_object.host
+            author_data["url"] = author_object.url
 
-
-            post_object = Author.objects.create(displayName=author_data["displayName"], 
-                                                github=author_data["github"],
-                                                host=author_data["host"],
-                                                profileImage=author_data["profileImage"],
-                                                url=author_data["url"],
-                                                user=User.objects.create_user(username=username, 
-                                                                            email=email, 
-                                                                            password=password))
-    
-            serializer = AuthorSerializer(instance=post_object, 
-                                        data=author_data, 
-                                        context={"request": request})
+            serializer = AuthorSerializer(instance=author_object,
+                                          data=author_data,
+                                          context={"request": request})
 
             if serializer.is_valid():
                 # save update and set updatedAt to current time
