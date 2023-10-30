@@ -6,7 +6,6 @@ from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
 from socialdistribution.models.category import Category
 from socialdistribution.models.author import Author
-from django.contrib.auth.models import User
 
 from .general_utils import *
 from .serializers_utils import build_default_author_uri

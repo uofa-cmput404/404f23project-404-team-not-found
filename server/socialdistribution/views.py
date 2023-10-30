@@ -11,9 +11,11 @@ from .models import *
 from .utils import *
 from socialdistribution.utils.views_utils import (
     create_author,
-    create_post,
+    create_follow,
     create_follower,
-    create_follow
+    create_post,
+    update_post_categories,
+    update_post_content
 )
 
 
