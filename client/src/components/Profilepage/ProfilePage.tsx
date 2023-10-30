@@ -25,8 +25,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     position: 'relative'
   },
   picture: {
-    width: "30%",
-    height: "30%",
+    maxWidth: 200,
+    maxHeight: 200,
+    minWidth: 200,
+    minHeight: 200,
     borderRadius: "50%",
     display: "block",
     marginLeft: "auto",
