@@ -4,7 +4,6 @@ import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { toast } from "react-toastify";
-import HomePage from "../feed/HomePage";
 
 import { removeToken, removeAuthorId } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
