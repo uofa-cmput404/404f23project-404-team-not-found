@@ -12,6 +12,8 @@ urlpatterns = [
     path(f"{SERVICE}author/<uuid:author_id>/followers/", FollowersView.as_view(), name="followers"),
     path(f"{SERVICE}author/<uuid:author_id>/followers/<uuid:follower_id>/", FollowerView.as_view(), name="follower"),
     path(f"{SERVICE}author/<uuid:author_id>/inbox/", InboxView.as_view(), name="inbox"),
+    path(f"{SERVICE}author/<uuid:author_id>/posts/<uuid:post_id>/comments/", CommentView.as_view(), name="comments"),
+
 
     # login and signup endpoints
     path(f"{SERVICE}login/", LoginView.as_view(), name="login"),

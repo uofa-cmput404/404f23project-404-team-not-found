@@ -6,7 +6,8 @@ import base64
 from .models import *
 from socialdistribution.utils.serializers_utils import (
     build_default_author_uri,
-    build_default_post_uri
+    build_default_post_uri,
+    build_default_comment_uri
 )
 from socialdistribution.utils.general_utils import is_image, is_text
 
@@ -144,3 +145,18 @@ class InboxSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "inbox"
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    id = SerializerMethodField("get_id_url")
+    author = AuthorSerializer(many=False, read_only=True)
+    post = PostSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ("id", "author", "comment", "contentType", "published", "post")
+
+    def get_id_url(self, obj):
+        return  build_default_comment_uri(obj=obj, request=self.context["request"])
+
+

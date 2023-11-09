@@ -6,6 +6,7 @@ from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
 from socialdistribution.models.category import Category
 from socialdistribution.models.author import Author
+from socialdistribution.models.comment import Comment
 
 from .general_utils import *
 from .serializers_utils import build_default_author_uri
@@ -103,3 +104,23 @@ def update_post_categories(categories, post_object):
     for category in current_categories - updated_categories:
         category_object = Category.objects.get(category=category)
         post_object.categories.remove(category_object)
+
+def create_comment(author,post, data, comment_id=None):
+    """
+    Creating a comment given an author and its data.
+    ID can be randomly generated or given.
+    """
+    if not comment_id:
+        comment_id = uuid.uuid4()
+
+    comment_obj = Comment.objects.create(
+        id=comment_id,
+        author=author,
+        post= post,
+        comment=data["comment"],
+        contentType=data["contentType"],
+        
+    )
+
+    return comment_obj
+

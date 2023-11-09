@@ -353,3 +353,21 @@ class SignUpView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request,author_id,post_id):
+        post_object = Post.objects.get(id=post_id)
+        comments = Comment.objects.order_by("-published").filter(post=post_object)
+        return Response(
+            {
+                "comments": CommentSerializer(comments,context={"request": request}, many=True).data
+
+            }
+        )
+    
+    
+
+
