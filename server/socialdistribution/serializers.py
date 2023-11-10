@@ -154,9 +154,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ("id", "author", "comment", "contentType", "published", "post")
+        fields = ("type","id", "author", "comment", "contentType", "published", "post")
 
     def get_id_url(self, obj):
         return  build_default_comment_uri(obj=obj, request=self.context["request"])
+    
 
 

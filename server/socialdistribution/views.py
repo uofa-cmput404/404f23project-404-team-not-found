@@ -15,7 +15,8 @@ from socialdistribution.utils.views_utils import (
     create_follower,
     create_post,
     update_post_categories,
-    update_post_content
+    update_post_content,
+    create_comment
 )
 
 
@@ -356,7 +357,7 @@ class SignUpView(APIView):
 
 
 class CommentView(APIView):
-    http_method_names = ["get"]
+    http_method_names = ["get", "post"]
 
     def get(self, request,author_id,post_id):
         post_object = Post.objects.get(id=post_id)
@@ -367,6 +368,23 @@ class CommentView(APIView):
 
             }
         )
+    
+    def post(self, request, author_id, post_id):
+        post_object = Post.objects.get(id=post_id)
+        author_object = Author.objects.get(id=author_id)
+        comment_object = create_comment(author_object, post_object, request.data)
+        serializer = CommentSerializer(instance=comment_object, data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save(author=author_object, post=post_object)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        
+        
+
+
+    
     
     
 
