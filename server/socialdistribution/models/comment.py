@@ -6,6 +6,7 @@ from socialdistribution.utils.constants import CONTENT_MAXLEN, STRING_MAXLEN, UR
 
 class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    type = models.TextField(default="comment", editable=False)
     post = models.ForeignKey("Post", on_delete=models.CASCADE)
     author = models.ForeignKey("Author", on_delete=models.CASCADE)
     comment = models.TextField(max_length=STRING_MAXLEN)
