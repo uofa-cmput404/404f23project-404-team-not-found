@@ -79,6 +79,18 @@ def create_plain_text_post(author):
 
     return post_obj
 
+def create_comment(cauthor,cpost):
+    comment_obj = Comment.objects.create(
+        type="comment",
+        author=cauthor,
+        post=cpost,
+        comment="This is a test comment",
+        contentType="text/plain"
+
+    )
+    
+    return comment_obj        
+
 
 def deserialize_response(response):
     return json.loads(response.content.decode('utf-8').replace("'", "\""))
