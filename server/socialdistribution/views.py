@@ -359,6 +359,7 @@ class SignUpView(APIView):
 class CommentView(APIView):
     http_method_names = ["get", "post"]
 
+    #TODO: Pagination
     def get(self, request,author_id,post_id):
         post_object = Post.objects.get(id=post_id)
         comments = Comment.objects.order_by("-published").filter(post=post_object)
@@ -370,8 +371,9 @@ class CommentView(APIView):
         )
     
     def post(self, request, author_id, post_id):
-        post_object = Post.objects.get(id=post_id)
-        author_object = Author.objects.get(id=author_id)
+        
+        post_object = get_object_or_404(Post,id=post_id)
+        author_object = get_object_or_404(Author, id=author_id)
         comment_object = create_comment(author_object, post_object, request.data)
         serializer = CommentSerializer(instance=comment_object, data=request.data, context={"request": request})
         if serializer.is_valid():
