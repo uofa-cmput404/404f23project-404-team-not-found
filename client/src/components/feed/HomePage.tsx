@@ -41,7 +41,7 @@ export default function HomePage() {
   };
 
   const handleProfileClick = () => {
-    navigate("/profile-page");
+    navigate(`/authors/${getAuthorId()}`);
   };
 
   const handleHomeClick = () => {

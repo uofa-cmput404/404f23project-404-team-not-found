@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Typography, CssBaseline, Container, Button, Theme, Modal, Box, TextField, Grid, IconButton } from "@mui/material";
+import { Typography, CssBaseline, Button, Theme, Modal, Box, TextField, Grid, IconButton } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
 import "./styles.css";
@@ -11,7 +11,7 @@ import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import DiscoverModal from "../follow/DiscoveryModal";
 import InboxModal from "../inbox/InboxModal";
@@ -92,6 +92,7 @@ const ProfilePage = () => {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
   const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
+  const { authorId } = useParams();
   const username = authorData?.displayName;
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
@@ -102,8 +103,7 @@ const ProfilePage = () => {
   const classes = useStyles();
 
   const fetchAuthors = async () => {
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/`;
+    const url = `${APP_URI}author/${authorId}/`;
 
     try {
       const response = await axios.get(url);
@@ -115,7 +115,7 @@ const ProfilePage = () => {
   };
 
   const handleProfileClick = () => {
-    navigate("/profile-page");
+    navigate(`/authors/${authorId}`);
   };
 
 	const handleHomeClick = () => {
@@ -135,8 +135,7 @@ const ProfilePage = () => {
   };
 
   const fetchPosts = async () => {
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${APP_URI}author/${authorId}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -162,7 +161,7 @@ const ProfilePage = () => {
   useEffect(() => {
     fetchAuthors();
     fetchPosts();
-  }, []);
+  }, [authorId]);
 
     const handleOpen = () => {
       setOpen(true);

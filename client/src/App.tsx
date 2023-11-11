@@ -72,7 +72,7 @@ const App = () => {
           }
         />
         <Route
-          path="/profile-page"
+          path="/authors/:authorId"
           element={
             <ProtectedRoute user={userToken}>
               <ProfilePage />
