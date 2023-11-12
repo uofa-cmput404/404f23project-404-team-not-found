@@ -115,7 +115,7 @@ const ProfilePage = () => {
   };
 
   const handleProfileClick = () => {
-    navigate(`/authors/${authorId}`);
+    navigate(`/authors/${getAuthorId()}`);
   };
 
 	const handleHomeClick = () => {
