@@ -17,7 +17,7 @@ import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const style = {
   display: "flex",
@@ -60,27 +60,37 @@ const MakePostModal = ({
 
   const handleClose = () => {
     setIsModalOpen(false);
+    setTextType(true);
+    setImageType(false);
     setImagePrev("");
-    handleTextContent();
+    setCategories([]);
+    setContent("");
     setTitle("");
     setDescription("");
   };
   
 
   const handleTextContent = () => {
-    setTextType(true);
-    setImageType(false);
-    setCategories([]);
-    setContent("");
-    setImagePrev("");
-    setMarkdownCheckbox(false);
+    // reset some vars when switching between image -> text
+    if (imageType) {
+      setTextType(true);
+      setImageType(false);
+      setContent("");
+      setImagePrev("");
+      setMarkdownCheckbox(false);
+    }
   }
 
   const handleImageContent = () => {
-    setImageType(true);
-    setTextType(false);
-    setContent("");
+    // reset some vars when switching between text -> image
+    if (textType) {
+      setImageType(true);
+      setTextType(false);
+      setMarkdownCheckbox(false);
+      setContent("");
+    }
   }
+
   const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType("text/markdown");
@@ -239,7 +249,6 @@ const MakePostModal = ({
                   unlisted
                 );
                 setIsModalOpen(false);
-                handleTextContent();
               }}
               endIcon={<SendIcon/>}
               >
