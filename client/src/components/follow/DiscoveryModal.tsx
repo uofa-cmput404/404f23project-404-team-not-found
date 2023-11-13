@@ -6,6 +6,7 @@ import { getAuthorId } from "../../utils/localStorageUtils";
 import { makeStyles } from "@mui/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { useNavigate } from "react-router-dom";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -38,6 +39,7 @@ const DiscoverModal = ({
 }) => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const styles = useStyles();
+  const navigate = useNavigate();
 
   const fetchAuthors = async () => {
     const AUTHOR_ID = getAuthorId();
@@ -55,6 +57,12 @@ const DiscoverModal = ({
   useEffect(() => {
     fetchAuthors();
   }, []);
+
+  const handleViewProfileClick = (authorIdUrl: string) => {
+    const authorId = getAuthorIdFromResponse(authorIdUrl);
+    setIsModalOpen(false);
+    navigate(`/authors/${authorId}`);
+  };
 
   return (
     <Modal open={isModalOpen} onClose={setIsModalOpen}>
@@ -102,9 +110,10 @@ const DiscoverModal = ({
                           variant="contained"
                           color="primary"
                           sx={{borderRadius: 20}}
+                          onClick={() => handleViewProfileClick(author.id)}
                         >
                           <Typography textTransform={"none"}>
-                            Follow
+                            View
                           </Typography>
                         </Button>
                       }
