@@ -99,6 +99,7 @@ const ProfilePage = () => {
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
   const navigate = useNavigate();
+  const authorAbleToEdit = authorId === getAuthorId();
   
   const classes = useStyles();
 
@@ -204,7 +205,7 @@ const ProfilePage = () => {
         if (response.status === 200) {
           toast.success("Profile updated successfully");
           handleClose();
-          fetchAuthors();
+          await fetchAuthors();
         } else {
           toast.error("Failed to update profile");
         }
@@ -324,7 +325,8 @@ const ProfilePage = () => {
 						onMouseOver={() => setShowEdit(true)}
 						onMouseOut={() => setShowEdit(false)}
 						>
-							{showEdit && <IconButton sx={{
+							{showEdit && authorAbleToEdit &&
+                <IconButton sx={{
 								backgroundColor: "white",
 								position: "absolute",
 								right: 0,
