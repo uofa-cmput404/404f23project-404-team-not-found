@@ -7,6 +7,8 @@ import Login from "./components/authentication/Login";
 import SignUp from "./components/authentication/SignUp";
 import ProfilePage from "./components/Profilepage/ProfilePage";
 import NotFound from "./components/NotFound";
+import DiscoverPage from "./components/follow/DiscoverPage";
+import InboxPage from "./components/inbox/InboxPage";
 
 import "./App.css";
 import { ToastContainer } from "react-toastify";
@@ -76,6 +78,22 @@ const App = () => {
           element={
             <ProtectedRoute user={userToken}>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/discover"
+          element={
+            <ProtectedRoute user={userToken}>
+              <DiscoverPage/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/inbox"
+          element={
+            <ProtectedRoute user={userToken}>
+              <InboxPage/>
             </ProtectedRoute>
           }
         />
