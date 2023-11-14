@@ -15,11 +15,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import DiscoverModal from "../follow/DiscoveryModal";
 import InboxModal from "../inbox/InboxModal";
+import LeftNavBar from "../template/LeftNavBar";
 
-import Person from "@mui/icons-material/Person";
-import MailIcon from "@mui/icons-material/Mail";
-import ExploreIcon from "@mui/icons-material/Explore";
-import HomeIcon from '@mui/icons-material/Home';
 import CloseIcon from "@mui/icons-material/Close";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -228,75 +225,10 @@ const ProfilePage = () => {
 				overscrollBehavior: "none" }}
 			>
 				<Grid item xs={3.6} style={{ height: "80vh" }}>
-          <Grid container 
-            alignItems="flex-end"
-            direction="column"
-            sx={{
-              position: "fixed",
-              paddingTop: 5,
-              paddingRight: 2,
-              width:"30vw", 
-              height: "100vh", 
-            }}
-            >
-            <Grid container
-              direction="column"
-              alignItems="flex-start"
-              width={"50%"}
-              marginRight={2}
-            >
-							<Button onClick={handleHomeClick}>
-                <HomeIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Home
-                </Typography>
-              </Button>
-              <Button onClick={handleProfileClick}
-								style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-							>
-                <Person fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  <strong>Profile</strong>
-                </Typography>
-              </Button>
-              <Button
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-                onClick={openInboxModal}
-              >
-                <MailIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Inbox
-                </Typography>
-              </Button>
-              <Button
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-                onClick={openDiscoveryModal}
-              >
-                <ExploreIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Discover
-                </Typography>
-              </Button>
-              <Button
-                variant="contained"
-                size="large"
-                style={{ 
-									marginTop: 20, 
-									width: "90%", 
-									borderRadius: 100,
-								}}
-                onClick={openMakePostModal}
-              >
-                <Typography 
-									textTransform="none" 
-									padding={0.5}
-									variant="subtitle1"
-								>
-									<strong>Post</strong>
-								</Typography>
-              </Button>
-            </Grid>
-          </Grid>
+          <LeftNavBar
+            openMakePostModal={openMakePostModal}
+            page={"profile"}
+          />
         </Grid>
 				<Grid item xs={4.8} 
 					justifyContent='flex-start'
