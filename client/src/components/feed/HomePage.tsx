@@ -11,13 +11,7 @@ import axios from "axios";
 import { Post } from "../../interfaces/interfaces";
 import { toast } from "react-toastify";
 
-import Person from "@mui/icons-material/Person";
-import MailIcon from "@mui/icons-material/Mail";
-import ExploreIcon from "@mui/icons-material/Explore";
-import HomeIcon from '@mui/icons-material/Home';
 import HeadBar from "../template/AppBar";
-import DiscoverModal from "../follow/DiscoveryModal";
-import InboxModal from "../inbox/InboxModal";
 import LeftNavBar from "../template/LeftNavBar";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -113,14 +107,6 @@ export default function HomePage() {
           isModalOpen={isMakePostModalOpen}
           onPostCreated={fetchPosts}
           setIsModalOpen={setIsMakePostModalOpen}
-        />
-        <InboxModal
-          isModalOpen={isInboxModalOpen}
-          setIsModalOpen={setIsInboxModalOpen}
-        />
-        <DiscoverModal
-          isModalOpen={isDiscoveryModalOpen}
-          setIsModalOpen={setIsDiscoveryModalOpen}
         />
       </Grid>
     </>

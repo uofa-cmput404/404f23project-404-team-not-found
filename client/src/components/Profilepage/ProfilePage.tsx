@@ -13,8 +13,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
 import { useNavigate, useParams } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
-import DiscoverModal from "../follow/DiscoveryModal";
-import InboxModal from "../inbox/InboxModal";
+import InboxModal from "../inbox/InboxContent";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -358,14 +357,6 @@ const ProfilePage = () => {
 							onPostCreated={fetchPosts}
 							setIsModalOpen={setIsMakePostModalOpen}
 						/>
-            <InboxModal
-              isModalOpen={isInboxModalOpen}
-              setIsModalOpen={setIsInboxModalOpen}
-            />
-            <DiscoverModal
-              isModalOpen={isDiscoveryModalOpen}
-              setIsModalOpen={setIsDiscoveryModalOpen}
-            />
 				</div>
       </Grid>
     </>
