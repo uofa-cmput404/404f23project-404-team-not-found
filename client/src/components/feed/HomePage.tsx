@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import { CssBaseline } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
@@ -18,29 +15,10 @@ const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
-  const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
-  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
-  const navigate = useNavigate();
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
-  };
-
-  const openInboxModal = () => {
-    setIsInboxModalOpen(true);
-  };
-
-  const openDiscoveryModal = () => {
-    setIsDiscoveryModalOpen(true);
-  };
-
-  const handleProfileClick = () => {
-    navigate(`/authors/${getAuthorId()}`);
-  };
-
-  const handleHomeClick = () => {
-    navigate("/home-page");
   };
 
   const fetchPosts = async () => {

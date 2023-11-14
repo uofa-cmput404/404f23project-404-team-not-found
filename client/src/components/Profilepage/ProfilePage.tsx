@@ -11,9 +11,8 @@ import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
-import InboxModal from "../inbox/InboxContent";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
@@ -86,15 +85,12 @@ const ProfilePage = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [open, setOpen] = useState(false);
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
-  const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
-  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
   const { authorId } = useParams();
   const username = authorData?.displayName;
   const github = authorData?.github;
   const profilePic = authorData?.profileImage;
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
-  const navigate = useNavigate();
   const authorAbleToEdit = authorId === getAuthorId();
   
   const classes = useStyles();
@@ -111,24 +107,8 @@ const ProfilePage = () => {
     }
   };
 
-  const handleProfileClick = () => {
-    navigate(`/authors/${getAuthorId()}`);
-  };
-
-	const handleHomeClick = () => {
-    navigate("/home-page");
-  };
-
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
-  };
-
-  const openInboxModal = () => {
-    setIsInboxModalOpen(true);
-  };
-
-  const openDiscoveryModal = () => {
-    setIsDiscoveryModalOpen(true);
   };
 
   const fetchPosts = async () => {
