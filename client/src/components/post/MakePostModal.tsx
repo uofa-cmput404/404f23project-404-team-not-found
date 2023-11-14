@@ -42,7 +42,7 @@ const MakePostModal = ({
   setIsModalOpen,
 }: {
   isModalOpen: boolean;
-  onPostCreated: () => void;
+  onPostCreated?: () => void;
   setIsModalOpen: (isOpen: boolean) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -120,7 +120,7 @@ const MakePostModal = ({
 
     try {
       await axios.post(url, payload);
-      onPostCreated();
+      if (onPostCreated) {onPostCreated()};
       handleClose();
     } catch (error) {
       toast.error("Failed to create post")
