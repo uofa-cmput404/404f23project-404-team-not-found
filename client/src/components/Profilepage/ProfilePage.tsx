@@ -276,6 +276,16 @@ const ProfilePage = () => {
                 {!isLoggedUser && isUserFollowingAuthor && isAuthorFollowingUser &&
                   <Tooltip title="True Friend">
                     <FavoriteRoundedIcon
+                      sx={{
+                        border: "1px solid #103f5b",
+                        borderRadius: "50%",
+                        fontSize: "35px",
+                        marginTop: 1,
+                        marginLeft: 1,
+                        padding: "5px",
+                        color: "#CB4335"
+                      }}
+                      color="primary"
                     />
                   </Tooltip>
                 }
