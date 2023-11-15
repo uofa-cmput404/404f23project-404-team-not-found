@@ -243,6 +243,9 @@ const ProfilePage = () => {
 								{github}
 							</Typography>
 						</a>
+            {!isLoggedUser &&
+              <FollowAuthorButton authorId={authorId!} otherAuthorObject={otherAuthorObject} userObject={userObject} />
+            }
           </Grid>
           <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
         </Grid>
