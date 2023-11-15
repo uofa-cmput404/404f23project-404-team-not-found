@@ -56,7 +56,7 @@ const LeftNavBar = ({
         width={"50%"}
         marginRight={2}
       >
-        <Button onClick={handleHomeClick}>
+        <Button onClick={handleHomeClick} style={{borderRadius: 20}}>
           <HomeIcon fontSize="large" />
           <Typography variant="h6" textTransform="none" paddingLeft={2}>
             {page==="home" ? <strong>Home</strong> : <>Home</>}
