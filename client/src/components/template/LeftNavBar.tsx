@@ -19,11 +19,11 @@ const LeftNavBar = ({
 }) => {
   const navigate = useNavigate();
   const { authorId } = useParams();
-  const loggedUser = getAuthorId()
-  const isLoggedUser = authorId === loggedUser;
+  const loggedUserId = getAuthorId();
+  const isLoggedUser = authorId === loggedUserId;
 
   const handleProfileClick = () => {
-    navigate(`/authors/${loggedUser}`);
+    navigate(`/authors/${loggedUserId}`);
   };
 
   const handleHomeClick = () => {

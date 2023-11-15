@@ -106,7 +106,7 @@ const MakePostModal = ({
     visibility: string,
     unlisted: boolean,
   ) => {
-    const payload = {
+    const data = {
       title: title,
       description: description,
       categories: categories,
@@ -119,8 +119,8 @@ const MakePostModal = ({
     const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
 
     try {
-      await axios.post(url, payload);
-      if (onPostCreated) {onPostCreated()};
+      await axios.post(url, data);
+      if (onPostCreated) {onPostCreated()}
       handleClose();
     } catch (error) {
       toast.error("Failed to create post")

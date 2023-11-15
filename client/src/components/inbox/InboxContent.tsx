@@ -21,14 +21,12 @@ const InboxContent = () => {
 
   useEffect(() => {
     fetchInboxItems();
-  }, []);
+  }, [fetchInboxItems]);
 
   return (
     <Grid container direction={"row"}>
       <Grid container>
-        <Grid item xs={3}>
-        </Grid>
-        <Grid item xs={6} textAlign="center">
+        <Grid item xs={12} textAlign="center">
           <Typography
             variant="h6"
             sx={{paddingTop: 0.2}}
@@ -36,7 +34,6 @@ const InboxContent = () => {
             Inbox
           </Typography>
         </Grid>
-        <Grid item xs={3}></Grid>
       </Grid>
       <Grid container>
         {inboxItems.map((inboxItem) => (

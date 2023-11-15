@@ -27,7 +27,7 @@ const DiscoverContent = () => {
 
   useEffect(() => {
     fetchAuthors();
-  }, []);
+  }, [fetchAuthors]);
 
   const handleViewProfileClick = (authorIdUrl: string) => {
     const authorId = getAuthorIdFromResponse(authorIdUrl);
@@ -49,12 +49,10 @@ const DiscoverContent = () => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container
-        sx={{
-        }}
-      >
+      <Grid container>
         {authors.map((author) => (
-          <Grid container
+          <Grid
+            container
             key={author.id} 
             alignItems="center"
             sx={{
