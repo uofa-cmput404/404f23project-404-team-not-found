@@ -50,7 +50,8 @@ const DiscoverContent = () => {
         </Grid>
       </Grid>
       <Grid container>
-        {authors.map((author) => (
+        {authors.length > 0 ?
+          (authors.map((author) => (
           <Grid
             container
             key={author.id} 
@@ -93,7 +94,22 @@ const DiscoverContent = () => {
               </Button>
             </Grid>
           </Grid>
-        ))}
+        )))
+          : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
+            >
+              No authors to discover...
+            </Typography>
+          )
+        }
       </Grid>
     </Grid>
   );
