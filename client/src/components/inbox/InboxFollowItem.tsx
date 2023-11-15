@@ -30,7 +30,7 @@ const InboxFollowItem = ({
   };
 
   return (
-    <Grid container>
+    <Grid container alignItems="center">
       <Grid item xs={6}>
         <Card
           style={{
