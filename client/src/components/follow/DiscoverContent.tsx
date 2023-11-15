@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";

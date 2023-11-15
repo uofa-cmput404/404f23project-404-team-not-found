@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -15,7 +15,7 @@ const InboxContent = () => {
       const response = await axios.get(url);
       setInboxItems(response.data["items"]);
     } catch (error) {
-      console.error('Failed to fetch authors:', error);
+      console.error('Failed to fetch inbox items:', error);
     }
   };
 

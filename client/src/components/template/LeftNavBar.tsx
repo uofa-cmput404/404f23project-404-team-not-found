@@ -3,6 +3,8 @@ import MailIcon from "@mui/icons-material/Mail";
 import ExploreIcon from "@mui/icons-material/Explore";
 import HomeIcon from '@mui/icons-material/Home';
 import Button from "@mui/material/Button";
+import DraftsIcon from '@mui/icons-material/Drafts';
+
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { useNavigate, useParams } from "react-router-dom";
@@ -13,14 +15,15 @@ const LeftNavBar = ({
   page
 }:{
   openMakePostModal: () => void;
-  page?: String;
+  page: String;
 }) => {
   const navigate = useNavigate();
   const { authorId } = useParams();
-  const LoggedUser = authorId === getAuthorId();
+  const loggedUser = getAuthorId()
+  const isLoggedUser = authorId === loggedUser;
 
   const handleProfileClick = () => {
-    navigate(`/authors/${getAuthorId()}`);
+    navigate(`/authors/${loggedUser}`);
   };
 
   const handleHomeClick = () => {
@@ -64,13 +67,13 @@ const LeftNavBar = ({
         >
           <Person fontSize="large" />
           <Typography variant="h6" textTransform="none" paddingLeft={2}>
-          {page==="profile" && LoggedUser ? <strong>Profile</strong> : <>Profile</>}
+          {page==="profile" && isLoggedUser ? <strong>Profile</strong> : <>Profile</>}
           </Typography>
         </Button>
         <Button onClick={handleInboxClick}
           style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
         >
-          <MailIcon fontSize="large" />
+          {page==="inbox" ? <DraftsIcon fontSize="large"/> : <MailIcon fontSize="large" />}
           <Typography variant="h6" textTransform="none" paddingLeft={2}>
           {page==="inbox" ? <strong>Inbox</strong> : <>Inbox</>}
           </Typography>
@@ -79,7 +82,7 @@ const LeftNavBar = ({
           style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
           onClick={handleDiscoverClick}
         >
-          <ExploreIcon fontSize="large" />
+          <ExploreIcon fontSize="large"/> 
           <Typography variant="h6" textTransform="none" paddingLeft={2}>
           {page==="discover" ? <strong>Discover</strong> : <>Discover</>}
           </Typography>
