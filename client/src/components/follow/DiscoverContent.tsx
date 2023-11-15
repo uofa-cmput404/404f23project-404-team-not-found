@@ -10,6 +10,7 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [user, setUser] = useState<Author | null>(null);
   const navigate = useNavigate();
 
   const fetchAuthors = async () => {
@@ -19,7 +20,10 @@ const DiscoverContent = () => {
       const response = await axios.get(url);
       const filtered_authors = response.data["items"].filter((author: Author) =>
         getAuthorIdFromResponse(author.id) !== AUTHOR_ID)
+      const author_user = response.data["items"].find((author: Author) =>
+        getAuthorIdFromResponse(author.id) === AUTHOR_ID)
       setAuthors(filtered_authors);
+      setUser(author_user);
     } catch (error) {
       console.error('Failed to fetch authors:', error);
     }
@@ -29,9 +33,17 @@ const DiscoverContent = () => {
     fetchAuthors();
   }, [fetchAuthors]);
 
-  const handleViewProfileClick = (authorIdUrl: string) => {
-    const authorId = getAuthorIdFromResponse(authorIdUrl);
-    navigate(`/authors/${authorId}`);
+  const handleViewProfileClick = (author: Author) => {
+    const authorId = getAuthorIdFromResponse(author.id);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: author,
+          userObject: user
+        }
+      }
+    );
   };
 
   return (
@@ -86,7 +98,7 @@ const DiscoverContent = () => {
                   paddingLeft: 2,
                   paddingRight: 2
                 }}
-                onClick={() => handleViewProfileClick(author.id)}
+                onClick={() => handleViewProfileClick(author)}
               >
                 <Typography textTransform={"none"} variant="subtitle1">
                   View Profile
