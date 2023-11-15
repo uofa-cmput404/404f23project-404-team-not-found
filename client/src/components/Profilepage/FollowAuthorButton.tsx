@@ -4,6 +4,8 @@ import { Author } from "../../interfaces/interfaces";
 import axios from "axios";
 import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import { getAuthorId } from "../../utils/localStorageUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -17,6 +19,8 @@ const FollowAuthorButton = ({
   userObject: Author;
 }) => {
   const [followButtonText, setFollowButtonText] = useState("Follow");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const loggedUserId = getAuthorId();
 
   const sendFollowToInbox = async () => {
     // actor is the one who wants to follow and object is the author actor wants to follow
@@ -37,9 +41,31 @@ const FollowAuthorButton = ({
     }
   };
 
+  useEffect(() => {
+    const fetchIsUserFollowingAuthor = async () => {
+      const url = `${APP_URI}author/${authorId}/followers/${loggedUserId}/`;
+
+      try {
+        const response = await axios.get(url);
+        if (response.data.is_follower) {
+          setFollowButtonText("Following");
+          setIsFollowing(true);
+        } else {
+          setFollowButtonText("Follow");
+          setIsFollowing(false);
+        }
+      } catch (error) {
+        console.error("Error fetching is follower: ", error);
+      }
+    };
+
+    fetchIsUserFollowingAuthor();
+  }, []);
+
   return (
     <Grid container justifyContent="center">
       <Button
+        disabled={isFollowing}
         variant="outlined"
         size="small"
         style={{
@@ -51,7 +77,7 @@ const FollowAuthorButton = ({
           border: "1px solid #103f5b"
         }}
         onClick={sendFollowToInbox}
-        endIcon={<PersonAddIcon/>}
+        endIcon={isFollowing ? <HowToRegIcon /> : <PersonAddIcon />}
       >
         <Typography
           textTransform="none"

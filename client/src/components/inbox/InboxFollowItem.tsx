@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Avatar, Button, Card, CardHeader, Theme, Grid, Typography } from "@mui/material";
+import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
-import { makeStyles } from "@mui/styles";
+import axios from "axios";
+import { getAuthorId } from "../../utils/localStorageUtils";
+import { toast } from "react-toastify";
 
 const APP_URI = process.env.REACT_APP_URI;
-
-const useStyles = makeStyles((theme: Theme) => ({
-  avatar_button: {
-    cursor: "pointer",
-  },
-}));
 
 const InboxFollowItem = ({
   followItem,
@@ -19,14 +15,44 @@ const InboxFollowItem = ({
 }) => {
   const navigate = useNavigate();
   const [followButtonDisabled, setFollowButtonDisabled] = useState(false);
-  const classes = useStyles();
+  const loggedUserId = getAuthorId();
 
   useEffect(() => {
+    const fetchIsUserFollowingAuthor = async () => {
+      const authorId = getAuthorIdFromResponse(followItem.actor.id);
+      const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+
+      try {
+        const response = await axios.get(url);
+        setFollowButtonDisabled(response.data.is_follower);
+      } catch (error) {
+        setFollowButtonDisabled(false);
+      }
+    };
+
+    fetchIsUserFollowingAuthor();
   }, []);
 
   const handleAuthorProfileClick = () => {
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
     navigate(`/authors/${authorId}`);
+  };
+
+  const handleAcceptFollow = async () => {
+    // actor is the one who wants to follow and object is the author actor wants to follow
+    const data = {
+      actor:  followItem.actor,
+      object: followItem.object
+    };
+    const authorId = getAuthorIdFromResponse(followItem.actor.id);
+    const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+
+    try {
+      const response = await axios.put(url, data);
+      setFollowButtonDisabled(true);
+    } catch (error) {
+      toast.error("Failed to accept follow");
+    }
   };
 
   return (
@@ -57,6 +83,7 @@ const InboxFollowItem = ({
       </Grid>
       <Grid container item xs={6} justifyContent="flex-end">
         <Button
+          disabled={followButtonDisabled}
           variant="contained"
           size="small"
           color="primary"
@@ -66,10 +93,10 @@ const InboxFollowItem = ({
             paddingLeft: 2,
             paddingRight: 2
           }}
-          onClick={() => handleAuthorProfileClick()}
+          onClick={() => { handleAcceptFollow() }}
         >
           <Typography textTransform={"none"} variant="subtitle1">
-            Accept
+            { followButtonDisabled ? "Accepted" : "Accept" }
           </Typography>
         </Button>
       </Grid>
