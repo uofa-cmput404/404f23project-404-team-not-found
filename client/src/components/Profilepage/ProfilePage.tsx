@@ -16,7 +16,9 @@ import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import FollowAuthorButton from "./FollowAuthorButton";
+import Tooltip from "@mui/material/Tooltip";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -64,10 +66,15 @@ const ProfilePage = () => {
   const profilePic = authorData?.profileImage;
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
+
   const location = useLocation();
+  const { otherAuthorObject, userObject } = location.state || {};
+
   const loggedUserId = getAuthorId();
   const isLoggedUser = authorId === loggedUserId;
-  const { otherAuthorObject, userObject } = location.state || {};
+
+  const [isUserFollowingAuthor, setIsUserFollowingAuthor] = useState(false);
+  const [isAuthorFollowingUser, setIsAuthorFollowingUser] = useState(false);
 
   const classes = useStyles();
 
@@ -125,6 +132,21 @@ const ProfilePage = () => {
     }
     fetchPosts();
   }, [authorId, fetchAuthor, fetchPosts]);
+
+  useEffect(() => {
+    const fetchIsAuthorFollowingUser = async () => {
+      const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+
+      try {
+        const response = await axios.get(url);
+        setIsAuthorFollowingUser(response.data.is_follower);
+      } catch (error) {
+        console.error("Error fetching is follower: ", error);
+      }
+    };
+
+    fetchIsAuthorFollowingUser();
+  }, [isAuthorFollowingUser]);
 
     const handleOpen = () => {
       setOpen(true);
@@ -244,7 +266,20 @@ const ProfilePage = () => {
 							</Typography>
 						</a>
             {!isLoggedUser &&
-              <FollowAuthorButton authorId={authorId!} otherAuthorObject={otherAuthorObject} userObject={userObject} />
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <FollowAuthorButton
+                  authorId={authorId!}
+                  otherAuthorObject={otherAuthorObject}
+                  setIsUserFollowingAuthor={setIsUserFollowingAuthor}
+                  userObject={userObject}
+                />
+                {!isLoggedUser && isUserFollowingAuthor && isAuthorFollowingUser &&
+                  <Tooltip title="True Friend">
+                    <FavoriteRoundedIcon
+                    />
+                  </Tooltip>
+                }
+              </Box>
             }
           </Grid>
           <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />

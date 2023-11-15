@@ -12,10 +12,12 @@ const APP_URI = process.env.REACT_APP_URI;
 const FollowAuthorButton = ({
   authorId,
   otherAuthorObject,
+  setIsUserFollowingAuthor,
   userObject,
 }: {
   authorId: string,
   otherAuthorObject: Author;
+  setIsUserFollowingAuthor: (value : boolean) => void;
   userObject: Author;
 }) => {
   const [followButtonText, setFollowButtonText] = useState("Follow");
@@ -87,30 +89,28 @@ const FollowAuthorButton = ({
     }, [isRequested]);
 
   return (
-    <Grid container justifyContent="center">
-      <Button
-        disabled={isFollowing || isRequested}
-        variant="outlined"
-        size="small"
-        style={{
-          marginTop: 20,
-          width: "auto",
-          borderRadius: 100,
-          paddingLeft: 20,
-          paddingRight: 20,
-          border: "1px solid #103f5b"
-        }}
-        onClick={sendFollowToInbox}
-        endIcon={isFollowing ? <HowToRegIcon /> : <PersonAddIcon />}
+    <Button
+      disabled={isFollowing || isRequested}
+      variant="outlined"
+      size="small"
+      style={{
+        marginTop: 10,
+        width: "auto",
+        borderRadius: 100,
+        paddingLeft: 20,
+        paddingRight: 20,
+        border: "1px solid #103f5b"
+      }}
+      onClick={sendFollowToInbox}
+      endIcon={isFollowing ? <HowToRegIcon /> : <PersonAddIcon />}
+    >
+      <Typography
+        textTransform="none"
+        variant="subtitle1"
       >
-        <Typography
-          textTransform="none"
-          variant="subtitle1"
-        >
-          <strong>{followButtonText}</strong>
-        </Typography>
-      </Button>
-    </Grid>
+        <strong>{followButtonText}</strong>
+      </Typography>
+    </Button>
   );
 };
 
