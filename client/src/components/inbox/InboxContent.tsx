@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
-import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { getAuthorId } from "../../utils/localStorageUtils";
+import { InboxItemType } from "../../enums/enums";
+import InboxFollowItem from "./InboxFollowItem";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -29,43 +31,46 @@ const InboxContent = () => {
         <Grid item xs={12} textAlign="center">
           <Typography
             variant="h6"
-            sx={{paddingTop: 0.2}}
+            sx={{
+              padding: 2,
+              borderBottom: "1px solid #dbd9d9"
+            }}
           >
             Inbox
           </Typography>
         </Grid>
       </Grid>
       <Grid container>
-        {inboxItems.map((inboxItem) => (
-          <Grid container item xs={12} key={inboxItem.id} alignItems="center">
-            <Grid item xs={12}>
-              <Card
-                style={{
-                  margin: "auto",
-                  width: "100%",
-                  borderRadius: 0,
-                }}
-                variant="outlined"
-              >
-                <CardHeader
-                  avatar={<Avatar src={inboxItem.actor.profileImage}/>}
-                  action={
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      sx={{borderRadius: 20}}
-                    >
-                      <Typography textTransform={"none"}>
-                        Accept
-                      </Typography>
-                    </Button>
-                  }
-                  title={`${inboxItem.actor.displayName} wants to follow you`}
-                />
-              </Card>
+        {inboxItems.length > 0 ?
+          (inboxItems.map((inboxItem) => (
+            <Grid
+              container
+              key={inboxItem.id}
+              alignItems="center"
+              sx={{
+                borderBottom: "1px solid #dbd9d9"
+              }}
+            >
+              {inboxItem.type === InboxItemType.FOLLOW &&
+                <InboxFollowItem followItem={inboxItem} />
+              }
             </Grid>
-          </Grid>
-        ))}
+          )))
+          : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
+            >
+              No inbox items available...
+            </Typography>
+          )
+        }
       </Grid>
     </Grid>
   );
