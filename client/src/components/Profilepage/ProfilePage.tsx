@@ -11,11 +11,12 @@ import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
+import FollowAuthorButton from "./FollowAuthorButton";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -63,12 +64,13 @@ const ProfilePage = () => {
   const profilePic = authorData?.profileImage;
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
-  const authorAbleToEdit = authorId === getAuthorId();
-  
+  const location = useLocation();
+  const loggedUserId = getAuthorId();
   const isLoggedUser = authorId === loggedUserId;
+  const { otherAuthorObject, userObject } = location.state || {};
+
   const classes = useStyles();
 
-  const fetchAuthors = async () => {
   const fetchAuthor = useCallback(async () => {
     const url = `${APP_URI}author/${authorId}/`;
 
@@ -79,7 +81,6 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching author", error);
     }
-  };
   }, [authorId]);
 
   const openMakePostModal = () => {
@@ -111,7 +112,17 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
+    if (isLoggedUser || !otherAuthorObject) {
       fetchAuthor();
+    } else {
+      // go in here when user is navigating from the Discovery page
+      setAuthorData(otherAuthorObject);
+      setUserinfo({
+        displayName: otherAuthorObject.displayName,
+        github: otherAuthorObject.github,
+        profileImage: otherAuthorObject.profileImage
+      });
+    }
     fetchPosts();
   }, [authorId, fetchAuthor, fetchPosts]);
 
