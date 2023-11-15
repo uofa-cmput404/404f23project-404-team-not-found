@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
@@ -13,7 +13,7 @@ const DiscoverContent = () => {
   const [user, setUser] = useState<Author | null>(null);
   const navigate = useNavigate();
 
-  const fetchAuthors = async () => {
+  const fetchAuthors = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/`;
     try {
@@ -27,7 +27,7 @@ const DiscoverContent = () => {
     } catch (error) {
       console.error('Failed to fetch authors:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAuthors();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
 import { Grid, Typography } from "@mui/material";
 import { getAuthorId } from "../../utils/localStorageUtils";
@@ -10,7 +10,7 @@ const APP_URI = process.env.REACT_APP_URI;
 const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
 
-  const fetchInboxItems = async () => {
+  const fetchInboxItems = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}author/${AUTHOR_ID}/inbox/`;
     try {
@@ -19,7 +19,7 @@ const InboxContent = () => {
     } catch (error) {
       console.error('Failed to fetch inbox items:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInboxItems();
@@ -42,10 +42,10 @@ const InboxContent = () => {
       </Grid>
       <Grid container>
         {inboxItems.length > 0 ?
-          (inboxItems.map((inboxItem) => (
+          (inboxItems.map((inboxItem, index) => (
             <Grid
               container
-              key={inboxItem.id}
+              key={index}
               alignItems="center"
               sx={{
                 borderBottom: "1px solid #dbd9d9"
