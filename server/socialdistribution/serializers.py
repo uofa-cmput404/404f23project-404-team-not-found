@@ -156,3 +156,29 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_id_url(self, obj):
         return  build_default_comment_uri(obj=obj, request=self.context["request"])
+    
+
+class LikeSerializer(serializers.ModelSerializer):
+    object = SerializerMethodField("get_id_url")
+    summary = SerializerMethodField("get_summary")
+    author = AuthorSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ("context", "summary", "type", "author", "object")
+
+    def get_id_url(self, obj):
+        uri = self.context['request'].build_absolute_uri('/')
+        author_id = obj.author.id
+        if obj.comment:
+            return f"{uri}author/{author_id}/posts/{obj.post.id}/comments/{obj.comment.id}"
+        elif obj.post:
+            return f"{uri}author/{author_id}/posts/{obj.post.id}"
+        
+    def get_summary(self, obj):
+        if obj.comment:
+            return f"{obj.author.displayName} likes your comment"
+        elif obj.post:
+            return f"{obj.author.displayName} likes your post"
+    
+ 
