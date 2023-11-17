@@ -356,7 +356,7 @@ class SignUpView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class CommentView(APIView):
+class CommentsView(APIView):
     http_method_names = ["get", "post"]
 
     #TODO: Pagination
