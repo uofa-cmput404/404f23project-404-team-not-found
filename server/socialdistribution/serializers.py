@@ -150,11 +150,9 @@ class InboxSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     id = SerializerMethodField("get_id_url")
     author = AuthorSerializer(many=False, read_only=True)
-    post = PostSerializer(many=False, read_only=True)
-
     class Meta:
         model = Comment
-        fields = ("type","id", "author", "comment", "contentType", "published", "post")
+        fields = ("type","id", "author", "comment", "contentType", "published")
 
     def get_id_url(self, obj):
         return  build_default_comment_uri(obj=obj, request=self.context["request"])
