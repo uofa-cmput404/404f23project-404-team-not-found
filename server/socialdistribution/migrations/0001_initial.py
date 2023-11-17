@@ -48,7 +48,5 @@ class Migration(migrations.Migration):
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='socialdistribution.author')),
                 ('categories', models.ManyToManyField(blank=True, to='socialdistribution.category')),
             ],
-        ),
-        
-
+        ),        
     ]
