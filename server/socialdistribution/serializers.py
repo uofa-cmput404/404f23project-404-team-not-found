@@ -171,9 +171,9 @@ class LikeSerializer(serializers.ModelSerializer):
         uri = self.context['request'].build_absolute_uri('/')
         author_id = obj.author.id
         if obj.comment:
-            return f"{uri}author/{author_id}/posts/{obj.post.id}/comments/{obj.comment.id}"
+            return build_default_comment_uri(obj=obj, request=self.context["request"])
         elif obj.post:
-            return f"{uri}author/{author_id}/posts/{obj.post.id}"
+            return build_default_post_uri(obj=obj, request=self.context["request"])
         
     def get_summary(self, obj):
         if obj.comment:
