@@ -158,6 +158,3 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_id_url(self, obj):
         return  build_default_comment_uri(obj=obj, request=self.context["request"])
-    
-
-
