@@ -5,6 +5,9 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+# for authentication purpose
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
+from rest_framework.permissions import IsAuthenticated 
 
 from .serializers import *
 from .models import *
@@ -21,6 +24,10 @@ from socialdistribution.utils.views_utils import (
 
 class AuthorsView(APIView):
     http_method_names = ["get"]
+
+    # TODO: those next 2 lines are for authentication
+    authentication_classes = [BasicAuthentication] 
+    permission_classes = [IsAuthenticated] 
 
     def get(self, request):
         """
