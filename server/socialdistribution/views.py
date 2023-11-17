@@ -361,11 +361,19 @@ class CommentView(APIView):
 
     #TODO: Pagination
     def get(self, request,author_id,post_id):
-        post_object = Post.objects.get(id=post_id)
+
+        post_object = get_object_or_404(Post,id=post_id)
+        author_object = get_object_or_404(Author, id=author_id)
         comments = Comment.objects.order_by("-published").filter(post=post_object)
+        post_url = build_default_post_uri(obj=post_object, request=request)
         return Response(
             {
-                "comments": CommentSerializer(comments,context={"request": request}, many=True).data
+                "type": "comment",
+                "page": None,
+                "size": None,
+                "post":post_url,
+                "id": request.build_absolute_uri(),
+                "comments": CommentSerializer(comments,context={"request": request}, many=True).data,
 
             }
         )
@@ -386,8 +394,6 @@ class CommentView(APIView):
         
 
 
-    
-    
     
 
 
