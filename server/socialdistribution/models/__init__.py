@@ -13,3 +13,4 @@ from .inbox import Inbox
 from .inbox_item import InboxItem
 from .post import Post
 from .comment import Comment
+from .like import Like
