@@ -391,9 +391,46 @@ class CommentsView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
         
-        
+class PostLikesView(APIView):
+    http_method_names = ["get"]
 
-
+    def get(self, request, author_id, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = LikeSerializer(
+            Like.objects.filter(post=post, comment=None),context={"request": request}, many=True)
+        return  Response( serializer.data, status=status.HTTP_200_OK)
     
+class CommentLikesView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id, post_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        serializer = LikeSerializer(
+            Like.objects.filter(comment=comment),context={"request": request}, many=True)
+        return  Response( serializer.data, status=status.HTTP_200_OK)
+
+class LikedView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id):
+        """
+        get a list of posts that AUTHOR_ID likes
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        likes = Like.objects.filter(author=author_object)
+        return Response(
+            {
+                "type": "liked",
+                "items": LikeSerializer(
+                likes,
+                context= {"request": request},
+                many=True,
+                ).data
+
+                
+            }
+            
+        )
+
 
 
