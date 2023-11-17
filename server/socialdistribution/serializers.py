@@ -179,6 +179,4 @@ class LikeSerializer(serializers.ModelSerializer):
         if obj.comment:
             return f"{obj.author.displayName} likes your comment"
         elif obj.post:
-            return f"{obj.author.displayName} likes your post"
-    
- 
+            return f"{obj.author.displayName} likes your post"    
