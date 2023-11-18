@@ -140,7 +140,7 @@ class InboxSerializer(serializers.ModelSerializer):
         return build_default_author_uri(obj=obj, request=self.context["request"], source = "inbox")
 
     def get_items(self, obj):
-        return InboxItemSerializer(obj.items.all(), many=True, context=self.context).data
+        return InboxItemSerializer(obj.items.all().order_by("-id"), many=True, context=self.context).data
 
     def get_type(self, obj):
         return "inbox"
