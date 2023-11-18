@@ -6,7 +6,9 @@ import base64
 from .models import *
 from socialdistribution.utils.serializers_utils import (
     build_default_author_uri,
-    build_default_post_uri
+    build_default_post_uri,
+    build_default_comment_uri,
+    customize_like_representation
 )
 from socialdistribution.utils.general_utils import is_image, is_text
 
@@ -144,3 +146,42 @@ class InboxSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "inbox"
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    id = SerializerMethodField("get_id_url")
+    author = AuthorSerializer(many=False, read_only=True)
+    class Meta:
+        model = Comment
+        fields = ("type","id", "author", "comment", "contentType", "published")
+
+    def get_id_url(self, obj):
+        return  build_default_comment_uri(obj=obj, request=self.context["request"])
+    
+
+class LikeSerializer(serializers.ModelSerializer):
+    object = SerializerMethodField("get_id_url")
+    summary = SerializerMethodField("get_summary")
+    author = AuthorSerializer(many=False, read_only=True)
+    
+
+    class Meta:
+        model = Like
+        fields = ("context", "summary", "type", "author", "object")
+    
+    def to_representation(self, instance):
+        return customize_like_representation(self, instance)
+
+    def get_id_url(self, obj):
+        uri = self.context['request'].build_absolute_uri('/')
+        author_id = obj.author.id
+        if obj.comment:
+            return build_default_comment_uri(obj=obj, request=self.context["request"])
+        elif obj.post:
+            return build_default_post_uri(obj=obj, request=self.context["request"])
+        
+    def get_summary(self, obj):
+        if obj.comment:
+            return f"{obj.author.displayName} likes your comment"
+        elif obj.post:
+            return f"{obj.author.displayName} likes your post"    

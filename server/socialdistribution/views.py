@@ -15,7 +15,8 @@ from socialdistribution.utils.views_utils import (
     create_follower,
     create_post,
     update_post_categories,
-    update_post_content
+    update_post_content,
+    create_comment
 )
 
 
@@ -353,3 +354,83 @@ class SignUpView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentsView(APIView):
+    http_method_names = ["get", "post"]
+
+    #TODO: Pagination
+    def get(self, request,author_id,post_id):
+
+        post_object = get_object_or_404(Post,id=post_id)
+        author_object = get_object_or_404(Author, id=author_id)
+        comments = Comment.objects.order_by("-published").filter(post=post_object)
+        post_url = build_default_post_uri(obj=post_object, request=request)
+        return Response(
+            {
+                "type": "comments",
+                "page": None,
+                "size": None,
+                "post":post_url,
+                "id": request.build_absolute_uri(),
+                "comments": CommentSerializer(comments,context={"request": request}, many=True).data,
+
+            }
+        )
+    
+    def post(self, request, author_id, post_id):
+        
+        post_object = get_object_or_404(Post,id=post_id)
+        author_object = get_object_or_404(Author, id=author_id)
+        comment_object = create_comment(author_object, post_object, request.data)
+        serializer = CommentSerializer(instance=comment_object, data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save(author=author_object, post=post_object)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        
+class PostLikesView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = LikeSerializer(
+            Like.objects.filter(post=post, comment=None),context={"request": request}, many=True)
+        return  Response( serializer.data, status=status.HTTP_200_OK)
+    
+class CommentLikesView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id, post_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        serializer = LikeSerializer(
+            Like.objects.filter(comment=comment),context={"request": request}, many=True)
+        return  Response( serializer.data, status=status.HTTP_200_OK)
+
+class LikedView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, author_id):
+        """
+        get a list of posts that AUTHOR_ID likes
+        """
+        author_object = get_object_or_404(Author, id=author_id)
+        likes = Like.objects.filter(author=author_object)
+        return Response(
+            {
+                "type": "liked",
+                "items": LikeSerializer(
+                likes,
+                context= {"request": request},
+                many=True,
+                ).data
+
+                
+            }
+            
+        )
+
+
+
