@@ -20,6 +20,7 @@ const FollowAuthorButton = ({
 }) => {
   const [followButtonText, setFollowButtonText] = useState("Follow");
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isRequested, setIsRequested] = useState(false);
   const loggedUserId = getAuthorId();
 
   const sendFollowToInbox = async () => {
@@ -36,12 +37,29 @@ const FollowAuthorButton = ({
     try {
       await axios.post(url, data);
       setFollowButtonText("Requested");
+      setIsRequested(true);
     } catch (error) {
       toast.error("Failed to send a follow request")
     }
   };
 
   useEffect(() => {
+    const fetchFollowRequestExists = async () => {
+      const url = `${APP_URI}author/${authorId}/inbox/`;
+
+      try {
+        const response = await axios.get(url);
+        const items = response.data.items;
+        const followRequestExists: boolean = items.some((item: any) =>
+            item.type === 'Follow' && item.actor && item.actor.id === userObject.id
+        );
+        setIsRequested(followRequestExists);
+        console.log(isRequested)
+      } catch (error) {
+        console.error("Error fetching if user already requested: ", error);
+      }
+    };
+
     const fetchIsUserFollowingAuthor = async () => {
       const url = `${APP_URI}author/${authorId}/followers/${loggedUserId}/`;
 
@@ -50,6 +68,9 @@ const FollowAuthorButton = ({
         if (response.data.is_follower) {
           setFollowButtonText("Following");
           setIsFollowing(true);
+        } else if (isRequested) {
+          setFollowButtonText("Requested");
+          setIsFollowing(false);
         } else {
           setFollowButtonText("Follow");
           setIsFollowing(false);
@@ -59,13 +80,37 @@ const FollowAuthorButton = ({
       }
     };
 
-    fetchIsUserFollowingAuthor();
+    fetchFollowRequestExists();
   }, []);
+
+    useEffect(() => {
+      const fetchIsUserFollowingAuthor = async () => {
+        const url = `${APP_URI}author/${authorId}/followers/${loggedUserId}/`;
+
+        try {
+          const response = await axios.get(url);
+          if (response.data.is_follower) {
+            setFollowButtonText("Following");
+            setIsFollowing(true);
+          } else if (isRequested) {
+            setFollowButtonText("Requested");
+            setIsFollowing(false);
+          } else {
+            setFollowButtonText("Follow");
+            setIsFollowing(false);
+          }
+        } catch (error) {
+          console.error("Error fetching is follower: ", error);
+        }
+      };
+
+      fetchIsUserFollowingAuthor();
+    }, [isRequested]);
 
   return (
     <Grid container justifyContent="center">
       <Button
-        disabled={isFollowing}
+        disabled={isFollowing || isRequested}
         variant="outlined"
         size="small"
         style={{
