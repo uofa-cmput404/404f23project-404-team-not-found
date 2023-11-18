@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -10,8 +10,8 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [user, setUser] = useState<Author | null>(null);
   const navigate = useNavigate();
+  const loggedUser = getUserData();
 
   const fetchAuthors = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
@@ -20,10 +20,7 @@ const DiscoverContent = () => {
       const response = await axios.get(url);
       const filtered_authors = response.data["items"].filter((author: Author) =>
         getAuthorIdFromResponse(author.id) !== AUTHOR_ID)
-      const author_user = response.data["items"].find((author: Author) =>
-        getAuthorIdFromResponse(author.id) === AUTHOR_ID)
       setAuthors(filtered_authors);
-      setUser(author_user);
     } catch (error) {
       console.error('Failed to fetch authors:', error);
     }
@@ -40,7 +37,7 @@ const DiscoverContent = () => {
       {
         state: {
           otherAuthorObject: author,
-          userObject: user
+          userObject: loggedUser
         }
       }
     );

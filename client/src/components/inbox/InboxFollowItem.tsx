@@ -3,7 +3,7 @@ import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/materia
 import { useNavigate } from "react-router-dom";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import axios from "axios";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import { toast } from "react-toastify";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -16,6 +16,7 @@ const InboxFollowItem = ({
   const navigate = useNavigate();
   const [followButtonDisabled, setFollowButtonDisabled] = useState(false);
   const loggedUserId = getAuthorId();
+  const loggedUser = getUserData();
 
   useEffect(() => {
     const fetchIsUserFollowingAuthor = async () => {
@@ -35,7 +36,15 @@ const InboxFollowItem = ({
 
   const handleAuthorProfileClick = () => {
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
-    navigate(`/authors/${authorId}`);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: followItem.actor,
+          userObject: loggedUser
+        }
+      }
+    );
   };
 
   const handleAcceptFollow = async () => {

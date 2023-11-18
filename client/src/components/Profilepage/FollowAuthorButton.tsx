@@ -54,29 +54,8 @@ const FollowAuthorButton = ({
             item.type === 'Follow' && item.actor && item.actor.id === userObject.id
         );
         setIsRequested(followRequestExists);
-        console.log(isRequested)
       } catch (error) {
         console.error("Error fetching if user already requested: ", error);
-      }
-    };
-
-    const fetchIsUserFollowingAuthor = async () => {
-      const url = `${APP_URI}author/${authorId}/followers/${loggedUserId}/`;
-
-      try {
-        const response = await axios.get(url);
-        if (response.data.is_follower) {
-          setFollowButtonText("Following");
-          setIsFollowing(true);
-        } else if (isRequested) {
-          setFollowButtonText("Requested");
-          setIsFollowing(false);
-        } else {
-          setFollowButtonText("Follow");
-          setIsFollowing(false);
-        }
-      } catch (error) {
-        console.error("Error fetching is follower: ", error);
       }
     };
 
