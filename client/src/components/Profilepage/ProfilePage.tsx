@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Typography, CssBaseline, Button, Theme, Modal, Box, TextField, Grid, IconButton } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
@@ -11,24 +11,16 @@ import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
+import FollowAuthorButton from "./FollowAuthorButton";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    backgroundColor: "#FAF8F1",
-    padding: "2rem",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center", 
-    alignItems: "center",
-    position: "relative",
-  },
   picture: {
     maxWidth: 200,
     maxHeight: 200,
@@ -41,25 +33,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginBottom: "20px",
     border: "1px solid #dbd9d9"
   },
-  cardGrid: {
-    paddingTop: "2rem",
-    paddingBottom: "2rem",
-    dislpay: "flex",
-    flexDirection: "column",
-  },
-  card: {
-    width: "100%",
-    height: "100%",
-  },
-  customLink: {
-    color: "white",
-    textDecoration: "none !important",
-  },
-  content: {
-      display: "flex",
-      justifyContent: "column",
-      alignItems: "center"
-  }, 
   modal: {
       display: "flex",
       alignItems: "center",
@@ -91,11 +64,14 @@ const ProfilePage = () => {
   const profilePic = authorData?.profileImage;
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
-  const authorAbleToEdit = authorId === getAuthorId();
-  
+  const location = useLocation();
+  const loggedUserId = getAuthorId();
+  const isLoggedUser = authorId === loggedUserId;
+  const { otherAuthorObject, userObject } = location.state || {};
+
   const classes = useStyles();
 
-  const fetchAuthors = async () => {
+  const fetchAuthor = useCallback(async () => {
     const url = `${APP_URI}author/${authorId}/`;
 
     try {
@@ -105,13 +81,13 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching author", error);
     }
-  };
+  }, [authorId]);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     const url = `${APP_URI}author/${authorId}/posts/`;
 
     try {
@@ -120,7 +96,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
-  };
+  }, [authorId]);
 
   const deletePost = async (postId: string) => {
     try {
@@ -136,9 +112,19 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    fetchAuthors();
+    if (isLoggedUser || !otherAuthorObject) {
+      fetchAuthor();
+    } else {
+      // go in here when user is navigating from the Discovery page
+      setAuthorData(otherAuthorObject);
+      setUserinfo({
+        displayName: otherAuthorObject.displayName,
+        github: otherAuthorObject.github,
+        profileImage: otherAuthorObject.profileImage
+      });
+    }
     fetchPosts();
-  }, [authorId]);
+  }, [authorId, fetchAuthor, fetchPosts]);
 
     const handleOpen = () => {
       setOpen(true);
@@ -149,8 +135,7 @@ const ProfilePage = () => {
     };
     
     const handleSave = async () => {
-      const AUTHOR_ID = getAuthorId();
-      const url = `${APP_URI}author/${AUTHOR_ID}/`;
+      const url = `${APP_URI}author/${loggedUserId}/`;
 
       const formData = new FormData();
 
@@ -181,7 +166,7 @@ const ProfilePage = () => {
         if (response.status === 200) {
           toast.success("Profile updated successfully");
           handleClose();
-          await fetchAuthors();
+          await fetchAuthor();
         } else {
           toast.error("Failed to update profile");
         }
@@ -236,7 +221,7 @@ const ProfilePage = () => {
 						onMouseOver={() => setShowEdit(true)}
 						onMouseOut={() => setShowEdit(false)}
 						>
-							{showEdit && authorAbleToEdit &&
+							{showEdit && isLoggedUser &&
                 <IconButton sx={{
 								backgroundColor: "white",
 								position: "absolute",
@@ -258,6 +243,9 @@ const ProfilePage = () => {
 								{github}
 							</Typography>
 						</a>
+            {!isLoggedUser &&
+              <FollowAuthorButton authorId={authorId!} otherAuthorObject={otherAuthorObject} userObject={userObject} />
+            }
           </Grid>
           <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
         </Grid>
