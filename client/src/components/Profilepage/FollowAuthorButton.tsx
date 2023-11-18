@@ -80,6 +80,7 @@ const FollowAuthorButton = ({
             setFollowButtonText("Follow");
             setIsFollowing(false);
           }
+          setIsUserFollowingAuthor(response.data.is_follower)
         } catch (error) {
           console.error("Error fetching is follower: ", error);
         }
