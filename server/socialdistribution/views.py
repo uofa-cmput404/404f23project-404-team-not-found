@@ -14,6 +14,7 @@ from socialdistribution.utils.views_utils import (
     create_follow,
     create_follower,
     create_inbox_item,
+    create_like,
     create_post,
     update_post_categories,
     update_post_content,
@@ -270,10 +271,7 @@ class InboxView(APIView):
             serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
 
             if serializer.is_valid():
-                # create follow instance
                 follow_instance = serializer.save()
-
-                # Add that follow to the AUTHOR_ID's inbox.
                 inbox_object = get_object_or_404(Inbox, author=author_object)
                 create_inbox_item(inbox_object, follow_instance)
 
@@ -306,9 +304,31 @@ class InboxView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif data["type"].lower() == "like":
+            parsed_url = urlparse(data["object"])
+            path_segments = parsed_url.path.split('/')
+            
+            if "comments" in data["object"]:
+                post_id = path_segments[path_segments.index("posts") + 1]
+                comment_id = path_segments[-1]
+                post_object = get_object_or_404(Post, id=post_id)
+                comment_object = get_object_or_404(Comment, id=comment_id)
+            else:  # default it's a like on a post
+                post_id = path_segments[-1]
+                post_object = get_object_or_404(Post, id=post_id)
+                comment_object = None
 
+            like_object = create_like(author_object, post_object, comment_object)
+            serializer = LikeSerializer(instance=like_object, data=request.data, context={"request": request})
 
-        # TODO: HANDLE like, comment
+            if serializer.is_valid():
+                like_instance = serializer.save()
+                inbox_object = get_object_or_404(Inbox, author=author_object)
+                create_inbox_item(inbox_object, like_instance)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'detail': 'Invalid type or unhandled type in request.'}, status=status.HTTP_400_BAD_REQUEST)
 

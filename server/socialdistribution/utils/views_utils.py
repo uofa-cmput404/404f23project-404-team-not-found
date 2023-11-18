@@ -3,13 +3,16 @@ import base64
 
 from django.contrib.contenttypes.models import ContentType
 
-from socialdistribution.models.post import Post
-from socialdistribution.models.follow import Follow
-from socialdistribution.models.follower import Follower
-from socialdistribution.models.category import Category
-from socialdistribution.models.author import Author
-from socialdistribution.models.comment import Comment
-from socialdistribution.models.inbox_item import InboxItem
+from socialdistribution.models import (
+    Post,
+    Follow,
+    Follower,
+    Category,
+    Author,
+    Comment,
+    InboxItem,
+    Like
+)
 
 from .general_utils import *
 from .serializers_utils import build_default_author_uri
@@ -56,6 +59,17 @@ def create_inbox_item(inbox, content):
                                                  content_object=content)
     inbox.items.add(inbox_item_object)
 
+
+def create_like(author, post, comment):
+    like = Like.objects.create(
+        author=author,
+        post=post
+    )
+
+    if comment:
+        like.comment = comment
+
+    return like
 
 def create_post(author, data, post_id=None):
     """
