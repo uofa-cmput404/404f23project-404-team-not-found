@@ -79,13 +79,13 @@ def create_plain_text_post(author):
 
     return post_obj
 
-def create_comment(cauthor,cpost):
+def create_comment(cauthor,cpost,ccontentType):
     comment_obj = Comment.objects.create(
         type="comment",
         author=cauthor,
         post=cpost,
         comment="This is a test comment",
-        contentType="text/plain"
+        contentType=ccontentType
 
     )
     

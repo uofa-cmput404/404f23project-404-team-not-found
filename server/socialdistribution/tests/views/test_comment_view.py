@@ -20,6 +20,8 @@ class TestCommentView(TestCase):
         self.author = create_author()
         self.post = create_plain_text_post(self.author)
         self.url = reverse("comments", args=[self.author.id, self.post.id])
+        self.contentType = "text/plain"
+
 
     def test_post_create_comment(self):
         data = {"contentType": "text/plain", "comment": "crazy post"}
@@ -32,7 +34,7 @@ class TestCommentView(TestCase):
     
 
     def test_get_comments(self):
-        comment_obj = create_comment(self.author, self.post)
+        comment_obj = create_comment(self.author, self.post, self.contentType)
         response = self.client.get(self.url)
         json_obj = deserialize_response(response)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
