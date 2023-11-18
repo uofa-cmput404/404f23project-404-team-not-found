@@ -368,7 +368,7 @@ class CommentsView(APIView):
         post_url = build_default_post_uri(obj=post_object, request=request)
         return Response(
             {
-                "type": "comment",
+                "type": "comments",
                 "page": None,
                 "size": None,
                 "post":post_url,
