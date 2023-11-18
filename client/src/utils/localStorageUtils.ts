@@ -21,3 +21,16 @@ export const getAuthorId = () => {
 export const removeAuthorId = () => {
   return localStorage.removeItem("author_id");
 };
+
+export const storeUserData = (data: string) => {
+  localStorage.setItem("user_data", data);
+};
+
+export const getUserData = () => {
+  const user_data = localStorage.getItem("user_data");
+  return user_data ? JSON.parse(user_data) : null;
+};
+
+export const removeUserData = () => {
+  return localStorage.removeItem("user_data");
+};
