@@ -44,7 +44,6 @@ class TestAuthorView(TestCase):
         url = reverse("author", args=[author_object.id])
 
         response = self.client.post(url, data, format="json")
-        print(response)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
