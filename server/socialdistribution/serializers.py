@@ -8,6 +8,7 @@ from socialdistribution.utils.serializers_utils import (
     build_default_author_uri,
     build_default_post_uri,
     build_default_comment_uri,
+    build_default_comments_uri,
     customize_like_representation
 )
 from socialdistribution.utils.general_utils import is_image, is_text
@@ -85,11 +86,13 @@ class PostSerializer(serializers.ModelSerializer):
     origin = SerializerMethodField("get_origin_url")
     source = SerializerMethodField("get_source_url")
     type = SerializerMethodField("get_type")
+    comments = SerializerMethodField("get_comments")
+    count = SerializerMethodField("get_count")
 
     class Meta:
         model = Post
-        fields = ("id", "author", "categories", "content", "contentType", "description", "title", "type", "source",
-                  "origin", "published", "updatedAt", "visibility", "unlisted")
+        fields = ("type", "id", "author", "categories", "content", "contentType", "description", "title", "source",
+                  "origin", "published", "updatedAt", "visibility", "unlisted", "count", "comments")
 
     def get_id_url(self, obj):
         """id field needs to be a uri of the post"""
@@ -102,6 +105,12 @@ class PostSerializer(serializers.ModelSerializer):
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
             return f"data:{obj.contentType},{base64_encoded.decode('utf-8')}"
+
+    def get_comments(self, obj):
+        return build_default_comments_uri(obj=obj, request=self.context["request"])
+
+    def get_count(self, obj):
+        return Comment.objects.filter(post__id=obj.id).count()
 
     def get_origin_url(self, obj):
         """if source is given, pass in the origin, otherwise, build it using current request uri"""

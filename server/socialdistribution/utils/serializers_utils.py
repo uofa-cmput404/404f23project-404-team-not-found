@@ -18,6 +18,11 @@ def build_default_comment_uri(obj, request):
     return f"{uri}{SERVICE}author/{obj.author.id}/posts/{obj.post.id}/comments/{obj.id}"
 
 
+def build_default_comments_uri(obj, request):
+    uri = request.build_absolute_uri("/")
+    return f"{uri}{SERVICE}author/{obj.author.id}/posts/{obj.id}/comments"
+
+
 def customize_like_representation(serializer_instance, instance):
     representation = serializers.ModelSerializer.to_representation(serializer_instance, instance)
     
