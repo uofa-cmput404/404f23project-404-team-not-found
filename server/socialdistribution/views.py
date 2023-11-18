@@ -13,11 +13,14 @@ from socialdistribution.utils.views_utils import (
     create_author,
     create_follow,
     create_follower,
+    create_inbox_item,
     create_post,
     update_post_categories,
     update_post_content,
     create_comment
 )
+
+from urllib.parse import urlparse
 
 
 class AuthorsView(APIView):
@@ -262,8 +265,8 @@ class InboxView(APIView):
         if "type" not in data:
             return Response(missing_type_in_inbox_post_error, status=status.HTTP_400_BAD_REQUEST)
 
-        if data['type'] == "Follow":
-            follow_object = create_follow(author_object, request.data)
+        if data['type'].lower() == "follow":
+            follow_object = create_follow(author_object, data)
             serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
 
             if serializer.is_valid():
@@ -271,18 +274,27 @@ class InboxView(APIView):
                 follow_instance = serializer.save()
 
                 # Add that follow to the AUTHOR_ID's inbox.
-                author_object = get_object_or_404(Author, id=author_id)
                 inbox_object = get_object_or_404(Inbox, author=author_object)
-                content_type = ContentType.objects.get_for_model(follow_instance)
-                inbox_item_object = InboxItem.objects.create(content_type=content_type,
-                                                             object_id=follow_instance.id,
-                                                             content_object=follow_instance)
-                inbox_object.items.add(inbox_item_object)
+                create_inbox_item(inbox_object, follow_instance)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # TODO: HANDLE post, like, comment
+        elif data["type"].lower() == "post":
+            parsed_url = urlparse(data["id"])
+            post_id = parsed_url.path.split('/')[-1]
+            post_object = get_object_or_404(Post, id=post_id)
+            serializer = PostSerializer(instance=post_object, data=data, context={"request": request})
+
+            if serializer.is_valid():
+                inbox_object = get_object_or_404(Inbox, author=author_object)
+                create_inbox_item(inbox_object, post_object)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # TODO: HANDLE like, comment
 
         return Response({'detail': 'Invalid type or unhandled type in request.'}, status=status.HTTP_400_BAD_REQUEST)
 

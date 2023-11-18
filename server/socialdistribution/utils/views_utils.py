@@ -1,12 +1,15 @@
 import uuid
 import base64
 
+from django.contrib.contenttypes.models import ContentType
+
 from socialdistribution.models.post import Post
 from socialdistribution.models.follow import Follow
 from socialdistribution.models.follower import Follower
 from socialdistribution.models.category import Category
 from socialdistribution.models.author import Author
 from socialdistribution.models.comment import Comment
+from socialdistribution.models.inbox_item import InboxItem
 
 from .general_utils import *
 from .serializers_utils import build_default_author_uri
@@ -44,6 +47,14 @@ def create_follower(recipient, data):
     )
 
     return follower
+
+
+def create_inbox_item(inbox, content):
+    content_type = ContentType.objects.get_for_model(content)
+    inbox_item_object = InboxItem.objects.create(content_type=content_type,
+                                                 object_id=content.id,
+                                                 content_object=content)
+    inbox.items.add(inbox_item_object)
 
 
 def create_post(author, data, post_id=None):
@@ -105,6 +116,7 @@ def update_post_categories(categories, post_object):
         category_object = Category.objects.get(category=category)
         post_object.categories.remove(category_object)
 
+
 def create_comment(author,post, data, comment_id=None):
     """
     Creating a comment given an author and its data.
@@ -123,4 +135,3 @@ def create_comment(author,post, data, comment_id=None):
     )
 
     return comment_obj
-
