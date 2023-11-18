@@ -126,7 +126,8 @@ class InboxItemSerializer(serializers.ModelSerializer):
             return FollowSerializer(instance=obj.content_object, context=self.context).data
         elif isinstance(obj.content_object, Post):
             return PostSerializer(instance=obj.content_object, context=self.context).data
-        # TODO: later on, handle serializing likes and comments in inbox
+        elif isinstance(obj.content_object, Comment):
+            return CommentSerializer(instance=obj.content_object, context=self.context).data
 
 
 class InboxSerializer(serializers.ModelSerializer):
@@ -184,4 +185,3 @@ class LikeSerializer(serializers.ModelSerializer):
         if obj.comment:
             return f"{obj.author.displayName} likes your comment"
         elif obj.post:
-            return f"{obj.author.displayName} likes your post"    

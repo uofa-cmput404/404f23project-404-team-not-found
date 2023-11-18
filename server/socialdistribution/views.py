@@ -293,6 +293,20 @@ class InboxView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif data["type"].lower() == "comment":
+            parsed_url = urlparse(data["id"])
+            comment_id = parsed_url.path.split('/')[-1]
+            comment_object = get_object_or_404(Comment, id=comment_id)
+            serializer = CommentSerializer(instance=comment_object, data=data, context={"request": request})
+
+            if serializer.is_valid():
+                inbox_object = get_object_or_404(Inbox, author=author_object)
+                create_inbox_item(inbox_object, comment_object)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
         # TODO: HANDLE like, comment
 
@@ -411,7 +425,8 @@ class PostLikesView(APIView):
         serializer = LikeSerializer(
             Like.objects.filter(post=post, comment=None),context={"request": request}, many=True)
         return  Response( serializer.data, status=status.HTTP_200_OK)
-    
+
+
 class CommentLikesView(APIView):
     http_method_names = ["get"]
 
@@ -420,6 +435,7 @@ class CommentLikesView(APIView):
         serializer = LikeSerializer(
             Like.objects.filter(comment=comment),context={"request": request}, many=True)
         return  Response( serializer.data, status=status.HTTP_200_OK)
+
 
 class LikedView(APIView):
     http_method_names = ["get"]
@@ -438,11 +454,5 @@ class LikedView(APIView):
                 context= {"request": request},
                 many=True,
                 ).data
-
-                
             }
-            
         )
-
-
-
