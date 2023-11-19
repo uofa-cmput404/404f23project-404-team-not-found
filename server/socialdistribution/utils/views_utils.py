@@ -67,13 +67,12 @@ def create_inbox_item(inbox, content=None, json_data=None):
 def create_like(author, post, comment):
     like = Like.objects.create(
         author=author,
-        post=post
+        post=post,
+        comment=comment
     )
 
-    if comment:
-        like.comment = comment
-
     return like
+
 
 def create_post(author, data, post_id=None):
     """
@@ -135,7 +134,7 @@ def update_post_categories(categories, post_object):
         post_object.categories.remove(category_object)
 
 
-def create_comment(author,post, data, comment_id=None):
+def create_comment(post, data, comment_id=None):
     """
     Creating a comment given an author and its data.
     ID can be randomly generated or given.
@@ -145,11 +144,10 @@ def create_comment(author,post, data, comment_id=None):
 
     comment_obj = Comment.objects.create(
         id=comment_id,
-        author=author,
-        post= post,
+        author=data["author"],
+        post=post,
         comment=data["comment"],
         contentType=data["contentType"],
-        
     )
 
     return comment_obj

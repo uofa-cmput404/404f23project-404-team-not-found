@@ -317,7 +317,7 @@ class InboxView(APIView):
             post_object = get_object_or_404(Post, id=post_id)
             comment_object = None
 
-        like_object = create_like(author_object, post_object, comment_object)
+        like_object = create_like(data["author"], post_object, comment_object)
         serializer = LikeSerializer(instance=like_object, data=request.data, context={"request": request})
 
         if serializer.is_valid():
@@ -427,7 +427,6 @@ class CommentsView(APIView):
     def get(self, request,author_id,post_id):
 
         post_object = get_object_or_404(Post,id=post_id)
-        author_object = get_object_or_404(Author, id=author_id)
         comments = Comment.objects.order_by("-published").filter(post=post_object)
         post_url = build_default_post_uri(obj=post_object, request=request)
         return Response(
@@ -443,13 +442,11 @@ class CommentsView(APIView):
         )
     
     def post(self, request, author_id, post_id):
-        
         post_object = get_object_or_404(Post,id=post_id)
-        author_object = get_object_or_404(Author, id=author_id)
-        comment_object = create_comment(author_object, post_object, request.data)
+        comment_object = create_comment(post_object, request.data)
         serializer = CommentSerializer(instance=comment_object, data=request.data, context={"request": request})
         if serializer.is_valid():
-            serializer.save(author=author_object, post=post_object)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -472,7 +469,7 @@ class CommentLikesView(APIView):
         comment = get_object_or_404(Comment, id=comment_id)
         serializer = LikeSerializer(
             Like.objects.filter(comment=comment),context={"request": request}, many=True)
-        return  Response( serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class LikedView(APIView):
@@ -482,8 +479,7 @@ class LikedView(APIView):
         """
         get a list of posts that AUTHOR_ID likes
         """
-        author_object = get_object_or_404(Author, id=author_id)
-        likes = Like.objects.filter(author=author_object)
+        likes = Like.objects.filter(author__id__endswith=author_id)
         return Response(
             {
                 "type": "liked",
