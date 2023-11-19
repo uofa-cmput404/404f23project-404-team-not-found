@@ -12,6 +12,15 @@ class InboxItem(models.Model):
     # Django Software Foundation, Using contenttypes to handle polymorphic types, October 23, 2023,
     # https://docs.djangoproject.com/en/4.2/ref/contrib/contenttypes/
     # content_type points to the model of a content_object with an object_id
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.UUIDField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.UUIDField(null=True, blank=True)
     content_object = GenericForeignKey("content_type", "object_id")
+
+    # Add a JSON field to store remote data being sent to the inbox
+    json_data = models.JSONField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # Custom save method to ensure either content_object or json_data is used, not both
+        if self.content_object and self.json_data:
+            raise ValueError("InboxItem cannot have both a content_object and json_data.")
+        super(InboxItem, self).save(*args, **kwargs)

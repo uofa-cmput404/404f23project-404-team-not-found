@@ -279,18 +279,28 @@ class InboxView(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         elif data["type"].lower() == "post":
-            parsed_url = urlparse(data["id"])
-            post_id = parsed_url.path.split('/')[-1]
-            post_object = get_object_or_404(Post, id=post_id)
-            serializer = PostSerializer(instance=post_object, data=data, context={"request": request})
+            try:
+                parsed_url = urlparse(data["id"])
+                post_id = parsed_url.path.split('/')[-1]
+                post_object = Post.objects.get(id=post_id)
+                serializer = PostSerializer(instance=post_object, data=data, context={"request": request})
 
-            if serializer.is_valid():
+                if serializer.is_valid():
+                    inbox_object = get_object_or_404(Inbox, author=author_object)
+                    create_inbox_item(inbox_object, post_object)
+
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Post.DoesNotExist:
+                # If post is not found in your database, treat it as a JSON object
                 inbox_object = get_object_or_404(Inbox, author=author_object)
-                create_inbox_item(inbox_object, post_object)
+                create_inbox_item(inbox_object, json_data=data)
 
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                # You might want to change the response as per your API design
+                inbox_serializer = InboxSerializer(instance=inbox_object, context={"request": request})
+                return Response(inbox_serializer.data, status=status.HTTP_201_CREATED)
+
         elif data["type"].lower() == "comment":
             parsed_url = urlparse(data["id"])
             comment_id = parsed_url.path.split('/')[-1]

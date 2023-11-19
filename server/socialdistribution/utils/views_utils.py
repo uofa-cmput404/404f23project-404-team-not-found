@@ -52,11 +52,15 @@ def create_follower(recipient, data):
     return follower
 
 
-def create_inbox_item(inbox, content):
-    content_type = ContentType.objects.get_for_model(content)
-    inbox_item_object = InboxItem.objects.create(content_type=content_type,
-                                                 object_id=content.id,
-                                                 content_object=content)
+def create_inbox_item(inbox, content=None, json_data=None):
+    if content:
+        content_type = ContentType.objects.get_for_model(content)
+        inbox_item_object = InboxItem.objects.create(content_type=content_type,
+                                                     object_id=content.id,
+                                                     content_object=content)
+    else:
+        inbox_item_object = InboxItem.objects.create(json_data=json_data)
+
     inbox.items.add(inbox_item_object)
 
 

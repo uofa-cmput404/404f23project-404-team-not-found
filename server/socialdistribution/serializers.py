@@ -130,6 +130,8 @@ class InboxItemSerializer(serializers.ModelSerializer):
             return CommentSerializer(instance=obj.content_object, context=self.context).data
         elif isinstance(obj.content_object, Like):
             return LikeSerializer(instance=obj.content_object, context=self.context).data
+        elif obj.json_data is not None:
+            return obj.json_data
 
 
 class InboxSerializer(serializers.ModelSerializer):
