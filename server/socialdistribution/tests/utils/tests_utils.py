@@ -53,15 +53,13 @@ def create_inbox_item(object, inbox_object):
 
 
 def create_like(author, post, comment):
-    like = Like.objects.create(
+    like_object = Like.objects.create(
         author=author,
-        post=post
+        post=post,
+        comment=comment
     )
 
-    if comment:
-        like.comment = comment
-
-    return like
+    return like_object
 
 
 def create_follower(author, follower_author):
@@ -92,7 +90,7 @@ def create_plain_text_post(author):
     return post_obj
 
 
-def create_comment(cauthor,cpost,ccontentType):
+def create_comment(cauthor, cpost, ccontentType):
     comment_obj = Comment.objects.create(
         type="comment",
         author=cauthor,

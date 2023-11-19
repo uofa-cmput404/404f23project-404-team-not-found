@@ -85,7 +85,8 @@ class TestInboxView(TestCase):
         inbox_object = Inbox.objects.get(author_id=self.author.id)
 
         post_object = create_plain_text_post(self.author)
-        comment_object = create_comment(self.author, post_object, "text/plain")
+        author = create_author_dict(author_id=self.author.id)
+        comment_object = create_comment(author, post_object, "text/plain")
         create_inbox_item(comment_object, inbox_object)
 
         response = self.client.get(self.url)
@@ -100,8 +101,9 @@ class TestInboxView(TestCase):
         inbox_object = Inbox.objects.get(author_id=self.author.id)
 
         post_object = create_plain_text_post(self.author)
-        comment_object = create_comment(self.author, post_object, "text/plain")
-        like_object = create_like(self.author, post_object, comment_object)
+        author = create_author_dict(author_id=self.author.id)
+        comment_object = create_comment(author, post_object, "text/plain")
+        like_object = create_like(author, post_object, comment_object)
         create_inbox_item(like_object, inbox_object)
 
         response = self.client.get(self.url)
@@ -159,6 +161,7 @@ class TestInboxView(TestCase):
             "type": "comment",
             "comment": "yee ol comment test",
             "contentType": Post.ContentType.PLAIN,
+            "author": create_author_dict(author_id=self.author.id)
         }
 
         comment_response = self.client.post(self.comments_url, data=comment_data, format="json")
@@ -184,9 +187,12 @@ class TestInboxView(TestCase):
             "contentType": Post.ContentType.PLAIN,
             "content": "TEST",
             "visibility": Post.Visibility.PUBLIC,
-            "unlisted": False
+            "unlisted": False,
         }
-        like_data = {"type": "like"}
+        like_data = {
+            "type": "like",
+            "author": create_author_dict(author_id=self.author.id)
+        }
 
         post_response = self.client.post(self.posts_url, data=post_data, format="json")
         post_json_obj = deserialize_response(post_response)
