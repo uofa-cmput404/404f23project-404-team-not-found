@@ -124,8 +124,10 @@ class TestInboxView(TestCase):
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(json_obj["type"], "Follow")
-        self.assertEqual(json_obj["actor"]["type"], "author")
+        self.assertEqual(json_obj["type"], "inbox")
+        self.assertEqual(len(json_obj["items"]), 1)
+        self.assertEqual(json_obj["items"][0]["type"], "Follow")
+        self.assertEqual(json_obj["items"][0]["actor"]["type"], "author")
 
     def test_post_post_to_inbox(self):
         post_data = {
@@ -147,8 +149,10 @@ class TestInboxView(TestCase):
         inbox_json_obj = deserialize_response(inbox_response)
 
         self.assertEqual(inbox_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(inbox_json_obj["type"], "post")
-        self.assertEqual(inbox_json_obj["title"], "Test Title")
+        self.assertEqual(inbox_json_obj["type"], "inbox")
+        self.assertEqual(len(inbox_json_obj["items"]), 1)
+        self.assertEqual(inbox_json_obj["items"][0]["type"], "post")
+        self.assertEqual(inbox_json_obj["items"][0]["title"], "Test Title")
 
     def test_post_comment_to_inbox(self):
         comment_data = {
@@ -160,13 +164,16 @@ class TestInboxView(TestCase):
         comment_response = self.client.post(self.comments_url, data=comment_data, format="json")
         comment_json_obj = deserialize_response(comment_response)
         comment_data["id"] = comment_json_obj["id"]
+        comment_data["author"] = comment_json_obj["author"]
 
-        inbox_response = self.client.post(self.url, data=comment_data, format='json')
+        inbox_response = self.client.post(self.url, data=comment_data, format="json")
         inbox_json_obj = deserialize_response(inbox_response)
 
         self.assertEqual(inbox_response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(inbox_json_obj["type"], "comment")
-        self.assertEqual(inbox_json_obj["comment"], "yee ol comment test")
+        self.assertEqual(inbox_json_obj["type"], "inbox")
+        self.assertEqual(len(inbox_json_obj["items"]), 1)
+        self.assertEqual(inbox_json_obj["items"][0]["type"], "comment")
+        self.assertEqual(inbox_json_obj["items"][0]["comment"], "yee ol comment test")
 
     def test_post_like_post_to_inbox(self):
         post_data = {
@@ -189,8 +196,10 @@ class TestInboxView(TestCase):
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(json_obj["type"], "Like")
-        self.assertEqual(json_obj["summary"], f"{self.author.displayName} likes your post")
+        self.assertEqual(json_obj["type"], "inbox")
+        self.assertEqual(len(json_obj["items"]), 1)
+        self.assertEqual(json_obj["items"][0]["type"], "Like")
+        self.assertEqual(json_obj["items"][0]["summary"], f"{self.author.displayName} likes your post")
 
     def test_post_invalid_without_type(self):
         data = {

@@ -267,81 +267,89 @@ class InboxView(APIView):
             return Response(missing_type_in_inbox_post_error, status=status.HTTP_400_BAD_REQUEST)
 
         if data['type'].lower() == "follow":
-            follow_object = create_follow(author_object, data)
-            serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
-
-            if serializer.is_valid():
-                follow_instance = serializer.save()
-                inbox_object = get_object_or_404(Inbox, author=author_object)
-                create_inbox_item(inbox_object, follow_instance)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return self.create_follow_inbox_item(author_object, data, request)
         elif data["type"].lower() == "post":
-            try:
-                parsed_url = urlparse(data["id"])
-                post_id = parsed_url.path.split('/')[-1]
-                post_object = Post.objects.get(id=post_id)
-                serializer = PostSerializer(instance=post_object, data=data, context={"request": request})
-
-                if serializer.is_valid():
-                    inbox_object = get_object_or_404(Inbox, author=author_object)
-                    create_inbox_item(inbox_object, post_object)
-
-                    return Response(serializer.data, status=status.HTTP_201_CREATED)
-                else:
-                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            except Post.DoesNotExist:
-                # If post is not found in your database, treat it as a JSON object
-                inbox_object = get_object_or_404(Inbox, author=author_object)
-                create_inbox_item(inbox_object, json_data=data)
-
-                # You might want to change the response as per your API design
-                inbox_serializer = InboxSerializer(instance=inbox_object, context={"request": request})
-                return Response(inbox_serializer.data, status=status.HTTP_201_CREATED)
-
+            return self.create_post_inbox_item(author_object, data, request)
         elif data["type"].lower() == "comment":
-            parsed_url = urlparse(data["id"])
-            comment_id = parsed_url.path.split('/')[-1]
-            comment_object = get_object_or_404(Comment, id=comment_id)
-            serializer = CommentSerializer(instance=comment_object, data=data, context={"request": request})
-
-            if serializer.is_valid():
-                inbox_object = get_object_or_404(Inbox, author=author_object)
-                create_inbox_item(inbox_object, comment_object)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return self.create_comment_inbox_item(author_object, data, request)
         elif data["type"].lower() == "like":
-            parsed_url = urlparse(data["object"])
-            path_segments = parsed_url.path.split('/')
-            
-            if "comments" in data["object"]:
-                post_id = path_segments[path_segments.index("posts") + 1]
-                comment_id = path_segments[-1]
-                post_object = get_object_or_404(Post, id=post_id)
-                comment_object = get_object_or_404(Comment, id=comment_id)
-            else:  # default it's a like on a post
-                post_id = path_segments[-1]
-                post_object = get_object_or_404(Post, id=post_id)
-                comment_object = None
+            return self.create_like_inbox_item(author_object, data, request)
+        else:
+            return Response({'detail': 'Invalid type or unhandled type in request.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-            like_object = create_like(author_object, post_object, comment_object)
-            serializer = LikeSerializer(instance=like_object, data=request.data, context={"request": request})
+    def create_comment_inbox_item(self, author_object, data, request):
+        parsed_url = urlparse(data["id"])
+        comment_id = parsed_url.path.split('/')[-1]
+        comment_object = get_object_or_404(Comment, id=comment_id)
+        serializer = CommentSerializer(instance=comment_object, data=data, context={"request": request})
+
+        if serializer.is_valid():
+            inbox_object = get_object_or_404(Inbox, author=author_object)
+            create_inbox_item(inbox_object, comment_object)
+            return self.send_inbox_serializer_response(inbox_object, request)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_follow_inbox_item(self, author_object, data, request):
+        follow_object = create_follow(author_object, data)
+        serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
+
+        if serializer.is_valid():
+            follow_instance = serializer.save()
+            inbox_object = get_object_or_404(Inbox, author=author_object)
+            create_inbox_item(inbox_object, follow_instance)
+            return self.send_inbox_serializer_response(inbox_object, request)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_like_inbox_item(self, author_object, data, request):
+        parsed_url = urlparse(data["object"])
+        path_segments = parsed_url.path.split('/')
+
+        if "comments" in data["object"]:
+            post_id = path_segments[path_segments.index("posts") + 1]
+            comment_id = path_segments[-1]
+            post_object = get_object_or_404(Post, id=post_id)
+            comment_object = get_object_or_404(Comment, id=comment_id)
+        else:  # default, it's a like on a post
+            post_id = path_segments[-1]
+            post_object = get_object_or_404(Post, id=post_id)
+            comment_object = None
+
+        like_object = create_like(author_object, post_object, comment_object)
+        serializer = LikeSerializer(instance=like_object, data=request.data, context={"request": request})
+
+        if serializer.is_valid():
+            like_instance = serializer.save()
+            inbox_object = get_object_or_404(Inbox, author=author_object)
+            create_inbox_item(inbox_object, like_instance)
+            return self.send_inbox_serializer_response(inbox_object, request)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_post_inbox_item(self, author_object, data, request):
+        try:
+            parsed_url = urlparse(data["id"])
+            post_id = parsed_url.path.split('/')[-1]
+            post_object = Post.objects.get(id=post_id)
+            serializer = PostSerializer(instance=post_object, data=data, context={"request": request})
 
             if serializer.is_valid():
-                like_instance = serializer.save()
                 inbox_object = get_object_or_404(Inbox, author=author_object)
-                create_inbox_item(inbox_object, like_instance)
-
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                create_inbox_item(inbox_object, post_object)
+                return self.send_inbox_serializer_response(inbox_object, request)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Post.DoesNotExist:
+            # If post is remote, treat it as a JSON object
+            inbox_object = get_object_or_404(Inbox, author=author_object)
+            create_inbox_item(inbox_object, json_data=data)
+            return self.send_inbox_serializer_response(inbox_object, request)
 
-        return Response({'detail': 'Invalid type or unhandled type in request.'}, status=status.HTTP_400_BAD_REQUEST)
-
+    def send_inbox_serializer_response(self, inbox_object, request):
+        inbox_serializer = InboxSerializer(instance=inbox_object, context={"request": request})
+        return Response(inbox_serializer.data, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
     http_method_names = ["post"]
