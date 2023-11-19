@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from 'axios';
-import { Grid, styled, Tab, Tabs } from "@mui/material";
+import { Grid, styled, Tab, Tabs, Typography } from "@mui/material";
 import { Author, Post } from "../../interfaces/interfaces";
 import AuthorsList from "../author/AuthorsList";
 import PostsList from "../post/PostsList";
@@ -71,12 +71,33 @@ const ProfileTabs = ({
         <CustomTab value={"posts"} label="Posts" />
         <CustomTab value={"followers"} label="Followers" />
       </Tabs>
-      {tabValue === "posts" &&
+      <Grid item sx={{ width: "100%" }}>
+        {tabValue === "posts" &&
         <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
-      }
-      {tabValue === "followers" &&
-        <AuthorsList authors={followers} />
-      }
+        }
+        {tabValue === "followers" &&
+          (
+            followers.length > 0 ?
+              (
+                <AuthorsList authors={followers}/>
+              )
+              : (
+                <Typography
+                  variant="h6"
+                  align="center"
+                  sx={{
+                    marginTop: 5,
+                    marginLeft: "auto",
+                    marginRight: "auto",
+                    color: "#858585",
+                  }}
+                >
+                No followers...
+              </Typography>
+              )
+          )
+        }
+      </Grid>
     </Grid>
   );
 };
