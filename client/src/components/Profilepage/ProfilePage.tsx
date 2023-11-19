@@ -284,7 +284,9 @@ const ProfilePage = () => {
                           True Friend
                       </Typography>
                       <em>{"You follow each other"}</em>
-                  </>
+                    </>
+                    }
+                  >
                     <FavoriteRoundedIcon
                       sx={{
                         borderRadius: 100,
