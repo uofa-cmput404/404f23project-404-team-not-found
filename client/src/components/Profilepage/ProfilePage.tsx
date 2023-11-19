@@ -274,7 +274,17 @@ const ProfilePage = () => {
                   userObject={userObject}
                 />
                 {!isLoggedUser && isUserFollowingAuthor && isAuthorFollowingUser &&
-                  <Tooltip title="True Friend">
+                  <Tooltip title={
+                    <>
+                      <Typography 
+                        color="inherit" 
+                        flexGrow={1} 
+                        textAlign={"center"}
+                      >
+                          True Friend
+                      </Typography>
+                      <em>{"You follow each other"}</em>
+                  </>
                     <FavoriteRoundedIcon
                       sx={{
                         borderRadius: 100,

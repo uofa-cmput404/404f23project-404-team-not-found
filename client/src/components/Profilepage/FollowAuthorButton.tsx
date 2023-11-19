@@ -102,6 +102,12 @@ const FollowAuthorButton = ({
         paddingRight: 20,
         border: "1px solid #103f5b"
       }}
+      sx={{
+        "&.Mui-disabled": {
+          background: "#103f5b",
+          color: "white"
+        }
+      }}
       onClick={sendFollowToInbox}
       endIcon={isFollowing ? <HowToRegIcon /> : <PersonAddIcon />}
     >
