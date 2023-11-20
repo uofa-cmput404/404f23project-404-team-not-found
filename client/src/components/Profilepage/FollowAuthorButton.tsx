@@ -191,7 +191,8 @@ const FollowAuthorButton = ({
         authorName={otherAuthorObject.displayName}
         isModalOpen={IsUnfollowModalOpen}
         setIsModalOpen={setIsUnfollowModalOpen}
-        unfollowAuthor={unfollowAuthor} />
+        unfollowAuthor={unfollowAuthor}
+      />
     </Grid>
   );
 };

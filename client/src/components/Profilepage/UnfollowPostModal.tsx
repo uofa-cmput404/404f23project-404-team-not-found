@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const DeletePostModal = ({
+const UnFollowPostModal = ({
   authorName,
   isModalOpen,
   setIsModalOpen,
@@ -87,4 +87,4 @@ const DeletePostModal = ({
   );
 }
 
-export default DeletePostModal;
+export default UnFollowPostModal;
