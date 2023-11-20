@@ -116,7 +116,7 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
       await axios.post(url, data);

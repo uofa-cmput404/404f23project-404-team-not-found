@@ -79,7 +79,7 @@ const ProfilePage = () => {
   const classes = useStyles();
 
   const fetchAuthor = useCallback(async () => {
-    const url = `${APP_URI}author/${authorId}/`;
+    const url = `${APP_URI}authors/${authorId}/`;
 
     try {
       const response = await axios.get(url);
@@ -95,7 +95,7 @@ const ProfilePage = () => {
   };
 
   const fetchPosts = useCallback(async () => {
-    const url = `${APP_URI}author/${authorId}/posts/`;
+    const url = `${APP_URI}authors/${authorId}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -135,7 +135,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchIsAuthorFollowingUser = async () => {
-      const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+      const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
       try {
         const response = await axios.get(url);
@@ -157,7 +157,7 @@ const ProfilePage = () => {
     };
     
     const handleSave = async () => {
-      const url = `${APP_URI}author/${loggedUserId}/`;
+      const url = `${APP_URI}authors/${loggedUserId}/`;
 
       const formData = new FormData();
 

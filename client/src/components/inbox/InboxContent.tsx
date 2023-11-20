@@ -12,7 +12,7 @@ const InboxContent = () => {
 
   const fetchInboxItems = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/inbox/`;
+    const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
     try {
       const response = await axios.get(url);
       setInboxItems(response.data["items"]);
