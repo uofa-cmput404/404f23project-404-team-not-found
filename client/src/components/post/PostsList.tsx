@@ -1,6 +1,8 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link , 
+  Grid , Button, IconButton, CardActionArea, ButtonBase} from "@mui/material";
+import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
@@ -13,6 +15,8 @@ import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
 
@@ -38,11 +42,23 @@ const PostsList = ({
   const handlelike = () => { };
   // TODO : implement share modal
   const handleShare = () => { };
+  const navigate = useNavigate();
 
   const openMakeCommentModal = (post: Post) => {
     setPostToComment(post);
     setIsMakeCommentModalOpen(true);
   };
+
+  const handlePostClick = (authorId:string, postId:string, postArg: Post) => {
+    navigate(
+      `/${authorId}/posts/${postId}`,
+      {
+        state: {
+          post: postArg
+        }
+      }
+      )
+  }
   
     return (
       <>
@@ -57,15 +73,36 @@ const PostsList = ({
               borderTop: 0
             }} 
               variant='outlined'>
+            <CardActionArea
+              disableRipple
+              onClick={event => {
+                handlePostClick(
+                  getAuthorIdFromResponse(post.author.id),
+                  getAuthorIdFromResponse(post.id),
+                  post
+                  );
+              }} 
+            >
             <CardHeader
               avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                  <MoreMenu
-                    post={post}
-                    deletePost={deletePost}
-                    onPostEdited={onPostEdited}
-                  />
+                  <ButtonBase
+                  onMouseDown={event => event.stopPropagation()}
+                  sx={{borderRadius: 100}}
+                  disableRipple
+                  onClick={event => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                  }}    
+                  >
+                    <MoreMenu
+                      post={post}
+                      deletePost={deletePost}
+                      onPostEdited={onPostEdited}
+                    />
+                  </ButtonBase>
+
               )}
               title={post.author.displayName}
               subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
@@ -168,11 +205,12 @@ const PostsList = ({
                       minWidth:0 ,
                       color: "text.secondary"
                     }}
-                    onClick={
-                      () => {
+                    onMouseDown={event => event.stopPropagation()}
+                    onClick={event => {
+                        event.stopPropagation();
+                        event.preventDefault();
                         openMakeCommentModal(post);
-                      }
-                    }
+                      }}
                   >
                     <ChatBubbleOutlineIcon fontSize="small" />
                     <Typography sx={{marginLeft: 1}}>
@@ -186,7 +224,12 @@ const PostsList = ({
                   <IconButton
                     size="small"
                     sx={{ marginRight: 1 }}
-                    onClick={handleShare}
+                    onMouseDown={event => event.stopPropagation()}
+                    onClick={event => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleShare();
+                      }}
                   >
                     <ShareIcon fontSize="medium" />
                   </IconButton>
@@ -194,6 +237,18 @@ const PostsList = ({
                 </Grid>
               </Grid>
             </CardContent>
+            <CardContent sx={{paddingTop: 0}}>
+              <Button size="small"
+              onMouseDown={event => event.stopPropagation()}
+              onClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              >
+                View all comments
+              </Button>
+            </CardContent>
+            </CardActionArea>
           </Card>
         )))
         : (
