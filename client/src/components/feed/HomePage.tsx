@@ -23,7 +23,7 @@ export default function HomePage() {
 
   const fetchPosts = async () => {
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
       const response = await axios.get(url);

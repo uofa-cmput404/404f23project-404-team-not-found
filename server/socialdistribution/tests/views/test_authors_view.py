@@ -45,8 +45,8 @@ class TestPostsView(TestCase):
         self.assertEqual(host_1, author_obj_1.host)
         self.assertEqual(host_2, author_obj_2.host)
 
-        id_url_1 = f"{host_1}{SERVICE}author/{author_obj_1.id}"
-        id_url_2 = f"{host_2}{SERVICE}author/{author_obj_2.id}"
+        id_url_1 = f"{host_1}{SERVICE}authors/{author_obj_1.id}"
+        id_url_2 = f"{host_2}{SERVICE}authors/{author_obj_2.id}"
 
         self.assertEqual(json_obj["items"][0]["displayName"], author_obj_1.displayName)
         self.assertEqual(json_obj["items"][0]["type"], "author")

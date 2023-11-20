@@ -44,7 +44,7 @@ const Login = () => {
         storeToken(response.data.token);
         setUserToken(response.data.token);
 
-        const authorUrl = `${APP_URI}author/${response.data.author_id}/`
+        const authorUrl = `${APP_URI}authors/${response.data.author_id}/`
         axios.get(authorUrl).then((response: any) => {
           storeUserData(JSON.stringify(response.data));
 

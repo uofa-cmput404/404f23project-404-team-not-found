@@ -34,7 +34,7 @@ const FollowAuthorButton = ({
       object: otherAuthorObject
     };
 
-    const url = `${APP_URI}author/${authorId}/inbox/`;
+    const url = `${APP_URI}authors/${authorId}/inbox/`;
 
     try {
       await axios.post(url, data);
@@ -47,7 +47,7 @@ const FollowAuthorButton = ({
 
   useEffect(() => {
     const fetchFollowRequestExists = async () => {
-      const url = `${APP_URI}author/${authorId}/inbox/`;
+      const url = `${APP_URI}authors/${authorId}/inbox/`;
 
       try {
         const response = await axios.get(url);
@@ -66,7 +66,7 @@ const FollowAuthorButton = ({
 
     useEffect(() => {
       const fetchIsUserFollowingAuthor = async () => {
-        const url = `${APP_URI}author/${authorId}/followers/${loggedUserId}/`;
+        const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
 
         try {
           const response = await axios.get(url);

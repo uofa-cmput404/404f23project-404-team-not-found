@@ -21,7 +21,7 @@ const InboxFollowItem = ({
   useEffect(() => {
     const fetchIsUserFollowingAuthor = async () => {
       const authorId = getAuthorIdFromResponse(followItem.actor.id);
-      const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+      const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
       try {
         const response = await axios.get(url);
@@ -54,7 +54,7 @@ const InboxFollowItem = ({
       object: followItem.object
     };
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
-    const url = `${APP_URI}author/${loggedUserId}/followers/${authorId}/`;
+    const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
     try {
       const response = await axios.put(url, data);
