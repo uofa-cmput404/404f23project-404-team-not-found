@@ -30,7 +30,7 @@ const ProfileTabs = ({
 
   useEffect(() => {
     const fetchFollowers = async () => {
-      const url = `${APP_URI}author/${authorId}/followers/`;
+      const url = `${APP_URI}authors/${authorId}/followers/`;
 
       await axios
         .get(url)
