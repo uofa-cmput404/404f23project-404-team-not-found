@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 
 def build_default_author_uri(obj, request, source):
+    # print(request)
     uri = request.build_absolute_uri("/")
     author_id = obj.id if source == "author" else obj.author.id
     return f"{uri}{SERVICE}author/{author_id}"
