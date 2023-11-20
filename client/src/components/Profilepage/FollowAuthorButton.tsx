@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { getAuthorId } from "../../utils/localStorageUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -23,6 +24,7 @@ const FollowAuthorButton = ({
   const [followButtonText, setFollowButtonText] = useState("Follow");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isRequested, setIsRequested] = useState(false);
+  const [icon, setIcon] = useState(<PersonAddIcon/>)
   const loggedUserId = getAuthorId();
 
   const sendFollowToInbox = async () => {
@@ -73,6 +75,7 @@ const FollowAuthorButton = ({
           if (response.data.is_follower) {
             setFollowButtonText("Following");
             setIsFollowing(true);
+            setIcon(<HowToRegIcon/>)
           } else if (isRequested) {
             setFollowButtonText("Requested");
             setIsFollowing(false);
@@ -90,8 +93,53 @@ const FollowAuthorButton = ({
     }, [isRequested]);
 
   return (
+    isFollowing ?
     <Button
-      disabled={isFollowing || isRequested}
+      onMouseOver={() => {
+        setFollowButtonText("Unfollow");
+        setIcon(<PersonRemoveIcon/>);
+      }}
+      onMouseOut={() => {
+        setFollowButtonText("Following");
+        setIcon(<HowToRegIcon/>)
+    }}
+      variant="outlined"
+      size="small"
+      style={{
+        marginTop: 10,
+        width: "9rem",
+        borderRadius: 100,
+        paddingLeft: 20,
+        paddingRight: 20,
+      }}
+      sx={{
+        background: "#103f5b",
+        color: "white",   
+        border: "1px solid #103f5b",
+        // "&.Mui-disabled": {
+        //   background: "#103f5b",
+        //   color: "white"
+        // },
+        ":hover": {
+          background: "#CC282833",
+          border: "1px solid #CC2828",
+          transition: "all 50",
+          color: "#CC2828"
+        },
+      }}
+      onClick={sendFollowToInbox}
+      endIcon={ icon }
+    >
+      <Typography
+        textTransform="none"
+        variant="subtitle1"
+      >
+        <strong>{followButtonText}</strong>
+      </Typography>
+    </Button>
+    :
+    <Button
+      disabled={ isRequested }
       variant="outlined"
       size="small"
       style={{
@@ -109,7 +157,7 @@ const FollowAuthorButton = ({
         }
       }}
       onClick={sendFollowToInbox}
-      endIcon={isFollowing ? <HowToRegIcon /> : <PersonAddIcon />}
+      endIcon={ icon }
     >
       <Typography
         textTransform="none"
