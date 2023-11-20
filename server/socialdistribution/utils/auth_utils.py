@@ -6,6 +6,7 @@ from socialdistribution.auth.node_authentication import (
 )
 
 # TODO: Can have the following list in .env
+# TODO: Update this with our local address
 LOCAL_NODE_REFERERS = ["http://allowed1.com", "http://allowed2.com"]
 
 
@@ -21,10 +22,6 @@ def get_custom_permissions(request):
 
     # This code will requires basic auth on the local node referers addresses.
     # For remote addresses, do the auth based on Node model?
-    # if referer in LOCAL_NODE_REFERERS:
-    #     return [IsAuthenticated()]
-    # else:
-    #     return []
     if request.META.get("HTTP_REFERER") in LOCAL_NODE_REFERERS:
         return [IsAuthenticated()]  # For local node referers
     else:
