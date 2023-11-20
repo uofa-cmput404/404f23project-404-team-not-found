@@ -74,6 +74,7 @@ const PostsList = ({
             }} 
               variant='outlined'>
             <CardActionArea
+              component='span'
               disableRipple
               onClick={event => {
                 handlePostClick(
@@ -88,6 +89,7 @@ const PostsList = ({
               action={
                 (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                   <ButtonBase
+                  component='span'
                   onMouseDown={event => event.stopPropagation()}
                   sx={{borderRadius: 100}}
                   disableRipple
