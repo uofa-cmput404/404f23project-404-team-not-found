@@ -16,4 +16,6 @@ class Node(models.Model):
 
     # We set the default of is_allowed to True. Meaning all newly created nodes are allowed to connect.
     is_active = models.BooleanField(default=True)
-    is_authenticated = models.BooleanField(default=False)
+
+    # https://docs.djangoproject.com/en/4.2/ref/contrib/auth/#django.contrib.auth.models.User.is_authenticated
+    is_authenticated = models.BooleanField(default=True)
