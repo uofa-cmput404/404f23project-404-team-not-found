@@ -2,13 +2,11 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authtoken.models import Token 
+from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-# for authentication purpose
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication 
-from rest_framework.permissions import IsAuthenticated 
 
+# for authentication purpose
 from .serializers import *
 from .models import *
 from .utils import *
@@ -18,16 +16,27 @@ from socialdistribution.utils.views_utils import (
     create_follower,
     create_post,
     update_post_categories,
-    update_post_content
+    update_post_content,
+)
+
+from socialdistribution.utils.auth_utils import (
+    get_custom_authenticators,
+    get_custom_permissions,
 )
 
 
 class AuthorsView(APIView):
     http_method_names = ["get"]
 
-    # TODO: those next 2 lines are for authentication
-    authentication_classes = [BasicAuthentication] 
-    permission_classes = [IsAuthenticated] 
+    # # TODO: those next 2 lines are for authentication
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def get(self, request):
         """
@@ -38,11 +47,9 @@ class AuthorsView(APIView):
         serializer = AuthorSerializer(authors, many=True, context={"request": request})
 
         return Response(
-            data={
-                "type": "authors",
-                "items": serializer.data
-            },
-            status=status.HTTP_200_OK)
+            data={"type": "authors", "items": serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
 
 class AuthorView(APIView):
@@ -53,13 +60,17 @@ class AuthorView(APIView):
         get the author data whose id is AUTHOR_ID
         """
         author_object = get_object_or_404(Author, id=author_id)
-        serializer = AuthorSerializer(instance=author_object, context={"request": request})
+        serializer = AuthorSerializer(
+            instance=author_object, context={"request": request}
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def post(self, request, author_id):
         author_object = get_object_or_404(Author, id=author_id)
-        serializer = AuthorSerializer(instance=author_object, data=request.data, context={"request": request})
+        serializer = AuthorSerializer(
+            instance=author_object, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             serializer.save()
@@ -80,9 +91,12 @@ class FollowersView(APIView):
         return Response(
             data={
                 "type": "followers",
-                "items": [follower_object.follower_author for follower_object in followers]
+                "items": [
+                    follower_object.follower_author for follower_object in followers
+                ],
             },
-            status=status.HTTP_200_OK)
+            status=status.HTTP_200_OK,
+        )
 
 
 class FollowerView(APIView):
@@ -93,9 +107,9 @@ class FollowerView(APIView):
         remove FOLLOWER_ID as a follower of AUTHOR_ID
         """
         author_object = get_object_or_404(Author, id=author_id)
-        follower_object = get_object_or_404(Follower,
-                                            author=author_object,
-                                            follower_author__id__endswith=follower_id)
+        follower_object = get_object_or_404(
+            Follower, author=author_object, follower_author__id__endswith=follower_id
+        )
         follower_object.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -105,9 +119,9 @@ class FollowerView(APIView):
         check if FOLLOWER_ID is a follower of AUTHOR_ID
         """
         author_object = get_object_or_404(Author, id=author_id)
-        is_follower = (Follower.objects.filter(author=author_object,
-                                               follower_author__id__endswith=follower_id)
-                       .exists())
+        is_follower = Follower.objects.filter(
+            author=author_object, follower_author__id__endswith=follower_id
+        ).exists()
 
         return Response({"is_follower": is_follower}, status=status.HTTP_200_OK)
 
@@ -117,15 +131,17 @@ class FollowerView(APIView):
         TODO: must be authenticated
         """
         author_object = get_object_or_404(Author, id=author_id)
-        is_follower = (Follower.objects.filter(author=author_object,
-                                               follower_author__id__endswith=follower_id)
-                       .exists())
+        is_follower = Follower.objects.filter(
+            author=author_object, follower_author__id__endswith=follower_id
+        ).exists()
 
         if is_follower:
             return Response(already_followed_error, status=status.HTTP_400_BAD_REQUEST)
 
         follower_object = create_follower(author_object, request.data)
-        serializer = FollowerSerializer(instance=follower_object, data=request.data, context={"request": request})
+        serializer = FollowerSerializer(
+            instance=follower_object, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             serializer.save()
@@ -157,7 +173,9 @@ class PostsView(APIView):
         # Reference: https://docs.djangoproject.com/en/4.2/topics/http/shortcuts/#get-object-or-404
         author_obj = get_object_or_404(Author, id=author_id)
         post_object = create_post(author_obj, request.data)
-        serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
+        serializer = PostSerializer(
+            instance=post_object, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             serializer.save(author=author_obj)
@@ -203,7 +221,9 @@ class PostView(APIView):
         if content and content_type:
             update_post_content(content, content_type, post_object)
 
-        serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
+        serializer = PostSerializer(
+            instance=post_object, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             # save update and set updatedAt to current time
@@ -218,7 +238,9 @@ class PostView(APIView):
         """
         author_obj = get_object_or_404(Author, id=author_id)
         post_object = create_post(author_obj, request.data, post_id)
-        serializer = PostSerializer(instance=post_object, data=request.data, context={"request": request})
+        serializer = PostSerializer(
+            instance=post_object, data=request.data, context={"request": request}
+        )
 
         if serializer.is_valid():
             serializer.save(author=author_obj)
@@ -250,7 +272,9 @@ class InboxView(APIView):
         """
         author_object = get_object_or_404(Author, id=author_id)
         inbox_object = get_object_or_404(Inbox, author=author_object)
-        serializer = InboxSerializer(instance=inbox_object, context={"request": request})
+        serializer = InboxSerializer(
+            instance=inbox_object, context={"request": request}
+        )
 
         return Response(serializer.data)
 
@@ -266,11 +290,15 @@ class InboxView(APIView):
         data = request.data
 
         if "type" not in data:
-            return Response(missing_type_in_inbox_post_error, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                missing_type_in_inbox_post_error, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if data['type'] == "Follow":
+        if data["type"] == "Follow":
             follow_object = create_follow(author_object, request.data)
-            serializer = FollowSerializer(instance=follow_object, data=data, context={"request": request})
+            serializer = FollowSerializer(
+                instance=follow_object, data=data, context={"request": request}
+            )
 
             if serializer.is_valid():
                 # create follow instance
@@ -280,9 +308,11 @@ class InboxView(APIView):
                 author_object = get_object_or_404(Author, id=author_id)
                 inbox_object = get_object_or_404(Inbox, author=author_object)
                 content_type = ContentType.objects.get_for_model(follow_instance)
-                inbox_item_object = InboxItem.objects.create(content_type=content_type,
-                                                             object_id=follow_instance.id,
-                                                             content_object=follow_instance)
+                inbox_item_object = InboxItem.objects.create(
+                    content_type=content_type,
+                    object_id=follow_instance.id,
+                    content_object=follow_instance,
+                )
                 inbox_object.items.add(inbox_item_object)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -290,7 +320,10 @@ class InboxView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # TODO: HANDLE post, like, comment
 
-        return Response({'detail': 'Invalid type or unhandled type in request.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Invalid type or unhandled type in request."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class LoginView(APIView):
@@ -306,7 +339,7 @@ class LoginView(APIView):
 
             # on success login check
             if success:
-                # create token 
+                # create token
                 token, created = Token.objects.get_or_create(user=user)
                 matching_author = Author.objects.get(user=user)
 
@@ -316,7 +349,6 @@ class LoginView(APIView):
             else:
                 data = {"message": "Wrong password"}
                 return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-
 
         except User.DoesNotExist:
             data = {"message": "User not found"}
@@ -332,7 +364,6 @@ class SignUpView(APIView):
         password = request.POST["password"]
         displayName = request.POST["displayName"]
 
-
         try:
             # check if the User with given username already exists
             user = User.objects.get(username=username)
@@ -343,16 +374,16 @@ class SignUpView(APIView):
                 "displayName": displayName,
                 "profileImage": DEFAULT_PIC_LINK,
             }
-            user_object = User.objects.create_user(username=username,
-                                                   email=email,
-                                                   password=password)
+            user_object = User.objects.create_user(
+                username=username, email=email, password=password
+            )
             author_object = create_author(author_data, request, user_object)
             author_data["host"] = author_object.host
             author_data["url"] = author_object.url
 
-            serializer = AuthorSerializer(instance=author_object,
-                                          data=author_data,
-                                          context={"request": request})
+            serializer = AuthorSerializer(
+                instance=author_object, data=author_data, context={"request": request}
+            )
 
             if serializer.is_valid():
                 # save update and set updatedAt to current time
