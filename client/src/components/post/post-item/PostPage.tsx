@@ -16,7 +16,7 @@ const PostPage = () => {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const location = useLocation();
   const { post } = location.state || {};
-
+  const { authorId, postId} = useParams();
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
