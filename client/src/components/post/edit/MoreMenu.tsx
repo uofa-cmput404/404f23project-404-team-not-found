@@ -52,7 +52,12 @@ const MoreMenu = ({
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        onMouseDown={event => event.stopPropagation()}
+        onClick={event => {
+          event.stopPropagation();
+          event.preventDefault();
+          handleClick(event);
+        }}    
         sx={{marginLeft: 1, marginRight: "auto"}}
         size="medium"
       >
