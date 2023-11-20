@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Node(models.Model):
     """
     A node is an object that represents a team.
-    This is used to manage the permissions (is_allowed)
+    This is used to manage the permissions (is_active)
     """
 
     name = models.CharField(primary_key=True, max_length=STRING_MAXLEN)
@@ -15,4 +15,5 @@ class Node(models.Model):
     password = models.CharField(max_length=STRING_MAXLEN)
 
     # We set the default of is_allowed to True. Meaning all newly created nodes are allowed to connect.
-    is_allowed = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    is_authenticated = models.BooleanField(default=False)
