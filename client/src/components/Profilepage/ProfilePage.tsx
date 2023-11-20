@@ -4,7 +4,6 @@ import { Typography, CssBaseline, Button, Theme, Modal, Box, TextField, Grid, Ic
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
 import "./styles.css";
-import PostsList from "../post/PostsList";
 import { toast } from "react-toastify";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
@@ -19,6 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
 import FollowAuthorButton from "./FollowAuthorButton";
 import Tooltip from "@mui/material/Tooltip";
+import ProfileTabs from "./ProfileTabs";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -130,8 +130,7 @@ const ProfilePage = () => {
         profileImage: otherAuthorObject.profileImage
       });
     }
-    fetchPosts();
-  }, [authorId, fetchAuthor, fetchPosts]);
+  }, [authorId, fetchAuthor]);
 
   useEffect(() => {
     const fetchIsAuthorFollowingUser = async () => {
@@ -306,7 +305,7 @@ const ProfilePage = () => {
               </Box>
             }
           </Grid>
-          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
+          <ProfileTabs authorId={authorId!} deletePost={deletePost} fetchPosts={fetchPosts} posts={posts}/>
         </Grid>
 				<div>
 						<Modal
