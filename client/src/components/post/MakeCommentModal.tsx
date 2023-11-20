@@ -47,7 +47,7 @@ const MakeCommentModal = ({
     const AUTHOR_ID = getAuthorId();
     const POST_ID = getAuthorId();
     // (Need to change to getPositionOfLineAndCharacter(once implemented))
-    const APIurl = `${APP_URI}author/${AUTHOR_ID}/posts/${POST_ID}`;
+    const APIurl = `${APP_URI}authors/${AUTHOR_ID}/posts/${POST_ID}`;
 
     const handleSubmit = () => {
         console.log(`Comment: ${comment}, Content Type: ${contentType}`);
@@ -68,7 +68,7 @@ const MakeCommentModal = ({
         //     //TODO CHANGE TO getPostId() once done
         //     const POST_ID = getAuthorId(); 
 
-        //     const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+        //     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
         //     try {
         //       await axios.post(url, payload);

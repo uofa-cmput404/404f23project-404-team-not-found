@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
 import { CssBaseline } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
@@ -11,46 +8,22 @@ import axios from "axios";
 import { Post } from "../../interfaces/interfaces";
 import { toast } from "react-toastify";
 
-import Person from "@mui/icons-material/Person";
-import MailIcon from "@mui/icons-material/Mail";
-import ExploreIcon from "@mui/icons-material/Explore";
-import HomeIcon from '@mui/icons-material/Home';
 import HeadBar from "../template/AppBar";
-import DiscoverModal from "../follow/DiscoveryModal";
-import InboxModal from "../inbox/InboxModal";
+import LeftNavBar from "../template/LeftNavBar";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
-  const [isDiscoveryModalOpen, setIsDiscoveryModalOpen] = useState(false);
-  const [isInboxModalOpen, setIsInboxModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
-  const navigate = useNavigate();
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
 
-  const openInboxModal = () => {
-    setIsInboxModalOpen(true);
-  };
-
-  const openDiscoveryModal = () => {
-    setIsDiscoveryModalOpen(true);
-  };
-
-  const handleProfileClick = () => {
-    navigate(`/authors/${getAuthorId()}`);
-  };
-
-  const handleHomeClick = () => {
-    navigate("/home-page");
-  };
-
   const fetchPosts = async () => {
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -93,71 +66,10 @@ export default function HomePage() {
         }}
       >
         <Grid item xs={3.6} style={{ height: "80vh" }}>
-          <Grid container 
-            alignItems="flex-end"
-            direction="column"
-            sx={{
-              position: "fixed",
-              paddingTop: 5,
-              paddingRight: 2,
-              width:"30vw", 
-              height: "100vh", 
-            }}
-            >
-            <Grid container
-              direction="column"
-              alignItems="flex-start"
-              width={"50%"}
-              marginRight={2}
-            >
-              <Button onClick={handleHomeClick}>
-                <HomeIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  <strong>Home</strong>
-                </Typography>
-              </Button>
-              <Button onClick={handleProfileClick}
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-              >
-                <Person fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Profile
-                </Typography>
-              </Button>
-              <Button
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-                onClick={openInboxModal}
-              >
-                <MailIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Inbox
-                </Typography>
-              </Button>
-              <Button
-                style={{ marginTop: 10, width: "auto", borderRadius: 20 }}
-                onClick={openDiscoveryModal}
-              >
-                <ExploreIcon fontSize="large" />
-                <Typography variant="h6" textTransform="none" paddingLeft={2}>
-                  Discover
-                </Typography>
-              </Button>
-              <Button
-                variant="contained"
-                size="large"
-                style={{ marginTop: 20, width: "90%", borderRadius: 100 }}
-                onClick={openMakePostModal}
-              >
-                <Typography 
-                  textTransform="none" 
-                  padding={0.5}
-                  variant="subtitle1"
-								>
-									<strong>Post</strong>
-								</Typography>
-              </Button>
-            </Grid>
-          </Grid>
+          <LeftNavBar
+            openMakePostModal={openMakePostModal}
+            page={"home"}
+          />
         </Grid>
         <Grid item xs={4.8} justifyContent='center'
           sx={{
@@ -173,14 +85,6 @@ export default function HomePage() {
           isModalOpen={isMakePostModalOpen}
           onPostCreated={fetchPosts}
           setIsModalOpen={setIsMakePostModalOpen}
-        />
-        <InboxModal
-          isModalOpen={isInboxModalOpen}
-          setIsModalOpen={setIsInboxModalOpen}
-        />
-        <DiscoverModal
-          isModalOpen={isDiscoveryModalOpen}
-          setIsModalOpen={setIsDiscoveryModalOpen}
         />
       </Grid>
     </>

@@ -17,7 +17,7 @@ import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const style = {
   display: "flex",
@@ -42,7 +42,7 @@ const MakePostModal = ({
   setIsModalOpen,
 }: {
   isModalOpen: boolean;
-  onPostCreated: () => void;
+  onPostCreated?: () => void;
   setIsModalOpen: (isOpen: boolean) => void;
 }) => {
   const [title, setTitle] = useState("");
@@ -60,27 +60,37 @@ const MakePostModal = ({
 
   const handleClose = () => {
     setIsModalOpen(false);
+    setTextType(true);
+    setImageType(false);
     setImagePrev("");
-    handleTextContent();
+    setCategories([]);
+    setContent("");
     setTitle("");
     setDescription("");
   };
   
 
   const handleTextContent = () => {
-    setTextType(true);
-    setImageType(false);
-    setCategories([]);
-    setContent("");
-    setImagePrev("");
-    setMarkdownCheckbox(false);
+    // reset some vars when switching between image -> text
+    if (imageType) {
+      setTextType(true);
+      setImageType(false);
+      setContent("");
+      setImagePrev("");
+      setMarkdownCheckbox(false);
+    }
   }
 
   const handleImageContent = () => {
-    setImageType(true);
-    setTextType(false);
-    setContent("");
+    // reset some vars when switching between text -> image
+    if (textType) {
+      setImageType(true);
+      setTextType(false);
+      setMarkdownCheckbox(false);
+      setContent("");
+    }
   }
+
   const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType("text/markdown");
@@ -96,7 +106,7 @@ const MakePostModal = ({
     visibility: string,
     unlisted: boolean,
   ) => {
-    const payload = {
+    const data = {
       title: title,
       description: description,
       categories: categories,
@@ -106,11 +116,11 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}author/${AUTHOR_ID}/posts/`;
+    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
-      await axios.post(url, payload);
-      onPostCreated();
+      await axios.post(url, data);
+      if (onPostCreated) {onPostCreated()}
       handleClose();
     } catch (error) {
       toast.error("Failed to create post")
@@ -239,7 +249,6 @@ const MakePostModal = ({
                   unlisted
                 );
                 setIsModalOpen(false);
-                handleTextContent();
               }}
               endIcon={<SendIcon/>}
               >

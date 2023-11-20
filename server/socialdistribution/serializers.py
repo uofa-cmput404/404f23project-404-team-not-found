@@ -6,7 +6,10 @@ import base64
 from .models import *
 from socialdistribution.utils.serializers_utils import (
     build_default_author_uri,
-    build_default_post_uri
+    build_default_post_uri,
+    build_default_comment_uri,
+    build_default_comments_uri,
+    customize_like_representation
 )
 from socialdistribution.utils.general_utils import is_image, is_text
 
@@ -83,11 +86,13 @@ class PostSerializer(serializers.ModelSerializer):
     origin = SerializerMethodField("get_origin_url")
     source = SerializerMethodField("get_source_url")
     type = SerializerMethodField("get_type")
+    comments = SerializerMethodField("get_comments")
+    count = SerializerMethodField("get_count")
 
     class Meta:
         model = Post
-        fields = ("id", "author", "categories", "content", "contentType", "description", "title", "type", "source",
-                  "origin", "published", "updatedAt", "visibility", "unlisted")
+        fields = ("type", "id", "author", "categories", "content", "contentType", "description", "title", "source",
+                  "origin", "published", "updatedAt", "visibility", "unlisted", "count", "comments")
 
     def get_id_url(self, obj):
         """id field needs to be a uri of the post"""
@@ -100,6 +105,12 @@ class PostSerializer(serializers.ModelSerializer):
         elif is_image(obj.contentType) and obj.content:
             base64_encoded = base64.b64encode(obj.content)
             return f"data:{obj.contentType},{base64_encoded.decode('utf-8')}"
+
+    def get_comments(self, obj):
+        return build_default_comments_uri(obj=obj, request=self.context["request"])
+
+    def get_count(self, obj):
+        return Comment.objects.filter(post__id=obj.id).count()
 
     def get_origin_url(self, obj):
         """if source is given, pass in the origin, otherwise, build it using current request uri"""
@@ -124,7 +135,12 @@ class InboxItemSerializer(serializers.ModelSerializer):
             return FollowSerializer(instance=obj.content_object, context=self.context).data
         elif isinstance(obj.content_object, Post):
             return PostSerializer(instance=obj.content_object, context=self.context).data
-        # TODO: later on, handle serializing likes and comments in inbox
+        elif isinstance(obj.content_object, Comment):
+            return CommentSerializer(instance=obj.content_object, context=self.context).data
+        elif isinstance(obj.content_object, Like):
+            return LikeSerializer(instance=obj.content_object, context=self.context).data
+        elif obj.json_data is not None:
+            return obj.json_data
 
 
 class InboxSerializer(serializers.ModelSerializer):
@@ -140,7 +156,42 @@ class InboxSerializer(serializers.ModelSerializer):
         return build_default_author_uri(obj=obj, request=self.context["request"], source = "inbox")
 
     def get_items(self, obj):
-        return InboxItemSerializer(obj.items.all(), many=True, context=self.context).data
+        return InboxItemSerializer(obj.items.all().order_by("-id"), many=True, context=self.context).data
 
     def get_type(self, obj):
         return "inbox"
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    id = SerializerMethodField("get_id_url")
+
+    class Meta:
+        model = Comment
+        fields = ("type", "id", "author", "comment", "contentType", "published")
+
+    def get_id_url(self, obj):
+        return build_default_comment_uri(obj=obj, request=self.context["request"])
+    
+
+class LikeSerializer(serializers.ModelSerializer):
+    object = SerializerMethodField("get_object_url")
+    summary = SerializerMethodField("get_summary")
+
+    class Meta:
+        model = Like
+        fields = ("context", "summary", "type", "author", "object")
+    
+    def to_representation(self, instance):
+        return customize_like_representation(self, instance)
+
+    def get_object_url(self, obj):
+        if obj.comment:
+            return build_default_comment_uri(obj=obj.comment, request=self.context["request"])
+        elif obj.post:
+            return build_default_post_uri(obj=obj.post, request=self.context["request"])
+        
+    def get_summary(self, obj):
+        if obj.comment:
+            return f"{obj.author['displayName']} likes your comment"
+        elif obj.post:
+            return f"{obj.author['displayName']} likes your post"
