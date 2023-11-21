@@ -118,18 +118,12 @@ const InboxFollowItem = ({
           sx={{
             borderRadius: 20,
             marginRight: 1.5,
-            paddingLeft: 2,
-            paddingRight: 2
+            paddingX: 2,
+            width: "8rem"
           }}
           onClick={() => { handleAcceptFollow() }}
         >
-          <Typography
-            textTransform={"none"}
-            variant="subtitle1"
-            sx={{
-              fontWeight: "bold",
-            }}
-          >
+          <Typography textTransform={"none"} variant="subtitle1">
             { followAccepted ? "Accepted" : "Accept" }
           </Typography>
         </Button>
@@ -140,24 +134,16 @@ const InboxFollowItem = ({
             sx={{
               borderRadius: 20,
               marginRight: 2,
-              paddingLeft: 2,
-              paddingRight: 2,
-              background: "#CC282833",
-              color: "#CC2828",
-              border: "1px solid #CC2828",
+              paddingX: 2,
+              background: "#CC2828",
               ":hover": {
-                background: "#CC282855",
+                background: "#ad0e0e",
               },
+              width: "8rem"
             }}
             onClick={() => { handleDenyFollow() }}
           >
-            <Typography
-              textTransform={"none"}
-              variant="subtitle1"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
+            <Typography textTransform={"none"} variant="subtitle1">
               Decline
             </Typography>
           </Button>

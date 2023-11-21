@@ -67,7 +67,8 @@ const AuthorsList = ({
                 borderRadius: 20,
                 marginRight: 2,
                 paddingLeft: 2,
-                paddingRight: 2
+                paddingRight: 2,
+                width: "8rem"
               }}
               onClick={() => handleViewProfileClick(author)}
             >
