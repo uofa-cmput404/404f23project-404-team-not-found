@@ -28,10 +28,6 @@ from socialdistribution.utils.auth_utils import (
 class AuthorsView(APIView):
     http_method_names = ["get"]
 
-    # # TODO: those next 2 lines are for authentication
-    # authentication_classes = [BasicAuthentication]
-    # permission_classes = [IsAuthenticated]
-
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
 
@@ -101,6 +97,12 @@ class FollowersView(APIView):
 
 class FollowerView(APIView):
     http_method_names = ["delete", "get", "put"]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def delete(self, request, author_id, follower_id):
         """
@@ -187,6 +189,18 @@ class PostsView(APIView):
 class PostView(APIView):
     http_method_names = ["delete", "get", "post", "put"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def delete(self, request, author_id, post_id):
         """
         remove the post whose id is POST_ID
@@ -253,6 +267,12 @@ class InboxView(APIView):
     http_method_names = ["delete", "get", "post"]
     queryset = InboxItem.objects.all()
     serializer_class = InboxItemSerializer
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def delete(self, request, author_id):
         """
