@@ -19,7 +19,8 @@ from socialdistribution.utils.views_utils import (
     create_post,
     update_post_categories,
     update_post_content,
-    create_comment
+    create_comment,
+    delete_follow_and_inbox_item
 )
 
 from urllib.parse import urlparse
@@ -97,16 +98,7 @@ class FollowerView(APIView):
                                                 author=author_object,
                                                 follower_author__id__endswith=follower_id)
             follower_object.delete()
-
-            follow = Follow.objects.filter(object=author_object, actor__id__endswith=follower_id).first()
-            if follow:
-                follow_content_type = ContentType.objects.get_for_model(Follow)
-                inbox_item = InboxItem.objects.filter(content_type=follow_content_type,
-                                                      object_id=follow.id).first()
-
-                if inbox_item:
-                    inbox_item.delete()
-                follow.delete()
+            delete_follow_and_inbox_item(author_object, follower_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -142,6 +134,20 @@ class FollowerView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FollowView(APIView):
+    http_method_names = ["delete"]
+
+    def delete(self, request, author_id, requester_id):
+        """
+        remove REQUESTER_ID as someone who requested a follow to AUTHOR_ID
+        """
+        with transaction.atomic():
+            author_object = get_object_or_404(Author, id=author_id)
+            delete_follow_and_inbox_item(author_object, requester_id)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PostsView(APIView):
