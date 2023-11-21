@@ -34,7 +34,8 @@ const InboxContent = () => {
             variant="h6"
             sx={{
               padding: 2,
-              borderBottom: "1px solid #dbd9d9"
+              borderBottom: "1px solid #dbd9d9",
+              fontWeight: "bold"
             }}
           >
             Inbox

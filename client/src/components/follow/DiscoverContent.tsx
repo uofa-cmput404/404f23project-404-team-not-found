@@ -11,8 +11,6 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
-  const navigate = useNavigate();
-  const loggedUser = getUserData();
 
   const fetchAuthors = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
@@ -31,19 +29,6 @@ const DiscoverContent = () => {
     fetchAuthors();
   }, [fetchAuthors]);
 
-  const handleViewProfileClick = (author: Author) => {
-    const authorId = getAuthorIdFromResponse(author.id);
-    navigate(
-      `/authors/${authorId}`,
-      {
-        state: {
-          otherAuthorObject: author,
-          userObject: loggedUser
-        }
-      }
-    );
-  };
-
   return (
     <Grid container direction={"row"}>
       <Grid container>
@@ -52,7 +37,8 @@ const DiscoverContent = () => {
             variant="h6"
             sx={{
               padding: 2,
-              borderBottom: "1px solid #dbd9d9"
+              borderBottom: "1px solid #dbd9d9",
+              fontWeight: "bold"
             }}
           >
             Discover Authors

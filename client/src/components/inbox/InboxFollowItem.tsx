@@ -87,6 +87,9 @@ const InboxFollowItem = ({
               />
             }
             title={`${followItem.actor.displayName} wants to follow you`}
+            titleTypographyProps={{
+              fontSize: "1em",
+            }}
           />
         </Card>
       </Grid>

@@ -52,6 +52,9 @@ const AuthorsList = ({
               <CardHeader
                 avatar={<Avatar src={author.profileImage} alt={author.displayName}/>}
                 title={author.displayName}
+                titleTypographyProps={{
+                  fontSize: "1em",
+                }}
               />
             </Card>
           </Grid>
