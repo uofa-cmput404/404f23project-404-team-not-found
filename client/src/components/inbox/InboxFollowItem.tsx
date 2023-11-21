@@ -5,6 +5,7 @@ import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import axios from "axios";
 import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import { toast } from "react-toastify";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -17,6 +18,7 @@ const InboxFollowItem = ({
 }) => {
   const navigate = useNavigate();
   const [followAccepted, setFollowAccepted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const loggedUserId = getAuthorId();
   const loggedUser = getUserData();
 
@@ -25,12 +27,17 @@ const InboxFollowItem = ({
       const authorId = getAuthorIdFromResponse(followItem.actor.id);
       const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
-      try {
-        const response = await axios.get(url);
-        setFollowAccepted(response.data.is_follower);
-      } catch (error) {
-        setFollowAccepted(false);
-      }
+      await axios
+        .get(url)
+        .then((response: any) => {
+          setFollowAccepted(response.data.is_follower);
+        })
+        .catch((error) => {
+          setFollowAccepted(false);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        })
     };
 
     fetchIsUserFollowingAuthor();
@@ -80,7 +87,9 @@ const InboxFollowItem = ({
       })
   };
 
-  return (
+  return isLoading ? (
+    <Loading />
+    ) : (
     <Grid container alignItems="center">
       <Grid item xs={6}>
         <Card
