@@ -22,6 +22,14 @@ const InboxContent = () => {
     }
   }, []);
 
+  const removeFollowItem = (actorId: string, objectId: string) => {
+    setInboxItems(currentItems =>
+      currentItems.filter(item =>
+        item.actor.id !== actorId && item.object.id !== objectId
+      )
+    );
+  };
+
   useEffect(() => {
     fetchInboxItems();
   }, [fetchInboxItems]);
@@ -54,7 +62,10 @@ const InboxContent = () => {
               }}
             >
               {inboxItem.type === InboxItemType.FOLLOW &&
-                <InboxFollowItem followItem={inboxItem} />
+                <InboxFollowItem
+                  followItem={inboxItem}
+                  removeFollowItem={removeFollowItem}
+                />
               }
               {inboxItem.type === InboxItemType.COMMENT &&
                 <InboxCommentItem commentItem={inboxItem}/>

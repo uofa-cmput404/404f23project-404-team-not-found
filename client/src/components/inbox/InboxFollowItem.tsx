@@ -10,11 +10,13 @@ const APP_URI = process.env.REACT_APP_URI;
 
 const InboxFollowItem = ({
   followItem,
+  removeFollowItem,
 }: {
   followItem: any;
+  removeFollowItem: (actorId: string, objectId: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [followButtonDisabled, setFollowButtonDisabled] = useState(false);
+  const [followAccepted, setFollowAccepted] = useState(false);
   const loggedUserId = getAuthorId();
   const loggedUser = getUserData();
 
@@ -25,9 +27,9 @@ const InboxFollowItem = ({
 
       try {
         const response = await axios.get(url);
-        setFollowButtonDisabled(response.data.is_follower);
+        setFollowAccepted(response.data.is_follower);
       } catch (error) {
-        setFollowButtonDisabled(false);
+        setFollowAccepted(false);
       }
     };
 
@@ -58,10 +60,24 @@ const InboxFollowItem = ({
 
     try {
       const response = await axios.put(url, data);
-      setFollowButtonDisabled(true);
+      setFollowAccepted(true);
     } catch (error) {
       toast.error("Failed to accept follow");
     }
+  };
+
+  const handleDenyFollow = async () => {
+    const authorId = getAuthorIdFromResponse(followItem.actor.id);
+    const url = `${APP_URI}authors/${loggedUserId}/follows/${authorId}/`;
+
+    await axios
+      .delete(url)
+      .then((response: any) => {
+        removeFollowItem(followItem.actor.id, followItem.object.id);
+      })
+      .catch((error) => {
+        toast.error("Failed to decline follow request");
+      })
   };
 
   return (
@@ -95,22 +111,57 @@ const InboxFollowItem = ({
       </Grid>
       <Grid container item xs={6} justifyContent="flex-end">
         <Button
-          disabled={followButtonDisabled}
+          disabled={followAccepted}
           variant="contained"
           size="small"
           color="primary"
           sx={{
             borderRadius: 20,
-            marginRight: 2,
+            marginRight: 1.5,
             paddingLeft: 2,
             paddingRight: 2
           }}
           onClick={() => { handleAcceptFollow() }}
         >
-          <Typography textTransform={"none"} variant="subtitle1">
-            { followButtonDisabled ? "Accepted" : "Accept" }
+          <Typography
+            textTransform={"none"}
+            variant="subtitle1"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            { followAccepted ? "Accepted" : "Accept" }
           </Typography>
         </Button>
+        {!followAccepted &&
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              borderRadius: 20,
+              marginRight: 2,
+              paddingLeft: 2,
+              paddingRight: 2,
+              background: "#CC282833",
+              color: "#CC2828",
+              border: "1px solid #CC2828",
+              ":hover": {
+                background: "#CC282855",
+              },
+            }}
+            onClick={() => { handleDenyFollow() }}
+          >
+            <Typography
+              textTransform={"none"}
+              variant="subtitle1"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
+              Decline
+            </Typography>
+          </Button>
+        }
       </Grid>
     </Grid>
   );
