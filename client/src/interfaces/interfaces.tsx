@@ -1,4 +1,3 @@
-import internal from "stream";
 import { ContentType } from "../enums/enums";
 
 export interface Author {
