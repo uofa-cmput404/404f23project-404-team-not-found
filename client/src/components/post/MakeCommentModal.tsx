@@ -64,6 +64,8 @@ const MakeCommentModal = ({
 		const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
 		const classes = useStyles();
 
+		console.log(userData, authorId);
+
 		const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
 			setMarkdownCheckbox(event.target.checked);
 			if (event.target.checked) setContentType("text/markdown");
@@ -106,11 +108,37 @@ const MakeCommentModal = ({
 				fetchComments();
 				handleClear();
 				post.count = (post.count + 1);
+				if (getAuthorId() !== authorId) {
+					sendCommentToInbox(comment, contentType, response.data["id"])
+				}
 			})
 			.catch((error) => {
 				console.error("Error posting comment", error)
 			})
     };
+
+		const sendCommentToInbox = async (
+			comment: string,
+			contentType: string,
+			id : string
+		) => {
+
+			const data = {
+				type: "Comment",
+				author: userData,
+				id: id,
+				comment: comment,
+				contentType: contentType
+			}
+
+			const url = `${APP_URI}authors/${authorId}/inbox/`;
+
+			try {
+				await axios.post(url, data);
+			} catch (error) {
+				console.error("Failed to send comment to inbox")
+			}
+		};
 
 		useEffect(() => {
 			fetchComments();
