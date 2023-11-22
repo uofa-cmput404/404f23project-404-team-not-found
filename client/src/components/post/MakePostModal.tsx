@@ -1,6 +1,6 @@
 
 import { getAuthorId } from "../../utils/localStorageUtils";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Modal, Box, Button, IconButton, Grid, Typography, FormControlLabel, Checkbox } from "@mui/material";
 
@@ -8,7 +8,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
 import ImageIcon from '@mui/icons-material/Image';
 import SendIcon from '@mui/icons-material/Send';
-
+import { Follower, Author, Post } from "../../interfaces/interfaces";
 import axios from "axios";
 
 import VisibilityMenu from "./VisibilityMenu";
@@ -54,6 +54,9 @@ const MakePostModal = ({
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
 
+  const [followerIds, setFollowerIds] = useState<string[]>([]);
+  const [authorData, setauthorData] = useState<string[]>([]);
+
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
@@ -68,7 +71,55 @@ const MakePostModal = ({
     setTitle("");
     setDescription("");
   };
+
+  const fetchFirstPostData = async (authorId: string): Promise<Post | null> => {
+    const postUrl = `${APP_URI}authors/${authorId}/posts/`;
   
+    try {
+      const response = await axios.get<Post[]>(postUrl);
+  
+      if (response.data.length > 0) {
+        return response.data[0];
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw new Error("Failed to fetch post data");
+    }
+  };
+  
+  const fetchAuthorData = async (authorId: string): Promise<Author> => {
+    const authorUrl = `${APP_URI}authors/${authorId}/`;
+  
+    try {
+      const response = await axios.get<Author>(authorUrl);
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to fetch author data");
+    }
+  };
+
+  const fetchFollowers = async () => {
+    const AUTHOR_ID = getAuthorId();
+    const followersUrl = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
+
+    try {
+      const response = await axios.get<{ items: Follower[] }>(followersUrl);
+      const followerIds = response.data.items.map((follower) => {
+        // Extracting the author ID from the URL
+        const authorId = follower.id.split('/').pop() || "";
+        return authorId;
+      });
+
+      setFollowerIds(followerIds);
+    } catch (error) {
+      console.error("Error fetching followers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFollowers();
+  }, []);
 
   const handleTextContent = () => {
     // reset some vars when switching between image -> text
@@ -120,8 +171,24 @@ const MakePostModal = ({
 
     try {
       await axios.post(url, data);
-      if (onPostCreated) {onPostCreated()}
+      
+      const authorData = await fetchAuthorData(getAuthorId() ?? '');
+      console.log("Author data:", authorData.displayName);
+      const postData = await fetchFirstPostData(getAuthorId() ?? '');
+      console.log("Post data:", postData);
+
+      const inboxItemUrl = `${APP_URI}authors/`;
+
+      for (const followerId of followerIds) {
+        await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+      }
+      
+      if (onPostCreated) {
+        onPostCreated()
+      }
+      
       handleClose();
+
     } catch (error) {
       toast.error("Failed to create post")
     }

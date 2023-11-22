@@ -10,6 +10,16 @@ export interface Author {
   url: string;
 }
 
+export interface Follower {
+  type: string;
+  id: string;
+  displayName: string;
+  github: string | null;
+  host: string;
+  profileImage: string;
+  url: string;
+}
+
 export interface Post {
   id: string;
   author: Author;
