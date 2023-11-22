@@ -99,27 +99,22 @@ const MakePostModal = ({
     }
   };
 
-  const fetchFollowers = async () => {
-    const AUTHOR_ID = getAuthorId();
-    const followersUrl = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
-
+  const fetchFollowers = async (authorId: string): Promise<string[]> => {
+    const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
+  
     try {
       const response = await axios.get<{ items: Follower[] }>(followersUrl);
       const followerIds = response.data.items.map((follower) => {
-        // Extracting the author ID from the URL
-        const authorId = follower.id.split('/').pop() || "";
-        return authorId;
+        const parts = follower.id.split('/');
+        return parts[parts.length - 1];
       });
-
-      setFollowerIds(followerIds);
+  
+      return followerIds;
     } catch (error) {
       console.error("Error fetching followers:", error);
+      throw new Error("Failed to fetch followers");
     }
   };
-
-  useEffect(() => {
-    fetchFollowers();
-  }, []);
 
   const handleTextContent = () => {
     // reset some vars when switching between image -> text
@@ -172,15 +167,34 @@ const MakePostModal = ({
     try {
       await axios.post(url, data);
       
-      const authorData = await fetchAuthorData(getAuthorId() ?? '');
-      console.log("Author data:", authorData.displayName);
-      const postData = await fetchFirstPostData(getAuthorId() ?? '');
-      console.log("Post data:", postData);
+      // const authorData = await fetchAuthorData(getAuthorId() ?? '');
+      // console.log("Author data:", authorData.displayName);
+      const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
+      console.log("Author followers:", authorFollowers);
+      
+      if (visibility === 'PUBLIC') { 
+        const postData = await fetchFirstPostData(getAuthorId() ?? '');
+        console.log("Post data:", postData);
 
-      const inboxItemUrl = `${APP_URI}authors/`;
+        const inboxItemUrl = `${APP_URI}authors/`;
 
-      for (const followerId of followerIds) {
-        await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+        for (const followerId of authorFollowers) {
+          await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+        }
+      }
+
+      if (visibility === 'FRIENDS') {
+        const postData = await fetchFirstPostData(getAuthorId() ?? '');
+        console.log("Post data:", postData);
+
+        const inboxItemUrl = `${APP_URI}authors/`;
+
+        for (const followerId of authorFollowers) {
+          const followerFollowers = await fetchFollowers(followerId ?? '');
+          if (followerFollowers.includes(getAuthorId() ?? '')) {
+            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+          }
+        }
       }
       
       if (onPostCreated) {
