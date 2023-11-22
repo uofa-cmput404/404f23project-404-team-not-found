@@ -1,5 +1,5 @@
-import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
-import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
+import { Avatar, Card, CardHeader, Grid } from "@mui/material";
+import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 
