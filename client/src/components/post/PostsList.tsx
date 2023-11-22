@@ -1,7 +1,6 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
-import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
@@ -34,8 +33,6 @@ const PostsList = ({
 
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   // TODO : implement backend requests
-  const [comments, setComments] = useState([]);
-  const [comment, setComment] = useState("");
   const [postToComment, setPostToComment] = useState<Post>();
   // TODO : implement like modal
   const handlelike = () => { };
@@ -47,7 +44,6 @@ const PostsList = ({
     setIsMakeCommentModalOpen(true);
   };
   
-
     return (
       <>
         { posts.length > 0 ? (posts.map(post => (

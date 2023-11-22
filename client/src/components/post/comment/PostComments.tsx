@@ -1,19 +1,7 @@
 import { Comment } from "../../../interfaces/interfaces";
-import axios from "axios";
-import { getAuthorIdFromResponse } from "../../../utils/responseUtils"
-import { useState, useEffect } from "react";
 import { Avatar, Card, CardContent, CardHeader, CardMedia, Grid, Typography } from "@mui/material";
 import { formatDateTime } from "../../../utils/dateUtils";
-import { BorderBottom } from "@mui/icons-material";
 import MuiMarkdown from "mui-markdown";
-import styled from "@emotion/styled";
-
-const CardContentNoPadding = styled(CardContent)(`
-  padding: 0.5;
-  &:last-child {
-    padding-bottom: 0.5;
-  }
-`);
 
 const PostComments = ({
   comments

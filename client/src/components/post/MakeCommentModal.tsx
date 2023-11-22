@@ -1,13 +1,13 @@
 import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import React, { useCallback, useEffect, useState } from "react";
 
-import { Modal, Box, Button, TextField, IconButton, Grid, 
+import { Modal, Box, TextField, IconButton, Grid, 
 	Typography, InputAdornment, FormControlLabel, Checkbox } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from '@mui/icons-material/Send';
 import axios from "axios";
-import { Post, Comment, Author } from "../../interfaces/interfaces";
+import { Post, Comment } from "../../interfaces/interfaces";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
