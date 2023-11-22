@@ -5,7 +5,7 @@ import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
 import "./styles.css";
 import { toast } from "react-toastify";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, storeUserData } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
@@ -187,6 +187,7 @@ const ProfilePage = () => {
         if (response.status === 200) {
           toast.success("Profile updated successfully");
           handleClose();
+          storeUserData(JSON.stringify(response.data));
           await fetchAuthor();
         } else {
           toast.error("Failed to update profile");
