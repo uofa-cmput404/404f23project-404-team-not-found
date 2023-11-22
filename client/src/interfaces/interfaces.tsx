@@ -1,3 +1,4 @@
+import internal from "stream";
 import { ContentType } from "../enums/enums";
 
 export interface Author {
@@ -24,4 +25,14 @@ export interface Post {
   updatedAt?: string | null;
   visibility: string;
   unlisted: boolean;
+  count: number;
+  comments: string;
+}
+
+export interface Comment {
+  id: string;
+  author: Author;
+  comment: string;
+  contentType: ContentType;
+  published: string;
 }
