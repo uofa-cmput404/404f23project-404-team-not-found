@@ -10,7 +10,7 @@ const PostComments = ({
 }) => {
 
   return (
-    <Grid direction="row" 
+    <Grid container direction="row" 
       sx={{
         width: "100%"
 
@@ -18,6 +18,7 @@ const PostComments = ({
     >
       { comments.length > 0 ? (comments.map(comment => (
         <Card 
+          key={comment.id}
           variant="outlined"
           sx={{
             borderRadius: 0,
@@ -30,7 +31,6 @@ const PostComments = ({
           }}>
           <CardHeader
             avatar={<Avatar src={comment.author.profileImage}/>}
-
             title={`${comment.author.displayName}`}
             subheader={`${formatDateTime(comment.published)}`}
           />
