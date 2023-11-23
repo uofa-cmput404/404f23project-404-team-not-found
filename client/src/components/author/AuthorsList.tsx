@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
+import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 
