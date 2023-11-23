@@ -5,16 +5,20 @@ import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import axios from "axios";
 import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import { toast } from "react-toastify";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const InboxFollowItem = ({
   followItem,
+  removeFollowItem,
 }: {
   followItem: any;
+  removeFollowItem: (actorId: string, objectId: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [followButtonDisabled, setFollowButtonDisabled] = useState(false);
+  const [followAccepted, setFollowAccepted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const loggedUserId = getAuthorId();
   const loggedUser = getUserData();
 
@@ -25,9 +29,12 @@ const InboxFollowItem = ({
 
       try {
         const response = await axios.get(url);
-        setFollowButtonDisabled(response.data.is_follower);
+        setFollowAccepted(response.data.is_follower);
       } catch (error) {
-        setFollowButtonDisabled(false);
+        setFollowAccepted(false);
+        console.error("Failed to fetch if user is following the author: ", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -58,13 +65,27 @@ const InboxFollowItem = ({
 
     try {
       const response = await axios.put(url, data);
-      setFollowButtonDisabled(true);
+      setFollowAccepted(true);
     } catch (error) {
       toast.error("Failed to accept follow");
     }
   };
 
-  return (
+  const handleDenyFollow = async () => {
+    const authorId = getAuthorIdFromResponse(followItem.actor.id);
+    const url = `${APP_URI}authors/${loggedUserId}/follows/${authorId}/`;
+
+    try {
+      const response = await axios.delete(url);
+      removeFollowItem(followItem.actor.id, followItem.object.id);
+    } catch (error) {
+      toast.error("Failed to decline follow request");
+    }
+  };
+
+  return isLoading ? (
+    <Loading />
+    ) : (
     <Grid container alignItems="center">
       <Grid item xs={6}>
         <Card
@@ -87,25 +108,49 @@ const InboxFollowItem = ({
               />
             }
             title={`${followItem.actor.displayName} wants to follow you`}
+            titleTypographyProps={{
+              fontSize: "1em",
+            }}
           />
         </Card>
       </Grid>
       <Grid container item xs={6} justifyContent="flex-end">
+        {!followAccepted &&
+          <Button
+            variant="contained"
+            size="small"
+            sx={{
+              borderRadius: 20,
+              marginRight: 2,
+              paddingX: 2,
+              background: "#CC2828",
+              ":hover": {
+                background: "#ad0e0e",
+              },
+              width: "8rem"
+            }}
+            onClick={() => { handleDenyFollow() }}
+          >
+            <Typography textTransform={"none"} variant="subtitle1">
+              Decline
+            </Typography>
+          </Button>
+        }
         <Button
-          disabled={followButtonDisabled}
+          disabled={followAccepted}
           variant="contained"
           size="small"
           color="primary"
           sx={{
             borderRadius: 20,
-            marginRight: 2,
-            paddingLeft: 2,
-            paddingRight: 2
+            marginRight: 1.5,
+            paddingX: 2,
+            width: "8rem"
           }}
           onClick={() => { handleAcceptFollow() }}
         >
           <Typography textTransform={"none"} variant="subtitle1">
-            { followButtonDisabled ? "Accepted" : "Accept" }
+            { followAccepted ? "Accepted" : "Accept" }
           </Typography>
         </Button>
       </Grid>
