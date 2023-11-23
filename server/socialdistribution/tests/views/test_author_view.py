@@ -28,7 +28,7 @@ class TestAuthorView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         host = json_obj["host"]
-        id_url = f"{host}{SERVICE}author/{author_object.id}"
+        id_url = f"{host}{SERVICE}authors/{author_object.id}"
 
         self.assertEqual(host, author_object.host)
         self.assertEqual(json_obj["id"], id_url)
@@ -44,7 +44,6 @@ class TestAuthorView(TestCase):
         url = reverse("author", args=[author_object.id])
 
         response = self.client.post(url, data, format="json")
-        print(response)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,34 +1,28 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Typography, CssBaseline, Button, Theme, Modal, Box, TextField, Grid, IconButton } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
 import "./styles.css";
-import PostsList from "../post/PostsList";
 import { toast } from "react-toastify";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, storeUserData } from "../../utils/localStorageUtils";
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from '@mui/icons-material/Edit';
 import { ImageLink } from "../../enums/enums";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
 
 import CloseIcon from "@mui/icons-material/Close";
+import FavoriteRoundedIcon from '@mui/icons-material/FavoriteRounded';
+import FollowAuthorButton from "./FollowAuthorButton";
+import Tooltip from "@mui/material/Tooltip";
+import ProfileTabs from "./ProfileTabs";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const useStyles = makeStyles((theme: Theme) => ({
-  container: {
-    backgroundColor: "#FAF8F1",
-    padding: "2rem",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center", 
-    alignItems: "center",
-    position: "relative",
-  },
   picture: {
     maxWidth: 200,
     maxHeight: 200,
@@ -41,25 +35,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginBottom: "20px",
     border: "1px solid #dbd9d9"
   },
-  cardGrid: {
-    paddingTop: "2rem",
-    paddingBottom: "2rem",
-    dislpay: "flex",
-    flexDirection: "column",
-  },
-  card: {
-    width: "100%",
-    height: "100%",
-  },
-  customLink: {
-    color: "white",
-    textDecoration: "none !important",
-  },
-  content: {
-      display: "flex",
-      justifyContent: "column",
-      alignItems: "center"
-  }, 
   modal: {
       display: "flex",
       alignItems: "center",
@@ -91,12 +66,20 @@ const ProfilePage = () => {
   const profilePic = authorData?.profileImage;
   const defaultSrc = ImageLink.DEFAULT_PROFILE_PIC;
   const [userinfo, setUserinfo] = useState({displayName: "", github: "", profileImage: ""});
-  const authorAbleToEdit = authorId === getAuthorId();
-  
+
+  const location = useLocation();
+  const { otherAuthorObject, userObject } = location.state || {};
+
+  const loggedUserId = getAuthorId();
+  const isLoggedUser = authorId === loggedUserId;
+
+  const [isUserFollowingAuthor, setIsUserFollowingAuthor] = useState(false);
+  const [isAuthorFollowingUser, setIsAuthorFollowingUser] = useState(false);
+
   const classes = useStyles();
 
-  const fetchAuthors = async () => {
-    const url = `${APP_URI}author/${authorId}/`;
+  const fetchAuthor = useCallback(async () => {
+    const url = `${APP_URI}authors/${authorId}/`;
 
     try {
       const response = await axios.get(url);
@@ -105,14 +88,14 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching author", error);
     }
-  };
+  }, [authorId]);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
 
-  const fetchPosts = async () => {
-    const url = `${APP_URI}author/${authorId}/posts/`;
+  const fetchPosts = useCallback(async () => {
+    const url = `${APP_URI}authors/${authorId}/posts/`;
 
     try {
       const response = await axios.get(url);
@@ -120,7 +103,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
-  };
+  }, [authorId]);
 
   const deletePost = async (postId: string) => {
     try {
@@ -136,9 +119,33 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    fetchAuthors();
-    fetchPosts();
-  }, [authorId]);
+    if (isLoggedUser || !otherAuthorObject) {
+      fetchAuthor();
+    } else {
+      // go in here when user is navigating from the Discovery page
+      setAuthorData(otherAuthorObject);
+      setUserinfo({
+        displayName: otherAuthorObject.displayName,
+        github: otherAuthorObject.github,
+        profileImage: otherAuthorObject.profileImage
+      });
+    }
+  }, [authorId, fetchAuthor]);
+
+  useEffect(() => {
+    const fetchIsAuthorFollowingUser = async () => {
+      const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
+
+      try {
+        const response = await axios.get(url);
+        setIsAuthorFollowingUser(response.data.is_follower);
+      } catch (error) {
+        console.error("Error fetching is follower: ", error);
+      }
+    };
+
+    fetchIsAuthorFollowingUser();
+  }, [isAuthorFollowingUser]);
 
     const handleOpen = () => {
       setOpen(true);
@@ -149,8 +156,7 @@ const ProfilePage = () => {
     };
     
     const handleSave = async () => {
-      const AUTHOR_ID = getAuthorId();
-      const url = `${APP_URI}author/${AUTHOR_ID}/`;
+      const url = `${APP_URI}authors/${loggedUserId}/`;
 
       const formData = new FormData();
 
@@ -181,7 +187,8 @@ const ProfilePage = () => {
         if (response.status === 200) {
           toast.success("Profile updated successfully");
           handleClose();
-          await fetchAuthors();
+          storeUserData(JSON.stringify(response.data));
+          await fetchAuthor();
         } else {
           toast.error("Failed to update profile");
         }
@@ -236,7 +243,7 @@ const ProfilePage = () => {
 						onMouseOver={() => setShowEdit(true)}
 						onMouseOut={() => setShowEdit(false)}
 						>
-							{showEdit && authorAbleToEdit &&
+							{showEdit && isLoggedUser &&
                 <IconButton sx={{
 								backgroundColor: "white",
 								position: "absolute",
@@ -258,8 +265,48 @@ const ProfilePage = () => {
 								{github}
 							</Typography>
 						</a>
+            {!isLoggedUser &&
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <FollowAuthorButton
+                  authorId={authorId!}
+                  otherAuthorObject={otherAuthorObject}
+                  setIsUserFollowingAuthor={setIsUserFollowingAuthor}
+                  userObject={userObject}
+                />
+                {!isLoggedUser && isUserFollowingAuthor && isAuthorFollowingUser &&
+                  <Tooltip title={
+                    <>
+                      <Typography 
+                        color="inherit" 
+                        flexGrow={1} 
+                        textAlign={"center"}
+                      >
+                          True Friend
+                      </Typography>
+                      <em>{"You follow each other"}</em>
+                    </>
+                    }
+                  >
+                    <FavoriteRoundedIcon
+                      sx={{
+                        borderRadius: 100,
+                        fontSize: "35px",
+                        marginTop: "auto",
+                        marginBottom: "0.5px",
+                        marginLeft: 1,
+                        padding: "4px",
+                        paddingTop:"6px",
+                        color: "#FAF8F1",
+                        bgcolor: "#103F5B"
+                      }}
+                      color="primary"
+                    />
+                  </Tooltip>
+                }
+              </Box>
+            }
           </Grid>
-          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
+          <ProfileTabs authorId={authorId!} deletePost={deletePost} fetchPosts={fetchPosts} posts={posts}/>
         </Grid>
 				<div>
 						<Modal

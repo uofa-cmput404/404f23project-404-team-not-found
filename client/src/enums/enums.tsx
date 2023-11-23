@@ -10,6 +10,11 @@ export enum ImageLink {
     DEFAULT_PROFILE_PIC = "https://i.imgur.com/DKrKvCI.jpg"
 }
 
+export enum InboxItemType {
+    FOLLOW = "Follow",
+    COMMENT = "comment",
+}
+
 export enum ShareType {
     FRIENDS = "FRIENDS",
     PRIVATE = "PRIVATE",

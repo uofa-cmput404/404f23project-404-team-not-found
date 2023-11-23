@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { toast } from "react-toastify";
 
-import { removeToken, removeAuthorId } from "../../utils/localStorageUtils";
+import { removeToken, removeAuthorId, removeUserData } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
 import { Link } from "react-router-dom";
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -17,6 +17,7 @@ const HeadBar = () => {
   const handleSignOut = () => {
     removeToken();
     removeAuthorId();
+    removeUserData();
     setUserToken(null);
     toast.success(
       "You have successfuly logged out! Please log in again to use our service!"

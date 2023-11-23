@@ -42,14 +42,24 @@ def create_follow(author, actor):
     return follow_object
 
 
-def create_follow_inbox_item(follow_object, inbox_object):
-    content_type = ContentType.objects.get_for_model(follow_object)
+def create_inbox_item(object, inbox_object):
+    content_type = ContentType.objects.get_for_model(object)
     inbox_item_object = InboxItem.objects.create(content_type=content_type,
-                                                 object_id=follow_object.id,
-                                                 content_object=follow_object)
+                                                 object_id=object.id,
+                                                 content_object=object)
     inbox_object.items.add(inbox_item_object)
 
     return inbox_item_object
+
+
+def create_like(author, post, comment):
+    like_object = Like.objects.create(
+        author=author,
+        post=post,
+        comment=comment
+    )
+
+    return like_object
 
 
 def create_follower(author, follower_author):
@@ -78,6 +88,18 @@ def create_plain_text_post(author):
         post_obj.categories.add(category_object)
 
     return post_obj
+
+
+def create_comment(cauthor, cpost, ccontentType):
+    comment_obj = Comment.objects.create(
+        type="comment",
+        author=cauthor,
+        post=cpost,
+        comment="This is a test comment",
+        contentType=ccontentType
+    )
+    
+    return comment_obj        
 
 
 def deserialize_response(response):

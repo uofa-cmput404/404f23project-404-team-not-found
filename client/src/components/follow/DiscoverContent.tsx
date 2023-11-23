@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from 'axios';
-import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
+import AuthorsList from "../author/AuthorsList";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
   const navigate = useNavigate();
+  const loggedUser = getUserData();
 
-  const fetchAuthors = async () => {
+  const fetchAuthors = useCallback(async () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/`;
     try {
@@ -23,15 +25,23 @@ const DiscoverContent = () => {
     } catch (error) {
       console.error('Failed to fetch authors:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAuthors();
-  }, []);
+  }, [fetchAuthors]);
 
-  const handleViewProfileClick = (authorIdUrl: string) => {
-    const authorId = getAuthorIdFromResponse(authorIdUrl);
-    navigate(`/authors/${authorId}`);
+  const handleViewProfileClick = (author: Author) => {
+    const authorId = getAuthorIdFromResponse(author.id);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: author,
+          userObject: loggedUser
+        }
+      }
+    );
   };
 
   return (
@@ -49,53 +59,26 @@ const DiscoverContent = () => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container
-        sx={{
-        }}
-      >
-        {authors.map((author) => (
-          <Grid container
-            key={author.id} 
-            alignItems="center"
-            sx={{
-              borderBottom: "1px solid #dbd9d9"
-            }}
+      <Grid container>
+        {authors.length > 0 ?
+          (
+            <AuthorsList authors={authors} />
+          )
+          : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
             >
-            <Grid item xs={6}>
-              <Card
-                style={{
-                  margin: "auto",
-                  width: "100%",
-                  border:0
-                }}
-                variant="outlined"
-              >
-                <CardHeader
-                  avatar={<Avatar src={author.profileImage} alt={author.displayName}/>}
-                  title={author.displayName}
-                />
-              </Card>
-            </Grid>
-            <Grid container item xs={6} justifyContent="flex-end">
-              <Button
-                variant="contained"
-                size="small"
-                color="primary"
-                sx={{
-                  borderRadius: 20,
-                  marginRight: 2,
-                  paddingLeft: 2,
-                  paddingRight: 2
-                }}
-                onClick={() => handleViewProfileClick(author.id)}
-              >
-                <Typography textTransform={"none"} variant="subtitle1">
-                  View Profile
-                </Typography>
-              </Button>
-            </Grid>
-          </Grid>
-        ))}
+              No authors to discover...
+            </Typography>
+          )
+        }
       </Grid>
     </Grid>
   );
