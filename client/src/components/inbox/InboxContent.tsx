@@ -16,7 +16,8 @@ const InboxContent = () => {
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems(currentItems =>
       currentItems.filter(item =>
-        item.actor.id !== actorId && item.object.id !== objectId
+        item.type !== "Follow" ||
+        (item.actor.id !== actorId && item.object.id !== objectId)
       )
     );
   };
@@ -29,8 +30,8 @@ const InboxContent = () => {
       try {
         const response = await axios.get(url);
         setInboxItems(response.data["items"]);
-      } catch(error) {
-        console.error("Failed to fetch errors: ", error)
+      } catch (error) {
+        console.error("Failed to fetch errors: ", error);
       } finally {
         setIsLoading(false);
       }

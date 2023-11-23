@@ -27,17 +27,15 @@ const InboxFollowItem = ({
       const authorId = getAuthorIdFromResponse(followItem.actor.id);
       const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
-      await axios
-        .get(url)
-        .then((response: any) => {
-          setFollowAccepted(response.data.is_follower);
-        })
-        .catch((error) => {
-          setFollowAccepted(false);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        })
+      try {
+        const response = await axios.get(url);
+        setFollowAccepted(response.data.is_follower);
+      } catch (error) {
+        setFollowAccepted(false);
+        console.error("Failed to get fetch if user is following the author: ", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchIsUserFollowingAuthor();
@@ -77,14 +75,12 @@ const InboxFollowItem = ({
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
     const url = `${APP_URI}authors/${loggedUserId}/follows/${authorId}/`;
 
-    await axios
-      .delete(url)
-      .then((response: any) => {
-        removeFollowItem(followItem.actor.id, followItem.object.id);
-      })
-      .catch((error) => {
-        toast.error("Failed to decline follow request");
-      })
+    try {
+      const response = await axios.delete(url);
+      removeFollowItem(followItem.actor.id, followItem.object.id);
+    } catch (error) {
+      toast.error("Failed to decline follow request");
+    }
   };
 
   return isLoading ? (
