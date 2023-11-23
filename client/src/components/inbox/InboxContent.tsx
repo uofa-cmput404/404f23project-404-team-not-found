@@ -30,7 +30,7 @@ const InboxContent = () => {
         const response = await axios.get(url);
         setInboxItems(response.data["items"]);
       } catch (error) {
-        console.error("Failed to fetch errors: ", error);
+        console.error("Failed to fetch inbox items: ", error);
       } finally {
         setIsLoading(false);
       }

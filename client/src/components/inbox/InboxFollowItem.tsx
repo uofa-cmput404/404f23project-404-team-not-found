@@ -32,7 +32,7 @@ const InboxFollowItem = ({
         setFollowAccepted(response.data.is_follower);
       } catch (error) {
         setFollowAccepted(false);
-        console.error("Failed to get fetch if user is following the author: ", error);
+        console.error("Failed to fetch if user is following the author: ", error);
       } finally {
         setIsLoading(false);
       }
