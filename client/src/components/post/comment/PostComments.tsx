@@ -47,7 +47,7 @@ const PostComments = ({
         </Card>
       )))
     : (
-      <Grid>
+      <Grid container justifyContent={"center"}>
         <Typography 
           color="#8C8C8C" 
           textAlign="center"
