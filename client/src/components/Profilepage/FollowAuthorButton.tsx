@@ -100,19 +100,18 @@ const FollowAuthorButton = ({
 
   const unfollowAuthor = async () => {
       const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
-      await axios
-        .delete(url)
-        .then((response: any) => {
-          setFollowButtonText("Follow");
-          setIsRequested(false);
-          setIsFollowing(false);
-          setIsUserFollowingAuthor(false);
-          setIcon(<PersonAddIcon />);
-          toast.success("Successfully unfollowed");
-        })
-        .catch((error) => {
-          toast.success("Failed to unfollow");
-        });
+
+      try {
+        const response = await axios.delete(url);
+        setFollowButtonText("Follow");
+        setIsRequested(false);
+        setIsFollowing(false);
+        setIsUserFollowingAuthor(false);
+        setIcon(<PersonAddIcon />);
+        toast.success("Successfully unfollowed");
+      } catch (error) {
+        toast.error("Failed to unfollow");
+      }
   };
 
   return (
