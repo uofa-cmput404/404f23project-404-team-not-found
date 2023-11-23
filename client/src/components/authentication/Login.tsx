@@ -19,6 +19,7 @@ import {
   storeUserCredentials,
 } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
+import { Password } from "@mui/icons-material";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -53,12 +54,17 @@ const Login = () => {
         storeUserCredentials(formData.username, formData.password);
 
         const authorUrl = `${APP_URI}authors/${response.data.author_id}/`;
-        axios.get(authorUrl).then((response: any) => {
-          storeUserData(JSON.stringify(response.data));
 
-          toast.success("You are now logged in");
-          navigate("/home-page");
-        });
+        axios
+          .get(authorUrl, {
+            auth: { username: formData.username, password: formData.password },
+          })
+          .then((response: any) => {
+            storeUserData(JSON.stringify(response.data));
+
+            toast.success("You are now logged in");
+            navigate("/home-page");
+          });
       })
       .catch((error) => {
         toast.error("Wrong password or user does not exist");

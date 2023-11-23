@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { Grid, Typography } from "@mui/material";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
 import InboxCommentItem from "./InboxCommentItem";
@@ -15,10 +15,18 @@ const InboxContent = () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
     try {
-      const response = await axios.get(url);
-      setInboxItems(response.data["items"]);
+      const userCredentials = getUserCredentials();
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setInboxItems(response.data["items"]);
+      }
     } catch (error) {
-      console.error('Failed to fetch inbox items:', error);
+      console.error("Failed to fetch inbox items:", error);
     }
   }, []);
 
@@ -34,7 +42,7 @@ const InboxContent = () => {
             variant="h6"
             sx={{
               padding: 2,
-              borderBottom: "1px solid #dbd9d9"
+              borderBottom: "1px solid #dbd9d9",
             }}
           >
             Inbox
@@ -42,39 +50,38 @@ const InboxContent = () => {
         </Grid>
       </Grid>
       <Grid container>
-        {inboxItems.length > 0 ?
-          (inboxItems.map((inboxItem, index) => (
+        {inboxItems.length > 0 ? (
+          inboxItems.map((inboxItem, index) => (
             <Grid
               container
               key={index}
               alignItems="center"
               sx={{
-                borderBottom: "1px solid #dbd9d9"
+                borderBottom: "1px solid #dbd9d9",
               }}
             >
-              {inboxItem.type === InboxItemType.FOLLOW &&
+              {inboxItem.type === InboxItemType.FOLLOW && (
                 <InboxFollowItem followItem={inboxItem} />
-              }
-              {inboxItem.type === InboxItemType.COMMENT &&
-                <InboxCommentItem commentItem={inboxItem}/>
-              }
+              )}
+              {inboxItem.type === InboxItemType.COMMENT && (
+                <InboxCommentItem commentItem={inboxItem} />
+              )}
             </Grid>
-          )))
-          : (
-            <Typography
-              variant="h6"
-              align="center"
-              sx={{
-                marginTop: 5,
-                marginLeft: "auto",
-                marginRight: "auto",
-                color: "#858585",
-              }}
-            >
-              No inbox items available...
-            </Typography>
-          )
-        }
+          ))
+        ) : (
+          <Typography
+            variant="h6"
+            align="center"
+            sx={{
+              marginTop: 5,
+              marginLeft: "auto",
+              marginRight: "auto",
+              color: "#858585",
+            }}
+          >
+            No inbox items available...
+          </Typography>
+        )}
       </Grid>
     </Grid>
   );

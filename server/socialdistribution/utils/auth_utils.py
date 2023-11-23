@@ -7,7 +7,11 @@ from socialdistribution.auth.node_authentication import (
 
 # TODO: Can have the following list in .env
 # TODO: Update this with our local address
-LOCAL_REFERERS = ["http://allowed1.com", "http://allowed2.com"]
+LOCAL_REFERERS = [
+    "http://allowed1.com",
+    "http://allowed2.com",
+    "http://localhost:3000/",
+]
 
 
 def get_custom_authenticators(request):
