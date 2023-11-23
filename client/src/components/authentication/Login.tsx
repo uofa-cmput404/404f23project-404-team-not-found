@@ -12,7 +12,12 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { storeAuthorId, storeToken, storeUserData } from "../../utils/localStorageUtils";
+import {
+  storeAuthorId,
+  storeToken,
+  storeUserData,
+  storeUserCredentials,
+} from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -44,13 +49,16 @@ const Login = () => {
         storeToken(response.data.token);
         setUserToken(response.data.token);
 
-        const authorUrl = `${APP_URI}authors/${response.data.author_id}/`
+        // set those to use for HTTP basic auth
+        storeUserCredentials(formData.username, formData.password);
+
+        const authorUrl = `${APP_URI}authors/${response.data.author_id}/`;
         axios.get(authorUrl).then((response: any) => {
           storeUserData(JSON.stringify(response.data));
 
           toast.success("You are now logged in");
           navigate("/home-page");
-        })
+        });
       })
       .catch((error) => {
         toast.error("Wrong password or user does not exist");
