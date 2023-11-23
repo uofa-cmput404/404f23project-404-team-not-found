@@ -54,6 +54,9 @@ const InboxCommentItem = ({
               />
             }
             title={`${commentItem.author.displayName} commented on your post`}
+            titleTypographyProps={{
+              fontSize: "1em",
+            }}
             subheaderTypographyProps={{ noWrap: true }}
             subheader={`${commentItem.comment}`}
           />

@@ -115,23 +115,6 @@ const InboxFollowItem = ({
         </Card>
       </Grid>
       <Grid container item xs={6} justifyContent="flex-end">
-        <Button
-          disabled={followAccepted}
-          variant="contained"
-          size="small"
-          color="primary"
-          sx={{
-            borderRadius: 20,
-            marginRight: 1.5,
-            paddingX: 2,
-            width: "8rem"
-          }}
-          onClick={() => { handleAcceptFollow() }}
-        >
-          <Typography textTransform={"none"} variant="subtitle1">
-            { followAccepted ? "Accepted" : "Accept" }
-          </Typography>
-        </Button>
         {!followAccepted &&
           <Button
             variant="contained"
@@ -153,6 +136,23 @@ const InboxFollowItem = ({
             </Typography>
           </Button>
         }
+        <Button
+          disabled={followAccepted}
+          variant="contained"
+          size="small"
+          color="primary"
+          sx={{
+            borderRadius: 20,
+            marginRight: 1.5,
+            paddingX: 2,
+            width: "8rem"
+          }}
+          onClick={() => { handleAcceptFollow() }}
+        >
+          <Typography textTransform={"none"} variant="subtitle1">
+            { followAccepted ? "Accepted" : "Accept" }
+          </Typography>
+        </Button>
       </Grid>
     </Grid>
   );
