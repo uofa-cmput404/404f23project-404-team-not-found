@@ -4,6 +4,7 @@ import { Grid, Typography } from "@mui/material";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
+import InboxCommentItem from "./InboxCommentItem";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -53,6 +54,9 @@ const InboxContent = () => {
             >
               {inboxItem.type === InboxItemType.FOLLOW &&
                 <InboxFollowItem followItem={inboxItem} />
+              }
+              {inboxItem.type === InboxItemType.COMMENT &&
+                <InboxCommentItem commentItem={inboxItem}/>
               }
             </Grid>
           )))

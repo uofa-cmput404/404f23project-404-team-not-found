@@ -1,7 +1,6 @@
 import React from 'react';
 import { Post } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
-import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
@@ -14,9 +13,15 @@ import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
 import { useState } from 'react';
-
 import MoreMenu from './edit/MoreMenu';
+import styled from '@emotion/styled';
 
+const CardContentNoPadding = styled(CardContent)(`
+  padding: 0;
+  &:last-child {
+    padding-bottom: 0;
+  }
+`);
 
 const PostsList = ({
   posts, deletePost, onPostEdited
@@ -28,18 +33,17 @@ const PostsList = ({
 
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   // TODO : implement backend requests
-  const [comments, setComments] = useState([]);
-  const [comment, setComment] = useState("");
+  const [postToComment, setPostToComment] = useState<Post>();
   // TODO : implement like modal
   const handlelike = () => { };
   // TODO : implement share modal
   const handleShare = () => { };
 
-  const openMakeCommentModal = () => {
+  const openMakeCommentModal = (post: Post) => {
+    setPostToComment(post);
     setIsMakeCommentModalOpen(true);
   };
   
-
     return (
       <>
         { posts.length > 0 ? (posts.map(post => (
@@ -84,7 +88,7 @@ const PostsList = ({
                     {post.content}
                   </Typography> 
                 </Link>
-                <CardContent sx={{ padding: 0, paddingBottom:0 }}>
+                <CardContentNoPadding sx={{ padding: 0, paddingBottom:0 }}>
                   <div style={{ paddingBottom: 0 }}>
                     <CardMedia
                       component="img"
@@ -96,7 +100,7 @@ const PostsList = ({
                       image={post.content}
                     />
                   </div>
-                </CardContent>
+                </CardContentNoPadding>
               </div>
             ):(
               post.contentType === "text/plain" && (
@@ -112,7 +116,7 @@ const PostsList = ({
                 </CardContent>
             )}
             {post.contentType.includes("base64") && (
-              <CardContent sx={{ padding: 0}}>
+              <CardContentNoPadding sx={{ padding: 0}}>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <CardMedia
                     component="img"
@@ -124,36 +128,60 @@ const PostsList = ({
                     image={post.content}
                   />
                 </div>
-              </CardContent>
+              </CardContentNoPadding>
             )}
             </CardContent>
-            <CardContent sx={{paddingLeft: 3, paddingTop: 0, paddingBottom: 0}}>
+            <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
-            <CardContent sx={{paddingTop: 0.5, paddingBottom: 0}}>
-              <Grid container spacing={0} justifyContent="flex-row" paddingLeft={0.5} >
-                <Grid item>
+            <CardContent sx={{paddingTop: 0.5, paddingBottom: 0, paddingLeft: 7.5}}>
+              <Grid container 
+                justifyContent="space-between" 
+                paddingLeft={0.5} 
+                sx={{
+                  width: "100%"
+                }}
+              >
+                <Grid item xs={4}>
                   <Tooltip title="Like" placement="bottom-end">
-                  <IconButton
+                  <Button
                     id="like"
                     size="small"
                     onClick={handlelike}
+                    sx={{ 
+                      maxWidth: "auto", 
+                      minWidth:0 ,
+                      borderRadius: 100,
+                      color: "text.secondary"
+                    }}
                   >
-                    <FavoriteBorderIcon fontSize="medium" />
-                  </IconButton>
+                    <FavoriteBorderIcon fontSize='small' sx={{paddingBottom:0}}/>
+                  </Button>
                   </Tooltip>
                 </Grid>
-                <Grid item>
+                <Grid item xs={4} container justifyContent="center">
                   <Tooltip title="Comment" placement="bottom-end">
-                  <IconButton
+                  <Button
                     size="small"
-                    onClick={openMakeCommentModal}
+                    sx={{
+                      borderRadius: 100,
+                      minWidth:0 ,
+                      color: "text.secondary"
+                    }}
+                    onClick={
+                      () => {
+                        openMakeCommentModal(post);
+                      }
+                    }
                   >
-                    <ChatBubbleOutlineIcon fontSize="medium" />
-                  </IconButton>
+                    <ChatBubbleOutlineIcon fontSize="small" />
+                    <Typography sx={{marginLeft: 1}}>
+                      {post.count}
+                    </Typography>
+                  </Button>
                   </Tooltip>
                 </Grid>
-                <Grid item>
+                <Grid item xs={4} container justifyContent="flex-end">
                   <Tooltip title="Share" placement="bottom-end">
                   <IconButton
                     size="small"
@@ -166,13 +194,9 @@ const PostsList = ({
                 </Grid>
               </Grid>
             </CardContent>
-            <CardContent sx={{paddingTop: 0}}>
-              <Button size="small">View all comments</Button>
-            </CardContent>
-
           </Card>
-        ))): (
-
+        )))
+        : (
             <Typography variant="h6"
               align='center'
               sx={{
@@ -183,11 +207,13 @@ const PostsList = ({
               No posts available...
             </Typography>
         )}
-         <MakeCommentModal
-        isCmodalOpen={isMakeCommentModalOpen}
-
-        setIsCModalOpen={setIsMakeCommentModalOpen}
-      />
+        {isMakeCommentModalOpen &&
+          <MakeCommentModal
+            isCmodalOpen={isMakeCommentModalOpen}
+            post={postToComment!}
+            setIsCModalOpen={setIsMakeCommentModalOpen}
+          />
+        }
       </>
     );
 };
