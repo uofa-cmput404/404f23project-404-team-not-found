@@ -56,6 +56,12 @@ class AuthorsView(APIView):
 class AuthorView(APIView):
     http_method_names = ["get", "post"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def get(self, request, author_id):
         """
         get the author data whose id is AUTHOR_ID
@@ -82,6 +88,12 @@ class AuthorView(APIView):
 
 class FollowersView(APIView):
     http_method_names = ["get"]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def get(self, request, author_id):
         """
@@ -162,6 +174,12 @@ class PostsView(APIView):
     # https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
     http_method_names = ["get", "post"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def get(self, request, author_id):
         """
         get the recent posts from author AUTHOR_ID
@@ -193,6 +211,12 @@ class PostsView(APIView):
 
 class PostView(APIView):
     http_method_names = ["delete", "get", "post", "put"]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -272,6 +296,12 @@ class InboxView(APIView):
     http_method_names = ["delete", "get", "post"]
     queryset = InboxItem.objects.all()
     serializer_class = InboxItemSerializer
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -487,6 +517,12 @@ class SignUpView(APIView):
 class CommentsView(APIView):
     http_method_names = ["get", "post"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     # TODO: Pagination
     def get(self, request, author_id, post_id):
         post_object = get_object_or_404(Post, id=post_id)
@@ -521,6 +557,12 @@ class CommentsView(APIView):
 class PostLikesView(APIView):
     http_method_names = ["get"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def get(self, request, author_id, post_id):
         post = get_object_or_404(Post, id=post_id)
         serializer = LikeSerializer(
@@ -534,6 +576,12 @@ class PostLikesView(APIView):
 class CommentLikesView(APIView):
     http_method_names = ["get"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def get(self, request, author_id, post_id, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         serializer = LikeSerializer(
@@ -546,6 +594,12 @@ class CommentLikesView(APIView):
 
 class LikedView(APIView):
     http_method_names = ["get"]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
 
     def get(self, request, author_id):
         """
