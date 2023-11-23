@@ -16,8 +16,7 @@ const InboxContent = () => {
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems(currentItems =>
       currentItems.filter(item =>
-        item.type !== "Follow" ||
-        (item.actor.id !== actorId && item.object.id !== objectId)
+        item.type !== "Follow" || item.actor.id !== actorId
       )
     );
   };
@@ -39,6 +38,28 @@ const InboxContent = () => {
 
     fetchInboxItems();
   }, []);
+
+  const getInboxItemKey = (inboxItem: any, index: number) => {
+    let key;
+    switch (inboxItem.type) {
+      case InboxItemType.COMMENT:
+        key = `comment-${inboxItem.id}`;
+      break;
+      case InboxItemType.FOLLOW:
+        key = `follow-${inboxItem.actor.id}-${inboxItem.object.id}`;
+      break;
+      case InboxItemType.LIKE:
+        key = `like-${inboxItem.author.id}-${inboxItem.object}`;
+      break;
+      case InboxItemType.POST:
+        key = `post-${inboxItem.id}`;
+        break;
+      default:
+        key = `item-${inboxItem.type}-${index}`;
+    }
+
+    return key;
+  }
 
   return (
     <Grid container direction={"row"}>
@@ -64,7 +85,7 @@ const InboxContent = () => {
               (inboxItems.map((inboxItem, index) => (
                 <Grid
                   container
-                  key={index}
+                  key={getInboxItemKey(inboxItem, index)}
                   alignItems="center"
                   sx={{
                     borderBottom: "1px solid #dbd9d9"
