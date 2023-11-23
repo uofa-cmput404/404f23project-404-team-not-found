@@ -7,7 +7,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { getAuthorId } from "../../utils/localStorageUtils";
-import UnfollowPostModal from "./UnfollowPostModal";
+import UnfollowAuthorModal from "./UnfollowAuthorModal";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -186,7 +186,7 @@ const FollowAuthorButton = ({
           </Typography>
         </Button>
       )}
-      <UnfollowPostModal
+      <UnfollowAuthorModal
         authorName={otherAuthorObject.displayName}
         isModalOpen={IsUnfollowModalOpen}
         setIsModalOpen={setIsUnfollowModalOpen}
