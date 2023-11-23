@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token 
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
 
 from .serializers import *
@@ -90,11 +91,22 @@ class FollowerView(APIView):
         """
         remove FOLLOWER_ID as a follower of AUTHOR_ID
         """
-        author_object = get_object_or_404(Author, id=author_id)
-        follower_object = get_object_or_404(Follower,
-                                            author=author_object,
-                                            follower_author__id__endswith=follower_id)
-        follower_object.delete()
+        with transaction.atomic():
+            author_object = get_object_or_404(Author, id=author_id)
+            follower_object = get_object_or_404(Follower,
+                                                author=author_object,
+                                                follower_author__id__endswith=follower_id)
+            follower_object.delete()
+
+            follow = Follow.objects.filter(object=author_object, actor__id__endswith=follower_id).first()
+            if follow:
+                follow_content_type = ContentType.objects.get_for_model(Follow)
+                inbox_item = InboxItem.objects.filter(content_type=follow_content_type,
+                                                      object_id=follow.id).first()
+
+                if inbox_item:
+                    inbox_item.delete()
+                follow.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
