@@ -11,6 +11,7 @@ import { Post, Comment } from "../../interfaces/interfaces";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
+import { toast } from "react-toastify";
 
 const style = {
   display: "flex",
@@ -43,66 +44,64 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const APP_URI = process.env.REACT_APP_URI;
+
 const MakeCommentModal = ({
-    isCmodalOpen,
-    post,
-    setIsCModalOpen,
+  isCmodalOpen,
+  post,
+  setIsCModalOpen,
 }
-    : {
-        isCmodalOpen: boolean;
-        post: Post;
-        setIsCModalOpen: (isOpen: boolean) => void;
-    }) => {
-    const [comment, setComment] = useState("");
-    const [contentType, setContentType] = useState("text/plain");
-    const handleClose = () => { setIsCModalOpen(false) };
-    const authorId = getAuthorIdFromResponse(post.author.id);
-    const postId = getAuthorIdFromResponse(post.id);
-    const [postComments, setPostComments] = useState<Comment[]>([]);
-    const userData = getUserData();
-    const [value, setValue] = useState('')
-    const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
-    const classes = useStyles();
+: {
+    isCmodalOpen: boolean;
+    post: Post;
+    setIsCModalOpen: (isOpen: boolean) => void;
+}) => {
+  const [comment, setComment] = useState("");
+  const [contentType, setContentType] = useState("text/plain");
+  const handleClose = () => { setIsCModalOpen(false) };
+  const authorId = getAuthorIdFromResponse(post.author.id);
+  const postId = getAuthorIdFromResponse(post.id);
+  const [postComments, setPostComments] = useState<Comment[]>([]);
+  const userData = getUserData();
+  const [value, setValue] = useState('')
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
+  const classes = useStyles();
 
-    console.log(userData, authorId);
+  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMarkdownCheckbox(event.target.checked);
+    if (event.target.checked) setContentType("text/markdown");
+    else setContentType("text/plain");
+  };
 
-    const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setMarkdownCheckbox(event.target.checked);
-      if (event.target.checked) setContentType("text/markdown");
-      else setContentType("text/plain");
+  const fetchComments = useCallback(async () => {
+    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`
+
+    axios
+      .get(url)
+      .then((response: any) => {
+        setPostComments(response.data["comments"]);
+      })
+      .catch((error) => {
+        console.error("Error fetching comments", error)
+      })
+  }, []);
+
+  const handleClear = () => {
+    setValue("")
+  };
+
+  const handleSubmit = async (
+    comment: string,
+    contentType: string,
+  ) => {
+    const data = {
+      comment: comment,
+      contentType: contentType,
+      author: userData
     };
 
-    const fetchComments = useCallback(async () => {
-      const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`
-  
-      await axios
-        .get(url)
-        .then((response: any) => {
-          setPostComments(response.data["comments"]);
-          console.log(response.data["comments"])
-        })
-        .catch((error) => {
-          console.error("Error fetching comments", error)
-        })
-    }, []);
+    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`
 
-    const handleClear = () => {
-      setValue('')
-    };
-
-    const handleSubmit = async (
-      comment: string,
-      contentType: string,
-    ) => {
-      const data = {
-        comment: comment,
-        contentType: contentType,
-        author: userData
-      };
-
-      const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`
-
-      await axios
+    axios
       .post(url, data)
       .then((response: any) => {
         fetchComments();
@@ -113,36 +112,35 @@ const MakeCommentModal = ({
         }
       })
       .catch((error) => {
-        console.error("Error posting comment", error)
+        toast.error("Error posting comment", error)
       })
-    };
+  };
 
-    const sendCommentToInbox = async (
-      comment: string,
-      contentType: string,
-      id : string
-    ) => {
+  const sendCommentToInbox = async (
+    comment: string,
+    contentType: string,
+    id : string
+  ) => {
+    const data = {
+      type: "comment",
+      author: userData,
+      id: id,
+      comment: comment,
+      contentType: contentType
+    }
 
-      const data = {
-        type: "Comment",
-        author: userData,
-        id: id,
-        comment: comment,
-        contentType: contentType
-      }
+    const url = `${APP_URI}authors/${authorId}/inbox/`;
 
-      const url = `${APP_URI}authors/${authorId}/inbox/`;
+    try {
+      await axios.post(url, data);
+    } catch (error) {
+      console.error("Failed to send comment to inbox")
+    }
+  };
 
-      try {
-        await axios.post(url, data);
-      } catch (error) {
-        console.error("Failed to send comment to inbox")
-      }
-    };
-
-    useEffect(() => {
-      fetchComments();
-    }, []);
+  useEffect(() => {
+    fetchComments();
+  }, []);
 
   return (
     <Modal open={isCmodalOpen} onClose={handleClose}>
@@ -151,38 +149,36 @@ const MakeCommentModal = ({
           <Grid item xs={3}>
             <IconButton
               sx={{
-                  marginRight: "auto",
+                marginRight: "auto",
               }}
               onClick={() => {
-                  handleClose();
+                handleClose();
               }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
           </Grid>
           <Grid item xs={6} textAlign="center">
-                <Typography 
-                  variant="h6"
-                  sx={{paddingTop:0.2}}
-                  fontSize="18px"
-                >
-                  Comments
-                </Typography>
-            </Grid>
-          <Grid item xs={3}></Grid>
+            <Typography 
+              variant="h6"
+              sx={{paddingTop:0.2}}
+              fontSize="18px"
+            >
+              Comments
+            </Typography>
+          </Grid>
         </Grid>
         <Box
-        sx={{
-          width: "100%",
-          overflowY: "auto",
-          maxHeight: "40vh",
-          display: "flex",
-          flexGrow: 1,
-          flexDirection: "column",
-          paddingX: 1,
-          // borderBottom: "1px solid #dbd9d9",
-        }}
-        className={classes.root}
+          sx={{
+            width: "100%",
+            overflowY: "auto",
+            maxHeight: "40vh",
+            display: "flex",
+            flexGrow: 1,
+            flexDirection: "column",
+            paddingX: 1,
+          }}
+          className={classes.root}
         >
           <PostComments
             comments={postComments}
@@ -190,16 +186,16 @@ const MakeCommentModal = ({
         </Box>
         <Grid sx={{marginLeft: 1}}>
           <FormControlLabel
-              control={
-                <Checkbox
-                  size="medium"
-                  sx={{paddingRight:"0px"}}
-                  checked={markdownCheckbox}
-                  onChange={handleMarkdownContent}
-                />
-              }
-              label={<Typography sx={{ fontSize: "15px", color: "text.secondary"}}>Markdown</Typography>}
-            />
+            control={
+              <Checkbox
+                size="medium"
+                sx={{paddingRight:"0px"}}
+                checked={markdownCheckbox}
+                onChange={handleMarkdownContent}
+              />
+            }
+            label={<Typography sx={{ fontSize: "15px", color: "text.secondary" }}>Markdown</Typography>}
+          />
         </Grid>
         <TextField
           size="small"
@@ -208,8 +204,8 @@ const MakeCommentModal = ({
           value={value}
           sx={{marginX: 1, marginBottom: 1}}
           onChange={(e) => {
-              setComment(e.target.value);
-              setValue(e.target.value);
+            setComment(e.target.value);
+            setValue(e.target.value);
           }}
           InputProps={{
             endAdornment: (
@@ -217,7 +213,7 @@ const MakeCommentModal = ({
                 <IconButton 
                   edge="end" 
                   color="primary"
-                  disabled={value === ''}
+                  disabled={value === ""}
                   onClick={() => {
                     handleSubmit(comment, contentType);
                   }}
@@ -225,8 +221,7 @@ const MakeCommentModal = ({
                 <SendIcon/>
               </IconButton>
             </InputAdornment>
-          ),
-        }}
+          )}}
         />
       </Box>
     </Modal>
