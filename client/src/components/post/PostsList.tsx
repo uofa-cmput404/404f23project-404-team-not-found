@@ -1,13 +1,12 @@
 import React from 'react';
-import { Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
+import { Like, Post } from "../../interfaces/interfaces";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
@@ -15,6 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useState } from 'react';
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
+import PostLikes from "./like/PostLikes";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -32,7 +32,7 @@ const PostsList = ({
 }) => {
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   const [postToComment, setPostToComment] = useState<Post>();
-  const handlelike = () => { };
+
   const handleShare = () => { };
 
   const openMakeCommentModal = (post: Post) => {
@@ -139,21 +139,7 @@ const PostsList = ({
               }}
             >
               <Grid item xs={4}>
-                <Tooltip title="Like" placement="bottom-end">
-                <Button
-                  id="like"
-                  size="small"
-                  onClick={handlelike}
-                  sx={{
-                    maxWidth: "auto",
-                    minWidth:0 ,
-                    borderRadius: 100,
-                    color: "text.secondary"
-                  }}
-                >
-                  <FavoriteBorderIcon fontSize='small' sx={{paddingBottom:0}}/>
-                </Button>
-                </Tooltip>
+                <PostLikes post={post} />
               </Grid>
               <Grid item xs={4} container justifyContent="center">
                 <Tooltip title="Comment" placement="bottom-end">
@@ -161,7 +147,7 @@ const PostsList = ({
                   size="small"
                   sx={{
                     borderRadius: 100,
-                    minWidth:0 ,
+                    minWidth: 0,
                     color: "text.secondary"
                   }}
                   onClick={
