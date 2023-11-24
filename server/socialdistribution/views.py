@@ -178,6 +178,12 @@ class FollowerView(APIView):
 class FollowView(APIView):
     http_method_names = ["delete"]
 
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
     def delete(self, request, author_id, requester_id):
         """
         remove REQUESTER_ID as someone who requested a follow to AUTHOR_ID
@@ -231,18 +237,6 @@ class PostsView(APIView):
 
 class PostView(APIView):
     http_method_names = ["delete", "get", "post", "put"]
-
-    def get_authenticators(self):
-        return get_custom_authenticators(self.request)
-
-    def get_permissions(self):
-        return get_custom_permissions(self.request)
-
-    def get_authenticators(self):
-        return get_custom_authenticators(self.request)
-
-    def get_permissions(self):
-        return get_custom_permissions(self.request)
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
