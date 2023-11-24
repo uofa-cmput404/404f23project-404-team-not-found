@@ -4,9 +4,9 @@ import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, Post } from "../../../interfaces/interfaces";
 import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
-import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -67,18 +67,21 @@ const PostLikes = ({
         sx={{
           borderRadius: 100,
           minWidth: 0,
-          color: "text.secondary"
+          color: "text.secondary",
+          "&.Mui-disabled": {
+            background: "white",
+            color: "#CC2828"
+          }
         }}
         onClick={() => {
           handleLike();
         }}
       >
-        <FavoriteBorderIcon
-          fontSize="small"
-          sx={{
-            color: isUserLiked ? "red" : "white"
-          }}
-        />
+        {isUserLiked ? (
+          <FavoriteIcon fontSize="small" />
+        ) : (
+         <FavoriteBorderIcon fontSize="small" />
+        )}
         <Typography sx={{ marginLeft: 1 }}>
           {postLikes.length}
         </Typography>
