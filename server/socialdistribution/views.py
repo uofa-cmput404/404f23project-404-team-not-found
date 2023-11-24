@@ -21,12 +21,12 @@ from socialdistribution.utils.views_utils import (
     update_post_categories,
     update_post_content,
     create_comment,
+    delete_follow_and_inbox_item,
 )
 
 from socialdistribution.utils.auth_utils import (
     get_custom_authenticators,
     get_custom_permissions,
-    delete_follow_and_inbox_item
 )
 
 from urllib.parse import urlparse
@@ -129,9 +129,11 @@ class FollowerView(APIView):
         """
         with transaction.atomic():
             author_object = get_object_or_404(Author, id=author_id)
-            follower_object = get_object_or_404(Follower,
-                                                author=author_object,
-                                                follower_author__id__endswith=follower_id)
+            follower_object = get_object_or_404(
+                Follower,
+                author=author_object,
+                follower_author__id__endswith=follower_id,
+            )
             follower_object.delete()
             delete_follow_and_inbox_item(author_object, follower_id)
 
@@ -314,12 +316,6 @@ class InboxView(APIView):
     http_method_names = ["delete", "get", "post"]
     queryset = InboxItem.objects.all()
     serializer_class = InboxItemSerializer
-
-    def get_authenticators(self):
-        return get_custom_authenticators(self.request)
-
-    def get_permissions(self):
-        return get_custom_permissions(self.request)
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)

@@ -13,25 +13,6 @@ const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchInboxItems = useCallback(async () => {
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
-    try {
-      const userCredentials = getUserCredentials();
-      if (userCredentials.username && userCredentials.password) {
-        const response = await axios.get(url, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        });
-        setInboxItems(response.data["items"]);
-      }
-    } catch (error) {
-      console.error("Failed to fetch inbox items:", error);
-    }
-  }, []);
-
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems((currentItems) =>
       currentItems.filter(
@@ -46,8 +27,16 @@ const InboxContent = () => {
       const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
 
       try {
-        const response = await axios.get(url);
-        setInboxItems(response.data["items"]);
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          setInboxItems(response.data["items"]);
+        }
       } catch (error) {
         console.error("Failed to fetch inbox items: ", error);
       } finally {
