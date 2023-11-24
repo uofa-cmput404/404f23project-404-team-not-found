@@ -52,7 +52,6 @@ const CommentLikes = ({
         const response = await axios.get(url);
         const dataLikes = response.data;
         setCommentLikes(dataLikes);
-        console.log(dataLikes)
         const isAuthorLiked = dataLikes.some((like: Like) =>
           like.author.id === userData.id
         );
