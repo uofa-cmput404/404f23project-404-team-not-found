@@ -133,13 +133,22 @@ const FollowAuthorButton = ({
     const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
 
     try {
-      const response = await axios.delete(url);
-      setFollowButtonText("Follow");
-      setIsRequested(false);
-      setIsFollowing(false);
-      setIsUserFollowingAuthor(false);
-      setIcon(<PersonAddIcon />);
-      toast.success("Successfully unfollowed");
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.delete(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setFollowButtonText("Follow");
+        setIsRequested(false);
+        setIsFollowing(false);
+        setIsUserFollowingAuthor(false);
+        setIcon(<PersonAddIcon />);
+        toast.success("Successfully unfollowed");
+      }
     } catch (error) {
       toast.error("Failed to unfollow");
     }

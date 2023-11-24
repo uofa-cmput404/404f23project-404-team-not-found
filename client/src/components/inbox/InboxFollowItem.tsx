@@ -103,8 +103,17 @@ const InboxFollowItem = ({
     const url = `${APP_URI}authors/${loggedUserId}/follows/${authorId}/`;
 
     try {
-      const response = await axios.delete(url);
-      removeFollowItem(followItem.actor.id, followItem.object.id);
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.delete(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        removeFollowItem(followItem.actor.id, followItem.object.id);
+      }
     } catch (error) {
       toast.error("Failed to decline follow request");
     }
@@ -177,6 +186,9 @@ const InboxFollowItem = ({
             marginRight: 1.5,
             paddingX: 2,
             width: "8rem",
+          }}
+          onClick={() => {
+            handleAcceptFollow();
           }}
         >
           <Typography textTransform={"none"} variant="subtitle1">
