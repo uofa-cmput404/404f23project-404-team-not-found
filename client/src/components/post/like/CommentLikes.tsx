@@ -2,51 +2,57 @@ import { getUserData } from "../../../utils/localStorageUtils";
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
-import { Like, Post } from "../../../interfaces/interfaces";
+import { Like } from "../../../interfaces/interfaces";
 import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
+import { Comment } from "../../../interfaces/interfaces";
 
 const APP_URI = process.env.REACT_APP_URI;
 
-const PostLikes = ({
-  post,
+const CommentLikes = ({
+  comment,
+  postAuthorId,
+  postId,
 }: {
-  post: Post;
+  comment: Comment,
+  postAuthorId: string,
+  postId: string,
 }) => {
-  const [postLikes, setPostLikes] = useState<Like[]>([]);
+  const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const authorId = getAuthorIdFromResponse(post.author.id);
-  const postId = getAuthorIdFromResponse(post.id);
+  const commentAuthorId = getAuthorIdFromResponse(comment.author.id);
+  const commentId = getAuthorIdFromResponse(comment.id);
   const userData = getUserData();
 
   const handleLike = async () => {
     const data = {
       "type": "Like",
       "author": userData,
-      "object": post.id
+      "object": comment.id
     }
-    const url = `${APP_URI}authors/${authorId}/inbox/`
+    const url = `${APP_URI}authors/${commentAuthorId}/inbox/`
 
     try {
       const response = await axios.post(url, data);
-      setPostLikes([...postLikes, response.data]);
+      setCommentLikes([...commentLikes, response.data]);
       setIsUserLiked(true);
     } catch(error) {
-      toast.error("Unable to like this post");
+      toast.error("Unable to like this comment");
     }
   };
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${APP_URI}authors/${authorId}/posts/${postId}/likes/`
+      const url = `${APP_URI}authors/${postAuthorId}/posts/${postId}/comments/${commentId}/likes/`
 
       try {
         const response = await axios.get(url);
         const dataLikes = response.data;
-        setPostLikes(dataLikes);
+        setCommentLikes(dataLikes);
+        console.log(dataLikes)
         const isAuthorLiked = dataLikes.some((like: Like) =>
           like.author.id === userData.id
         );
@@ -83,7 +89,7 @@ const PostLikes = ({
          <FavoriteBorderIcon fontSize="small" />
         )}
         <Typography sx={{ marginLeft: 1 }}>
-          {postLikes.length}
+          {commentLikes.length}
         </Typography>
       </Button>
     </Tooltip>
@@ -91,4 +97,4 @@ const PostLikes = ({
 };
 
 
-export default PostLikes;
+export default CommentLikes;

@@ -11,6 +11,7 @@ const InboxLikeItem = ({
 }) => {
   const navigate = useNavigate();
   const loggedUser = getUserData();
+  const isCommentLiked = likeItem.object.includes("comments");
 
   const handleAuthorProfileClick = () => {
     const authorId = getAuthorIdFromResponse(likeItem.author.id);
@@ -60,7 +61,7 @@ const InboxLikeItem = ({
                 onClick={() => { handleAuthorProfileClick() }}
               />
             }
-            title={`${likeItem.author.displayName} liked your post`}
+            title={`${likeItem.author.displayName} liked your ${isCommentLiked ? "comment" : "post"}`}
             titleTypographyProps={{
               fontSize: "1em",
             }}

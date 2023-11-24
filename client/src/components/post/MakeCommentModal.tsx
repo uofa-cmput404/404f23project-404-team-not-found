@@ -214,7 +214,11 @@ const MakeCommentModal = ({
           }}
           className={classes.root}
         >
-          <PostComments comments={postComments} />
+          <PostComments
+            comments={postComments}
+            postAuthorId={authorId}
+            postId={postId}
+          />
         </Box>
         <Grid sx={{ marginLeft: 1 }}>
           <FormControlLabel
