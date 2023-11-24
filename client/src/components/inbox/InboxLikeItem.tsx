@@ -34,7 +34,7 @@ const InboxLikeItem = ({
         borderBottom: "1px solid #dbd9d9"
       }}
     >
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         <Card
           style={{
             margin: "auto",
