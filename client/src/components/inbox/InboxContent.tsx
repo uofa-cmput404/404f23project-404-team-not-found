@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Grid, Typography } from "@mui/material";
-import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserData, getUserCredentials } from "../../utils/localStorageUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
 import InboxCommentItem from "./InboxCommentItem";
 import Loading from "../ui/Loading";
+import InboxLikeItem from "./InboxLikeItem";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const userData = getUserData();
 
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems((currentItems) =>
@@ -89,15 +91,12 @@ const InboxContent = () => {
         <Loading />
       ) : (
         <Grid container>
-          {inboxItems.length > 0 ? (
-            inboxItems.map((inboxItem, index) => (
+          {inboxItems.length > 0 ?
+            (inboxItems.map((inboxItem, index) => (
               <Grid
                 container
                 key={getInboxItemKey(inboxItem, index)}
                 alignItems="center"
-                sx={{
-                  borderBottom: "1px solid #dbd9d9",
-                }}
               >
                 {inboxItem.type === InboxItemType.FOLLOW && (
                   <InboxFollowItem
@@ -108,22 +107,27 @@ const InboxContent = () => {
                 {inboxItem.type === InboxItemType.COMMENT && (
                   <InboxCommentItem commentItem={inboxItem} />
                 )}
+                {inboxItem.type === InboxItemType.LIKE
+                  && inboxItem.author.id !== userData.id && (
+                  <InboxLikeItem likeItem={inboxItem} />
+                )}
               </Grid>
-            ))
-          ) : (
-            <Typography
-              variant="h6"
-              align="center"
-              sx={{
-                marginTop: 5,
-                marginLeft: "auto",
-                marginRight: "auto",
-                color: "#858585",
-              }}
-            >
-              No inbox items available...
-            </Typography>
-          )}
+            )))
+            : (
+              <Typography
+                variant="h6"
+                align="center"
+                sx={{
+                  marginTop: 5,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  color: "#858585",
+                }}
+              >
+                No inbox items available...
+              </Typography>
+            )
+          }
         </Grid>
       )}
     </Grid>

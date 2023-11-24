@@ -2,22 +2,23 @@ import { Avatar, Card, CardHeader, Grid } from "@mui/material";
 import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
+import { Like } from "../../interfaces/interfaces";
 
-const InboxCommentItem = ({
-  commentItem
+const InboxLikeItem = ({
+  likeItem
 }:{
-  commentItem: any
+  likeItem: Like
 }) => {
   const navigate = useNavigate();
   const loggedUser = getUserData();
 
   const handleAuthorProfileClick = () => {
-    const authorId = getAuthorIdFromResponse(commentItem.author.id);
+    const authorId = getAuthorIdFromResponse(likeItem.author.id);
     navigate(
       `/authors/${authorId}`,
       {
         state: {
-          otherAuthorObject: commentItem.author,
+          otherAuthorObject: likeItem.author,
           userObject: loggedUser
         }
       }
@@ -51,20 +52,18 @@ const InboxCommentItem = ({
             }}
             avatar={
               <Avatar
-                alt={commentItem.author.displayName}
+                alt={likeItem.author.displayName}
                 sx={{
                   cursor: "pointer",
                 }}
-                src={commentItem.author.profileImage}
+                src={likeItem.author.profileImage}
                 onClick={() => { handleAuthorProfileClick() }}
               />
             }
-            title={`${commentItem.author.displayName} commented on your post`}
+            title={`${likeItem.author.displayName} liked your post`}
             titleTypographyProps={{
               fontSize: "1em",
             }}
-            subheaderTypographyProps={{ noWrap: true }}
-            subheader={`${commentItem.comment}`}
           />
         </Card>
       </Grid>
@@ -72,4 +71,4 @@ const InboxCommentItem = ({
   );
 };
 
-export default InboxCommentItem;
+export default InboxLikeItem;
