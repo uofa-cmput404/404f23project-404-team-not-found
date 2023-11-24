@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import UnfollowAuthorModal from "./UnfollowAuthorModal";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -25,13 +25,13 @@ const FollowAuthorButton = ({
   const [followButtonText, setFollowButtonText] = useState("Follow");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isRequested, setIsRequested] = useState(false);
-  const [icon, setIcon] = useState(<PersonAddIcon/>)
+  const [icon, setIcon] = useState(<PersonAddIcon />);
   const [IsUnfollowModalOpen, setIsUnfollowModalOpen] = useState(false);
   const loggedUserId = getAuthorId();
 
   const openUnfollowAuthorModal = () => {
     setIsUnfollowModalOpen(true);
-  }
+  };
 
   const sendFollowToInbox = async () => {
     // actor is the one who wants to follow and object is the author actor wants to follow
@@ -111,7 +111,7 @@ const FollowAuthorButton = ({
           if (response.data.is_follower) {
             setFollowButtonText("Following");
             setIsFollowing(true);
-            setIcon(<HowToRegIcon/>)
+            setIcon(<HowToRegIcon />);
           } else if (isRequested) {
             setFollowButtonText("Requested");
             setIsFollowing(false);
@@ -130,33 +130,33 @@ const FollowAuthorButton = ({
   }, [isRequested]);
 
   const unfollowAuthor = async () => {
-      const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+    const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
 
-      try {
-        const response = await axios.delete(url);
-        setFollowButtonText("Follow");
-        setIsRequested(false);
-        setIsFollowing(false);
-        setIsUserFollowingAuthor(false);
-        setIcon(<PersonAddIcon />);
-        toast.success("Successfully unfollowed");
-      } catch (error) {
-        toast.error("Failed to unfollow");
-      }
+    try {
+      const response = await axios.delete(url);
+      setFollowButtonText("Follow");
+      setIsRequested(false);
+      setIsFollowing(false);
+      setIsUserFollowingAuthor(false);
+      setIcon(<PersonAddIcon />);
+      toast.success("Successfully unfollowed");
+    } catch (error) {
+      toast.error("Failed to unfollow");
+    }
   };
 
   return (
     <Grid>
-      {isFollowing ?
-        (<Button
+      {isFollowing ? (
+        <Button
           onMouseOver={() => {
             setFollowButtonText("Unfollow");
-            setIcon(<PersonRemoveIcon/>);
+            setIcon(<PersonRemoveIcon />);
           }}
           onMouseOut={() => {
             setFollowButtonText("Following");
-            setIcon(<HowToRegIcon/>)
-        }}
+            setIcon(<HowToRegIcon />);
+          }}
           variant="outlined"
           size="small"
           style={{
@@ -174,22 +174,23 @@ const FollowAuthorButton = ({
               background: "#CC282833",
               border: "1px solid #CC2828",
               transition: "all 50",
-              color: "#CC2828"
+              color: "#CC2828",
             },
           }}
-          onClick={ followButtonText === "Unfollow" ? openUnfollowAuthorModal : sendFollowToInbox }
-          endIcon={ icon }
+          onClick={
+            followButtonText === "Unfollow"
+              ? openUnfollowAuthorModal
+              : sendFollowToInbox
+          }
+          endIcon={icon}
         >
-          <Typography
-            textTransform="none"
-            variant="subtitle1"
-          >
+          <Typography textTransform="none" variant="subtitle1">
             <strong>{followButtonText}</strong>
           </Typography>
-        </Button>)
-      : (
+        </Button>
+      ) : (
         <Button
-          disabled={ isRequested }
+          disabled={isRequested}
           variant="outlined"
           size="small"
           style={{
@@ -198,21 +199,18 @@ const FollowAuthorButton = ({
             borderRadius: 100,
             paddingLeft: 20,
             paddingRight: 20,
-            border: "1px solid #103f5b"
+            border: "1px solid #103f5b",
           }}
           sx={{
             "&.Mui-disabled": {
               background: "#103f5b",
-              color: "white"
-            }
+              color: "white",
+            },
           }}
           onClick={sendFollowToInbox}
-          endIcon={ icon }
+          endIcon={icon}
         >
-          <Typography
-            textTransform="none"
-            variant="subtitle1"
-          >
+          <Typography textTransform="none" variant="subtitle1">
             <strong>{followButtonText}</strong>
           </Typography>
         </Button>
