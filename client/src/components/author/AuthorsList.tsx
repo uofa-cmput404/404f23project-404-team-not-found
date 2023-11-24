@@ -50,6 +50,9 @@ const AuthorsList = ({
               <CardHeader
                 avatar={<Avatar src={author.profileImage} alt={author.displayName}/>}
                 title={author.displayName}
+                titleTypographyProps={{
+                  fontSize: "1em",
+                }}
               />
             </Card>
           </Grid>
@@ -62,7 +65,8 @@ const AuthorsList = ({
                 borderRadius: 20,
                 marginRight: 2,
                 paddingLeft: 2,
-                paddingRight: 2
+                paddingRight: 2,
+                width: "8rem"
               }}
               onClick={() => handleViewProfileClick(author)}
             >

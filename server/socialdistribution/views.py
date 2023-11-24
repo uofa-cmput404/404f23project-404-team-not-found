@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
 
 # for authentication purpose
@@ -25,6 +26,7 @@ from socialdistribution.utils.views_utils import (
 from socialdistribution.utils.auth_utils import (
     get_custom_authenticators,
     get_custom_permissions,
+    delete_follow_and_inbox_item
 )
 
 from urllib.parse import urlparse
@@ -125,11 +127,13 @@ class FollowerView(APIView):
         """
         remove FOLLOWER_ID as a follower of AUTHOR_ID
         """
-        author_object = get_object_or_404(Author, id=author_id)
-        follower_object = get_object_or_404(
-            Follower, author=author_object, follower_author__id__endswith=follower_id
-        )
-        follower_object.delete()
+        with transaction.atomic():
+            author_object = get_object_or_404(Author, id=author_id)
+            follower_object = get_object_or_404(Follower,
+                                                author=author_object,
+                                                follower_author__id__endswith=follower_id)
+            follower_object.delete()
+            delete_follow_and_inbox_item(author_object, follower_id)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -167,6 +171,20 @@ class FollowerView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FollowView(APIView):
+    http_method_names = ["delete"]
+
+    def delete(self, request, author_id, requester_id):
+        """
+        remove REQUESTER_ID as someone who requested a follow to AUTHOR_ID
+        """
+        with transaction.atomic():
+            author_object = get_object_or_404(Author, id=author_id)
+            delete_follow_and_inbox_item(author_object, requester_id)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PostsView(APIView):
