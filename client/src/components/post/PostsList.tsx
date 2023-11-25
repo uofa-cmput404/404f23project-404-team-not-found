@@ -177,7 +177,18 @@ const PostsList = ({
                 }}
               >
                 <Grid item xs={4}>
-                  <PostLikes post={post} />
+                  <ButtonBase
+                    component="span"
+                    onMouseDown={event => event.stopPropagation()}
+                    sx={{borderRadius: 100}}
+                    disableRipple
+                    onClick={event => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                    }}  
+                  >
+                    <PostLikes post={post} />
+                  </ButtonBase>
                 </Grid>
                 <Grid item xs={4} container justifyContent="center">
                   <Tooltip title="Comment" placement="bottom-end">
