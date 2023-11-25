@@ -10,6 +10,13 @@ export interface Author {
   url: string;
 }
 
+export interface Like {
+  context: string;
+  summary: string;
+  author: Author;
+  object: string;
+}
+
 export interface Post {
   id: string;
   author: Author;

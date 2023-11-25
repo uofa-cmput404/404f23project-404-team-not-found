@@ -90,6 +90,25 @@ def create_plain_text_post(author):
     return post_obj
 
 
+def create_image_post(author):
+    categories = ["test", "test1", "test2"]
+
+    post_obj = Post.objects.create(
+        author=author,
+        title="Test Post",
+        description="This is a test post.",
+        contentType=Post.ContentType.JPEG,
+        content="image_base64_data".encode("utf-8"),
+        visibility=Post.Visibility.PUBLIC
+    )
+
+    for category in categories:
+        category_object, created = Category.objects.get_or_create(category=category)
+        post_obj.categories.add(category_object)
+
+    return post_obj
+
+
 def create_comment(cauthor, cpost, ccontentType):
     comment_obj = Comment.objects.create(
         type="comment",
