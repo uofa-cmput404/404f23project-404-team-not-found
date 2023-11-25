@@ -16,9 +16,26 @@ const APP_URI = process.env.REACT_APP_URI;
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [inboxItems, setInboxItems] = useState<Post[]>([]);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
+  };
+
+  const fetchInboxItems = async () => {
+    const AUTHOR_ID = getAuthorId();
+    const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
+
+    try {
+      const response = await axios.get(url);
+      const inboxPosts = response.data.items.filter(
+        (item: any) => item && item.type === "post"
+      );
+
+      setPosts((prevPosts) => [...inboxPosts.reverse(), ...prevPosts]);
+    } catch (error) {
+      console.error("Error fetching inbox items:", error);
+    }
   };
 
   const fetchPosts = async () => {
@@ -27,7 +44,9 @@ export default function HomePage() {
 
     try {
       const response = await axios.get(url);
-      setPosts(response.data);
+      const validPosts = response.data.filter((item: any) => item !== null);
+
+      setPosts(validPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -49,7 +68,11 @@ export default function HomePage() {
   // https://react.dev/reference/react/useEffect
   useEffect(() => {
     fetchPosts();
+    fetchInboxItems();
   }, []);
+
+  // console.log("inboxItems", inboxItems);
+  console.log("posts", posts);
 
   return (
     <>
