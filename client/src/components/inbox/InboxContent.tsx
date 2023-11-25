@@ -2,18 +2,21 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Grid, Typography } from "@mui/material";
 import { getAuthorId, getUserData, getUserCredentials } from "../../utils/localStorageUtils";
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
 import InboxCommentItem from "./InboxCommentItem";
-import Loading from "../ui/Loading";
 import InboxLikeItem from "./InboxLikeItem";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [followData, setFollowData] = useState<any>({});
   const userData = getUserData();
+  const loggedUserId = getAuthorId();
 
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems((currentItems) =>
@@ -37,7 +40,33 @@ const InboxContent = () => {
               password: userCredentials.password,
             },
           });
-          setInboxItems(response.data["items"]);
+          const items = response.data["items"];
+          setInboxItems(items);
+
+          const followItems = items.filter((item: any) =>
+            item.type === InboxItemType.FOLLOW);
+          const followDataPromises = followItems.map(async (followItem: any) => {
+            const authorId = getAuthorIdFromResponse(followItem.actor.id);
+            const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
+
+            try {
+              const response = await axios.get(url, {
+                auth: {
+                  username: userCredentials.username!,
+                  password: userCredentials.password!,
+                },
+              });
+
+              return { [`follow-${followItem.actor.id}-${followItem.object.id}`]: response.data.is_follower };
+            } catch (error) {
+              console.error("Error fetching follow data", error);
+              return { [`follow-${followItem.actor.id}-${followItem.object.id}`]: false };
+            }
+          });
+
+          const results = await Promise.all(followDataPromises);
+          const combinedFollowData = results.reduce((acc, data) => ({ ...acc, ...data }), {});
+          setFollowData(combinedFollowData);
         }
       } catch (error) {
         console.error("Failed to fetch inbox items: ", error);
@@ -101,6 +130,7 @@ const InboxContent = () => {
                 {inboxItem.type === InboxItemType.FOLLOW && (
                   <InboxFollowItem
                     followItem={inboxItem}
+                    isFollowAccepted={followData[getInboxItemKey(inboxItem, index)]}
                     removeFollowItem={removeFollowItem}
                   />
                 )}
