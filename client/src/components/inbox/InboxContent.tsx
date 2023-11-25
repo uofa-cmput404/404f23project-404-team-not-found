@@ -91,8 +91,8 @@ const InboxContent = () => {
         <Loading />
       ) : (
         <Grid container>
-          {inboxItems.length > 0 ?
-            (inboxItems.map((inboxItem, index) => (
+          {inboxItems.length > 0 ? (
+            inboxItems.map((inboxItem, index) => (
               <Grid
                 container
                 key={getInboxItemKey(inboxItem, index)}
@@ -112,22 +112,21 @@ const InboxContent = () => {
                   <InboxLikeItem likeItem={inboxItem} />
                 )}
               </Grid>
-            )))
-            : (
-              <Typography
-                variant="h6"
-                align="center"
-                sx={{
-                  marginTop: 5,
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                  color: "#858585",
-                }}
-              >
-                No inbox items available...
-              </Typography>
-            )
-          }
+            ))
+          ) : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
+            >
+              No inbox items available...
+            </Typography>
+          )}
         </Grid>
       )}
     </Grid>
