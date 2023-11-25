@@ -1,4 +1,4 @@
-import { getUserData } from "../../../utils/localStorageUtils";
+import { getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
@@ -36,9 +36,17 @@ const CommentLikes = ({
     const url = `${APP_URI}authors/${commentAuthorId}/inbox/`
 
     try {
-      const response = await axios.post(url, data);
-      setCommentLikes([...commentLikes, response.data]);
-      setIsUserLiked(true);
+      const userCredentials = getUserCredentials();
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.post(url, data, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setCommentLikes([...commentLikes, response.data]);
+        setIsUserLiked(true);
+      }
     } catch(error) {
       toast.error("Unable to like this comment");
     }
@@ -49,13 +57,21 @@ const CommentLikes = ({
       const url = `${APP_URI}authors/${postAuthorId}/posts/${postId}/comments/${commentId}/likes/`
 
       try {
-        const response = await axios.get(url);
-        const dataLikes = response.data;
-        setCommentLikes(dataLikes);
-        const isAuthorLiked = dataLikes.some((like: Like) =>
-          like.author.id === userData.id
-        );
-        setIsUserLiked(isAuthorLiked);
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          const dataLikes = response.data;
+          setCommentLikes(dataLikes);
+          const isAuthorLiked = dataLikes.some((like: Like) =>
+            like.author.id === userData.id
+          );
+          setIsUserLiked(isAuthorLiked);
+        }
       } catch(error) {
         console.error("Error fetching likes", error);
       }
