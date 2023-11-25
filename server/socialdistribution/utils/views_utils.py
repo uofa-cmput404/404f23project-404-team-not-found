@@ -151,3 +151,16 @@ def create_comment(post, data, comment_id=None):
     )
 
     return comment_obj
+
+
+def delete_follow_and_inbox_item(author_object, follower_id):
+    follow = Follow.objects.filter(object=author_object,
+                                   actor__id__endswith=follower_id).first()
+    if follow:
+        follow_content_type = ContentType.objects.get_for_model(Follow)
+        inbox_item = InboxItem.objects.filter(content_type=follow_content_type,
+                                              object_id=follow.id).first()
+
+        if inbox_item:
+            inbox_item.delete()
+        follow.delete()

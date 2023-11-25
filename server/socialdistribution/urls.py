@@ -16,6 +16,10 @@ urlpatterns = [
     path (f"{SERVICE}authors/<uuid:author_id>/posts/<uuid:post_id>/likes/", PostLikesView.as_view(), name="post_likes"),
     path (f"{SERVICE}authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/", CommentLikesView.as_view(), name="comment_likes"),
     path (f"{SERVICE}authors/<uuid:author_id>/liked/", LikedView.as_view(), name="liked"),
+
+    # additional API endpoints
+    path(f"{SERVICE}authors/<uuid:author_id>/follows/<uuid:requester_id>/", FollowView.as_view(), name="follow"),
+
     # login and signup endpoints
     path(f"{SERVICE}login/", LoginView.as_view(), name="login"),
     path(f"{SERVICE}signup/", SignUpView.as_view(), name="signup")

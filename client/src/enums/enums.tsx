@@ -11,7 +11,10 @@ export enum ImageLink {
 }
 
 export enum InboxItemType {
+    COMMENT = "comment",
     FOLLOW = "Follow",
+    LIKE = "Like",
+    POST = "post",
 }
 
 export enum ShareType {

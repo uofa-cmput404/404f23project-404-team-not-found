@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
+import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 
@@ -52,6 +50,9 @@ const AuthorsList = ({
               <CardHeader
                 avatar={<Avatar src={author.profileImage} alt={author.displayName}/>}
                 title={author.displayName}
+                titleTypographyProps={{
+                  fontSize: "1em",
+                }}
               />
             </Card>
           </Grid>
@@ -64,7 +65,8 @@ const AuthorsList = ({
                 borderRadius: 20,
                 marginRight: 2,
                 paddingLeft: 2,
-                paddingRight: 2
+                paddingRight: 2,
+                width: "8rem"
               }}
               onClick={() => handleViewProfileClick(author)}
             >
