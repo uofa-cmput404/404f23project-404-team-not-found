@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { Grid, Typography } from "@mui/material";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
 import InboxCommentItem from "./InboxCommentItem";
@@ -14,9 +14,9 @@ const InboxContent = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const removeFollowItem = (actorId: string, objectId: string) => {
-    setInboxItems(currentItems =>
-      currentItems.filter(item =>
-        item.type !== "Follow" || item.actor.id !== actorId
+    setInboxItems((currentItems) =>
+      currentItems.filter(
+        (item) => item.type !== "Follow" || item.actor.id !== actorId
       )
     );
   };
@@ -27,8 +27,16 @@ const InboxContent = () => {
       const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
 
       try {
-        const response = await axios.get(url);
-        setInboxItems(response.data["items"]);
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          setInboxItems(response.data["items"]);
+        }
       } catch (error) {
         console.error("Failed to fetch inbox items: ", error);
       } finally {
@@ -44,13 +52,13 @@ const InboxContent = () => {
     switch (inboxItem.type) {
       case InboxItemType.COMMENT:
         key = `comment-${inboxItem.id}`;
-      break;
+        break;
       case InboxItemType.FOLLOW:
         key = `follow-${inboxItem.actor.id}-${inboxItem.object.id}`;
-      break;
+        break;
       case InboxItemType.LIKE:
         key = `like-${inboxItem.author.id}-${inboxItem.object}`;
-      break;
+        break;
       case InboxItemType.POST:
         key = `post-${inboxItem.id}`;
         break;
@@ -59,7 +67,7 @@ const InboxContent = () => {
     }
 
     return key;
-  }
+  };
 
   return (
     <Grid container direction={"row"}>
@@ -70,56 +78,54 @@ const InboxContent = () => {
             sx={{
               padding: 2,
               borderBottom: "1px solid #dbd9d9",
-              fontWeight: "bold"
+              fontWeight: "bold",
             }}
           >
             Inbox
           </Typography>
         </Grid>
       </Grid>
-      {isLoading ?
-        (<Loading />)
-        : (
-          <Grid container>
-            {inboxItems.length > 0 ?
-              (inboxItems.map((inboxItem, index) => (
-                <Grid
-                  container
-                  key={getInboxItemKey(inboxItem, index)}
-                  alignItems="center"
-                  sx={{
-                    borderBottom: "1px solid #dbd9d9"
-                  }}
-                >
-                  {inboxItem.type === InboxItemType.FOLLOW &&
-                    <InboxFollowItem
-                      followItem={inboxItem}
-                      removeFollowItem={removeFollowItem}
-                    />
-                  }
-                  {inboxItem.type === InboxItemType.COMMENT &&
-                    <InboxCommentItem commentItem={inboxItem}/>
-                  }
-                </Grid>
-              )))
-              : (
-                <Typography
-                  variant="h6"
-                  align="center"
-                  sx={{
-                    marginTop: 5,
-                    marginLeft: "auto",
-                    marginRight: "auto",
-                    color: "#858585",
-                  }}
-                >
-                  No inbox items available...
-                </Typography>
-              )
-            }
-          </Grid>
-        )
-      }
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Grid container>
+          {inboxItems.length > 0 ? (
+            inboxItems.map((inboxItem, index) => (
+              <Grid
+                container
+                key={getInboxItemKey(inboxItem, index)}
+                alignItems="center"
+                sx={{
+                  borderBottom: "1px solid #dbd9d9",
+                }}
+              >
+                {inboxItem.type === InboxItemType.FOLLOW && (
+                  <InboxFollowItem
+                    followItem={inboxItem}
+                    removeFollowItem={removeFollowItem}
+                  />
+                )}
+                {inboxItem.type === InboxItemType.COMMENT && (
+                  <InboxCommentItem commentItem={inboxItem} />
+                )}
+              </Grid>
+            ))
+          ) : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
+            >
+              No inbox items available...
+            </Typography>
+          )}
+        </Grid>
+      )}
     </Grid>
   );
 };

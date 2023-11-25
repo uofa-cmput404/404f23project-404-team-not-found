@@ -5,8 +5,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import UnfollowAuthorModal from "./UnfollowAuthorModal";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -17,39 +17,48 @@ const FollowAuthorButton = ({
   setIsUserFollowingAuthor,
   userObject,
 }: {
-  authorId: string,
+  authorId: string;
   otherAuthorObject: Author;
-  setIsUserFollowingAuthor: (value : boolean) => void;
+  setIsUserFollowingAuthor: (value: boolean) => void;
   userObject: Author;
 }) => {
   const [followButtonText, setFollowButtonText] = useState("Follow");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isRequested, setIsRequested] = useState(false);
-  const [icon, setIcon] = useState(<PersonAddIcon/>)
+  const [icon, setIcon] = useState(<PersonAddIcon />);
   const [IsUnfollowModalOpen, setIsUnfollowModalOpen] = useState(false);
   const loggedUserId = getAuthorId();
 
   const openUnfollowAuthorModal = () => {
     setIsUnfollowModalOpen(true);
-  }
+  };
 
   const sendFollowToInbox = async () => {
     // actor is the one who wants to follow and object is the author actor wants to follow
     const data = {
       type: "Follow",
       summary: `${userObject.displayName} wants to follow ${otherAuthorObject.displayName}`,
-      actor:  userObject,
-      object: otherAuthorObject
+      actor: userObject,
+      object: otherAuthorObject,
     };
 
     const url = `${APP_URI}authors/${authorId}/inbox/`;
 
     try {
-      await axios.post(url, data);
-      setFollowButtonText("Requested");
-      setIsRequested(true);
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        await axios.post(url, data, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setFollowButtonText("Requested");
+        setIsRequested(true);
+      }
     } catch (error) {
-      toast.error("Failed to send a follow request")
+      toast.error("Failed to send a follow request");
     }
   };
 
@@ -58,12 +67,24 @@ const FollowAuthorButton = ({
       const url = `${APP_URI}authors/${authorId}/inbox/`;
 
       try {
-        const response = await axios.get(url);
-        const items = response.data.items;
-        const followRequestExists: boolean = items.some((item: any) =>
-            item.type === 'Follow' && item.actor && item.actor.id === userObject.id
-        );
-        setIsRequested(followRequestExists);
+        const userCredentials = getUserCredentials();
+
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          const items = response.data.items;
+          const followRequestExists: boolean = items.some(
+            (item: any) =>
+              item.type === "Follow" &&
+              item.actor &&
+              item.actor.id === userObject.id
+          );
+          setIsRequested(followRequestExists);
+        }
       } catch (error) {
         console.error("Error fetching if user already requested: ", error);
       }
@@ -72,16 +93,25 @@ const FollowAuthorButton = ({
     fetchFollowRequestExists();
   }, []);
 
-    useEffect(() => {
-      const fetchIsUserFollowingAuthor = async () => {
-        const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+  useEffect(() => {
+    const fetchIsUserFollowingAuthor = async () => {
+      const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
 
-        try {
-          const response = await axios.get(url);
+      try {
+        const userCredentials = getUserCredentials();
+
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+
           if (response.data.is_follower) {
             setFollowButtonText("Following");
             setIsFollowing(true);
-            setIcon(<HowToRegIcon/>)
+            setIcon(<HowToRegIcon />);
           } else if (isRequested) {
             setFollowButtonText("Requested");
             setIsFollowing(false);
@@ -89,43 +119,53 @@ const FollowAuthorButton = ({
             setFollowButtonText("Follow");
             setIsFollowing(false);
           }
-          setIsUserFollowingAuthor(response.data.is_follower)
-        } catch (error) {
-          console.error("Error fetching is follower: ", error);
+          setIsUserFollowingAuthor(response.data.is_follower);
         }
-      };
+      } catch (error) {
+        console.error("Error fetching is follower: ", error);
+      }
+    };
 
-      fetchIsUserFollowingAuthor();
-    }, [isRequested]);
+    fetchIsUserFollowingAuthor();
+  }, [isRequested]);
 
   const unfollowAuthor = async () => {
-      const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+    const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
 
-      try {
-        const response = await axios.delete(url);
+    try {
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.delete(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
         setFollowButtonText("Follow");
         setIsRequested(false);
         setIsFollowing(false);
         setIsUserFollowingAuthor(false);
         setIcon(<PersonAddIcon />);
         toast.success("Successfully unfollowed");
-      } catch (error) {
-        toast.error("Failed to unfollow");
       }
+    } catch (error) {
+      toast.error("Failed to unfollow");
+    }
   };
 
   return (
     <Grid>
-      {isFollowing ?
-        (<Button
+      {isFollowing ? (
+        <Button
           onMouseOver={() => {
             setFollowButtonText("Unfollow");
-            setIcon(<PersonRemoveIcon/>);
+            setIcon(<PersonRemoveIcon />);
           }}
           onMouseOut={() => {
             setFollowButtonText("Following");
-            setIcon(<HowToRegIcon/>)
-        }}
+            setIcon(<HowToRegIcon />);
+          }}
           variant="outlined"
           size="small"
           style={{
@@ -143,22 +183,23 @@ const FollowAuthorButton = ({
               background: "#CC282833",
               border: "1px solid #CC2828",
               transition: "all 50",
-              color: "#CC2828"
+              color: "#CC2828",
             },
           }}
-          onClick={ followButtonText === "Unfollow" ? openUnfollowAuthorModal : sendFollowToInbox }
-          endIcon={ icon }
+          onClick={
+            followButtonText === "Unfollow"
+              ? openUnfollowAuthorModal
+              : sendFollowToInbox
+          }
+          endIcon={icon}
         >
-          <Typography
-            textTransform="none"
-            variant="subtitle1"
-          >
+          <Typography textTransform="none" variant="subtitle1">
             <strong>{followButtonText}</strong>
           </Typography>
-        </Button>)
-      : (
+        </Button>
+      ) : (
         <Button
-          disabled={ isRequested }
+          disabled={isRequested}
           variant="outlined"
           size="small"
           style={{
@@ -167,21 +208,18 @@ const FollowAuthorButton = ({
             borderRadius: 100,
             paddingLeft: 20,
             paddingRight: 20,
-            border: "1px solid #103f5b"
+            border: "1px solid #103f5b",
           }}
           sx={{
             "&.Mui-disabled": {
               background: "#103f5b",
-              color: "white"
-            }
+              color: "white",
+            },
           }}
           onClick={sendFollowToInbox}
-          endIcon={ icon }
+          endIcon={icon}
         >
-          <Typography
-            textTransform="none"
-            variant="subtitle1"
-          >
+          <Typography textTransform="none" variant="subtitle1">
             <strong>{followButtonText}</strong>
           </Typography>
         </Button>

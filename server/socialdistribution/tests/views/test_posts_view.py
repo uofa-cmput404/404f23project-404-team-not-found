@@ -1,7 +1,9 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.models import Post
 from socialdistribution.tests.utils import (
@@ -20,9 +22,14 @@ class TestPostsView(TestCase):
         self.author = create_author()
         # reverse is used to look up the url of the view we're testing in urls.py
         self.url = reverse('posts', args=[self.author.id])  # API endpoint to be tested
-
+        
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
+        
     def test_get_empty_posts_from_author(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(deserialize_response(response), [])
@@ -31,7 +38,7 @@ class TestPostsView(TestCase):
         post_obj_1 = create_plain_text_post(self.author)
         post_obj_2 = create_plain_text_post(self.author)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -51,7 +58,7 @@ class TestPostsView(TestCase):
             "visibility": Post.Visibility.PUBLIC,
             "unlisted": False
         }
-        response = self.client.post(self.url, data, format="json")
+        response = self.client.post(self.url, data, format="json", **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

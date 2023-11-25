@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  IconButton,
+  Modal,
+  Typography,
+} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
-import NotesIcon from '@mui/icons-material/Notes';
-import ImageIcon from '@mui/icons-material/Image';
+import NotesIcon from "@mui/icons-material/Notes";
+import ImageIcon from "@mui/icons-material/Image";
 
 import axios from "axios";
 
@@ -15,6 +24,7 @@ import { Post } from "../../../interfaces/interfaces";
 import { compareStringArray, isImage } from "../../../utils/postUtils";
 import { ContentType } from "../../../enums/enums";
 import { toast } from "react-toastify";
+import { getUserCredentials } from "../../../utils/localStorageUtils";
 
 const style = {
   display: "flex",
@@ -37,7 +47,7 @@ const EditPostModal = ({
   setIsModalOpen,
   post,
   text,
-  image
+  image,
 }: {
   isModalOpen: boolean;
   onPostEdited: () => void;
@@ -56,24 +66,28 @@ const EditPostModal = ({
   const [imagePrev, setImagePrev] = useState(post.content);
   const [visibility, setVisibility] = useState(post.visibility);
   const [unlisted, setUnlisted] = useState(post.unlisted);
-  const [markdownCheckbox, setMarkdownCheckbox] = useState(post.contentType === ContentType.MARKDOWN);
+  const [markdownCheckbox, setMarkdownCheckbox] = useState(
+    post.contentType === ContentType.MARKDOWN
+  );
 
   const handleClose = () => {
-    setIsModalOpen(false)
+    setIsModalOpen(false);
     onPostEdited();
   };
 
   const handleTextContent = () => {
     setTextType(true);
     setImageType(false);
-  }
+  };
 
   const handleImageContent = () => {
     setImageType(true);
     setTextType(false);
-  }
+  };
 
-  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMarkdownContent = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType(ContentType.MARKDOWN);
     else setContentType(ContentType.PLAIN);
@@ -86,7 +100,7 @@ const EditPostModal = ({
     content: string,
     contentType: string,
     visibility: string,
-    unlisted: boolean,
+    unlisted: boolean
   ) => {
     const payload = {
       title: title,
@@ -100,22 +114,31 @@ const EditPostModal = ({
     const url = `${post.id}/`;
 
     try {
-      await axios.post(url, payload);
-      onPostEdited();
-      handleClose();
-      toast.success("Post edited successfully")
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        await axios.post(url, payload, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        onPostEdited();
+        handleClose();
+        toast.success("Post edited successfully");
+      }
     } catch (error) {
-      toast.error("Failed to edit post")
+      toast.error("Failed to edit post");
     }
   };
 
   const textOrImage = () => {
     if (isImage(post)) {
-        setImageType(true);
-        setTextType(false);
+      setImageType(true);
+      setTextType(false);
     } else {
-        setImageType(false);
-        setTextType(true);
+      setImageType(false);
+      setTextType(true);
     }
   };
 
@@ -130,7 +153,7 @@ const EditPostModal = ({
     setVisibility(post.visibility);
     setUnlisted(post.unlisted);
     setMarkdownCheckbox(post.contentType === ContentType.MARKDOWN);
-}, [post]);
+  }, [post]);
 
   return (
     <>
@@ -150,12 +173,9 @@ const EditPostModal = ({
               </IconButton>
             </Grid>
             <Grid item xs={6} textAlign="center">
-                <Typography 
-                  variant="h6"
-                  sx={{paddingTop:0.2}}
-                >
-                  Edit Post 
-                </Typography>
+              <Typography variant="h6" sx={{ paddingTop: 0.2 }}>
+                Edit Post
+              </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
           </Grid>
@@ -165,7 +185,7 @@ const EditPostModal = ({
             unlisted={unlisted}
             setUnlisted={setUnlisted}
           />
-          {textType &&           
+          {textType && (
             <TextPostView
               title={title}
               setTitle={setTitle}
@@ -176,8 +196,8 @@ const EditPostModal = ({
               contentType={contentType}
               setContentType={setContentType}
             />
-          }
-          {imageType && 
+          )}
+          {imageType && (
             <ImagePostView
               title={title}
               setTitle={setTitle}
@@ -190,34 +210,43 @@ const EditPostModal = ({
               imagePrev={imagePrev}
               setImagePrev={setImagePrev}
             />
-          }
+          )}
           <Grid container>
-            <PostCategoriesField categories={categories} setCategories={setCategories} />
+            <PostCategoriesField
+              categories={categories}
+              setCategories={setCategories}
+            />
           </Grid>
-          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
+          <Grid
+            container
+            spacing={0}
+            alignItems="center"
+            justifyContent="flex-end"
+            paddingLeft={0.5}
+          >
             <Grid item>
-              <IconButton 
-              color={textType ? "info" : "default"}
-              id="txt"
-              size="small"
-              onClick={handleTextContent}
+              <IconButton
+                color={textType ? "info" : "default"}
+                id="txt"
+                size="small"
+                onClick={handleTextContent}
               >
-                <NotesIcon fontSize="medium"/> 
+                <NotesIcon fontSize="medium" />
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton 
-              color={imageType ? "info" : "default"}
-              size="small"
-              sx={{marginRight: 1}}
-              onClick={() => {
-                handleImageContent();
-              }}
-              > 
-                <ImageIcon fontSize="medium"/> 
+              <IconButton
+                color={imageType ? "info" : "default"}
+                size="small"
+                sx={{ marginRight: 1 }}
+                onClick={() => {
+                  handleImageContent();
+                }}
+              >
+                <ImageIcon fontSize="medium" />
               </IconButton>
             </Grid>
-            {textType &&
+            {textType && (
               <Grid item>
                 <FormControlLabel
                   control={
@@ -229,11 +258,11 @@ const EditPostModal = ({
                   label="Markdown"
                 />
               </Grid>
-            }
+            )}
             <Button
               variant="contained"
               color="primary"
-              disabled={(
+              disabled={
                 content === post.content &&
                 contentType === post.contentType &&
                 title === post.title &&
@@ -241,7 +270,7 @@ const EditPostModal = ({
                 visibility === post.visibility &&
                 unlisted === post.unlisted &&
                 compareStringArray(categories, post.categories)
-              )}
+              }
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -264,7 +293,7 @@ const EditPostModal = ({
                 setIsModalOpen(false);
                 handleTextContent();
               }}
-              >
+            >
               Save
             </Button>
           </Grid>

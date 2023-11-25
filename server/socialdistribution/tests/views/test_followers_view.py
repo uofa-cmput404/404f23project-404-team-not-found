@@ -1,7 +1,9 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.tests.utils import (
     create_author,
@@ -21,9 +23,14 @@ class TestFollowersView(TestCase):
         self.follower = create_author()
         # reverse is used to look up the url of the view we're testing in urls.py
         self.url = reverse("followers", args=[self.author.id])  # API endpoint to be tested
+    
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
 
     def test_get_no_followers(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         expected_response = {
             "type": "followers",
             "items": [],
@@ -36,7 +43,7 @@ class TestFollowersView(TestCase):
         author_json = create_author_dict(author_id=self.follower.id)
         create_follower(self.author, author_json)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
