@@ -71,9 +71,6 @@ export default function HomePage() {
     fetchInboxItems();
   }, []);
 
-  // console.log("inboxItems", inboxItems);
-  console.log("posts", posts);
-
   return (
     <>
       <CssBaseline />
