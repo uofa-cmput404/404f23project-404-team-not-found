@@ -3,26 +3,66 @@ import { CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
 import HeadBar from "../../template/AppBar";
 import LeftNavBar from "../../template/LeftNavBar";
 import MakePostModal from "../MakePostModal";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useParams, useLocation } from "react-router-dom";
 import MoreMenu from "../edit/MoreMenu";
 import MuiMarkdown from "mui-markdown";
-import { getAuthorId } from "../../../utils/localStorageUtils";
+import {getAuthorId, getUserCredentials} from "../../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
+import axios from "axios";
+import { Post } from "../../../interfaces/interfaces";
+import Loading from "../../ui/Loading";
+
+const APP_URI = process.env.REACT_APP_URI;
 
 const PostPage = () => {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const location = useLocation();
-  const { post } = location.state || {};
+  const [post, setPost] = useState<Post>();
+  const [isLoading, setIsLoading] = useState(true);
   const { authorId, postId} = useParams();
+
+  const fetchPost = async () => {
+    const AUTHOR_ID = getAuthorId();
+    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/${postId}/`;
+
+    try {
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setPost(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching post:", error);
+    }
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    // If location.state exists, used the passed post object
+    // otherwise, fetch the post object
+    if (location.state?.postObject) {
+      setPost(location.state.postObject);
+    } else {
+      fetchPost();
+    }
+
+    setIsLoading(false);
+  }, []);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
 
-  return(
+  return (
     <>
     <CssBaseline/>
     <HeadBar/>
@@ -49,16 +89,19 @@ const PostPage = () => {
           borderRight: "1px solid #dbd9d9",
         }}
       >
-          <Card key={post.id} 
-            style={{ 
-              margin: "auto", 
-              width: "100%", 
-              borderRadius: 0, 
+        {(isLoading || !post) ? (
+          <Loading />
+        ) : (
+          <Card key={post.id}
+            style={{
+              margin: "auto",
+              width: "100%",
+              borderRadius: 0,
               borderLeft: 0,
               borderRight: 0,
               borderTop: 0
-            }} 
-              variant='outlined'>
+            }}
+            variant='outlined'>
             <CardHeader
               avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
               action={
@@ -70,7 +113,7 @@ const PostPage = () => {
                   onClick={event => {
                     event.stopPropagation();
                     event.preventDefault();
-                  }}    
+                  }}
                   >
                     {/* <MoreMenu
                       post={post}
@@ -86,20 +129,20 @@ const PostPage = () => {
               }
               sx = {{margin:0}}
             />
-            <CardContent 
+            <CardContent
               sx={{
-                paddingTop: 0, 
-                paddingLeft: 9, 
-                paddingBottom: 0, 
+                paddingTop: 0,
+                paddingLeft: 9,
+                paddingBottom: 0,
                 }}>
               <Typography variant="h6">{post.title}</Typography>
               <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
               {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
               <div style={{paddingBottom: 0}}>
-                <Link href={post.content} target="_blank" noWrap> 
+                <Link href={post.content} target="_blank" noWrap>
                   <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
                     {post.content}
-                  </Typography> 
+                  </Typography>
                 </Link>
                 <CardContent sx={{ padding: 0, paddingBottom:0 }}>
                   <div style={{ paddingBottom: 0 }}>
@@ -145,6 +188,7 @@ const PostPage = () => {
             )}
             </CardContent>
             </Card>
+        )}
       </Grid>
     </Grid>
     <MakePostModal
