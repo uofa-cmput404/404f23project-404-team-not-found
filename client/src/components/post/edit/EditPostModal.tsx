@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -21,7 +21,7 @@ import TextPostView from "../TextPostView";
 import ImagePostView from "../ImagePostView";
 import PostCategoriesField from "../PostCategoriesField";
 import { Post } from "../../../interfaces/interfaces";
-import { compareStringArray, isImage } from "../../../utils/postUtils";
+import { compareStringArray } from "../../../utils/postUtils";
 import { ContentType } from "../../../enums/enums";
 import { toast } from "react-toastify";
 import { getUserCredentials } from "../../../utils/localStorageUtils";
@@ -72,7 +72,6 @@ const EditPostModal = ({
 
   const handleClose = () => {
     setIsModalOpen(false);
-    onPostEdited();
   };
 
   const handleTextContent = () => {
@@ -102,7 +101,13 @@ const EditPostModal = ({
     visibility: string,
     unlisted: boolean
   ) => {
-    const payload = {
+    if (textType &&
+        contentType !== ContentType.PLAIN &&
+        contentType !== ContentType.MARKDOWN) {
+      contentType = ContentType.PLAIN
+    }
+
+    const data = {
       title: title,
       description: description,
       categories: categories,
@@ -117,7 +122,7 @@ const EditPostModal = ({
       const userCredentials = getUserCredentials();
 
       if (userCredentials.username && userCredentials.password) {
-        await axios.post(url, payload, {
+        await axios.post(url, data, {
           auth: {
             username: userCredentials.username,
             password: userCredentials.password,
@@ -131,29 +136,6 @@ const EditPostModal = ({
       toast.error("Failed to edit post");
     }
   };
-
-  const textOrImage = () => {
-    if (isImage(post)) {
-      setImageType(true);
-      setTextType(false);
-    } else {
-      setImageType(false);
-      setTextType(true);
-    }
-  };
-
-  useEffect(() => {
-    setTitle(post.title);
-    setDescription(post.description);
-    setCategories(post.categories);
-    setContent(post.content);
-    setContentType(post.contentType);
-    textOrImage();
-    setImagePrev(post.content);
-    setVisibility(post.visibility);
-    setUnlisted(post.unlisted);
-    setMarkdownCheckbox(post.contentType === ContentType.MARKDOWN);
-  }, [post]);
 
   return (
     <>
@@ -290,8 +272,6 @@ const EditPostModal = ({
                   visibility,
                   unlisted
                 );
-                setIsModalOpen(false);
-                handleTextContent();
               }}
             >
               Save

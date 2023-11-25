@@ -90,20 +90,24 @@ const MoreMenu = ({
           <ListItemText sx={{color: "#ef5350"}}>Delete</ListItemText>
         </MenuItem>
       </Menu>
-      <EditPostModal
-        isModalOpen={IsEditPostModalOpen}
-        onPostEdited={onPostEdited}
-        setIsModalOpen={setIsEditPostModalOpen}
-        post={post}
-        image={isImage(post)}
-        text={isText(post)}
-      />
-      <DeletePostModal
-        isModalOpen={IsDeletePostModalOpen}
-        deletePost={deletePost}
-        setIsModalOpen={setIsDeletePostModalOpen}
-        post={post}
-      />
+      {IsEditPostModalOpen && (
+        <EditPostModal
+          isModalOpen={IsEditPostModalOpen}
+          onPostEdited={onPostEdited}
+          setIsModalOpen={setIsEditPostModalOpen}
+          post={post}
+          image={isImage(post)}
+          text={isText(post)}
+        />
+      )}
+      {IsDeletePostModalOpen && (
+        <DeletePostModal
+          isModalOpen={IsDeletePostModalOpen}
+          deletePost={deletePost}
+          setIsModalOpen={setIsDeletePostModalOpen}
+          post={post}
+        />
+      )}
     </Grid>
   );
 }
