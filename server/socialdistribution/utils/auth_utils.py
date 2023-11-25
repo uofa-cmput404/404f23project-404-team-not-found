@@ -14,7 +14,9 @@ LOCAL_REFERERS = [
 
 
 def get_custom_authenticators(request):
-    if request.META.get("HTTP_REFERER") in LOCAL_REFERERS:
+    referer = request.META.get("HTTP_REFERER")
+
+    if any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
         return [BasicAuthentication()]  # For local node referers
     else:
         return [NodeAuthentication()]  # For remote addresses using Node model
@@ -25,7 +27,9 @@ def get_custom_permissions(request):
 
     # This code will requires basic auth on the local node referers addresses.
     # For remote addresses, do the auth based on Node model?
-    if request.META.get("HTTP_REFERER") in LOCAL_REFERERS:
+    referer = request.META.get("HTTP_REFERER")
+
+    if any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
         return [IsAuthenticated()]  # For local node referers
     else:
         return [NodeIsAuthenticated()]  # For remote addresses using Node model
