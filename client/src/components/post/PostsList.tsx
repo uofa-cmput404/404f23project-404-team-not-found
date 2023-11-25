@@ -1,7 +1,7 @@
 import React from 'react';
 import { Like, Post } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-  Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
+  Grid, Button, IconButton, CardActionArea, ButtonBase, CardActions } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
@@ -65,7 +65,8 @@ const PostsList = ({
             borderRadius: 0,
             borderLeft: 0,
             borderRight: 0,
-            borderTop: 0
+            borderTop: 0,
+            position: "relative"
           }}
           variant='outlined'
         >
@@ -82,25 +83,6 @@ const PostsList = ({
           >
             <CardHeader
               avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
-              action={
-                (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                  <ButtonBase
-                    component="span"
-                    onMouseDown={event => event.stopPropagation()}
-                    sx={{borderRadius: 100}}
-                    disableRipple
-                    onClick={event => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                    }}    
-                  >
-                    <MoreMenu
-                      post={post}
-                      deletePost={deletePost}
-                      onPostEdited={onPostEdited}
-                    />
-                  </ButtonBase>
-              )}
               title={post.author.displayName}
               subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
               `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
@@ -232,6 +214,26 @@ const PostsList = ({
               </Grid>
             </CardContent>
           </CardActionArea>
+          { 
+          (getAuthorIdFromResponse(post.author.id) === getAuthorId() && 
+          post.visibility === 'PUBLIC') && 
+          (<Grid
+            sx={{
+              position: "absolute",
+              zIndex: 1000,
+              right: 0,
+              top: 0,
+              marginRight: 1,
+              marginTop: 1
+            }}
+          >
+            <MoreMenu
+              post={post}
+              deletePost={deletePost}
+              onPostEdited={onPostEdited}
+            />
+          </Grid>)
+        }
         </Card>
       )))
       : (
