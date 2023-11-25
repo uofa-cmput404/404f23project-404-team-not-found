@@ -168,7 +168,7 @@ const PostsList = ({
             <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
               <PostCategories categories={post.categories}/>
             </CardContent>
-            <CardContent sx={{paddingTop: 0.5, paddingBottom: 0, paddingLeft: 7.5}}>
+            <CardContent sx={{paddingTop: 0.5, paddingLeft: 7.5}}>
               <Grid container
                 justifyContent="space-between"
                 paddingLeft={0.5}
