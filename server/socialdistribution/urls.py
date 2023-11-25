@@ -9,6 +9,7 @@ urlpatterns = [
     path(f"{SERVICE}authors/<uuid:author_id>/", AuthorView.as_view(), name="author"),
     path(f"{SERVICE}authors/<uuid:author_id>/posts/", PostsView.as_view(), name="posts"),
     path(f"{SERVICE}authors/<uuid:author_id>/posts/<uuid:post_id>/", PostView.as_view(), name="single_post"),
+    path(f"{SERVICE}authors/<uuid:author_id>/posts/<uuid:post_id>/image/", ImagePostView.as_view(), name="image_post"),
     path(f"{SERVICE}authors/<uuid:author_id>/followers/", FollowersView.as_view(), name="followers"),
     path(f"{SERVICE}authors/<uuid:author_id>/followers/<uuid:follower_id>/", FollowerView.as_view(), name="follower"),
     path(f"{SERVICE}authors/<uuid:author_id>/inbox/", InboxView.as_view(), name="inbox"),

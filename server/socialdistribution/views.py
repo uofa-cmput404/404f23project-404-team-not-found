@@ -306,6 +306,30 @@ class PostView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ImagePostView(APIView):
+    http_method_names = ["get"]
+
+    def get_authenticators(self):
+        return get_custom_authenticators(self.request)
+
+    def get_permissions(self):
+        return get_custom_permissions(self.request)
+
+    def get(self, request, author_id, post_id):
+        """
+        get the public image post whose id is POST_ID
+        if image, then send decoded string. Else, send 404
+        """
+        post_object = get_object_or_404(Post, id=post_id, author__id=author_id)
+
+        if is_image(post_object.contentType) and post_object.content:
+            base64_encoded = base64.b64encode(post_object.content)
+            return Response(f"data:{post_object.contentType},{base64_encoded.decode('utf-8')}")
+        else:
+            data = {"message": "Post is not an image"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+
 class InboxView(APIView):
     http_method_names = ["delete", "get", "post"]
     queryset = InboxItem.objects.all()
