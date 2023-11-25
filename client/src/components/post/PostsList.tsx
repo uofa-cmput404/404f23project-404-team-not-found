@@ -1,6 +1,6 @@
 import React from 'react';
 import { Like, Post } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton } from "@mui/material";
+import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link , Grid, Button, IconButton } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
