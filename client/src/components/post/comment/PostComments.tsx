@@ -2,18 +2,22 @@ import { Comment } from "../../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, CardMedia, Grid, Typography } from "@mui/material";
 import { formatDateTime } from "../../../utils/dateUtils";
 import MuiMarkdown from "mui-markdown";
+import CommentLikes from "../like/CommentLikes";
 
 const PostComments = ({
-  comments
+  comments,
+  postAuthorId,
+  postId
 }:{
-  comments: Comment[]
+  comments: Comment[],
+  postAuthorId: string,
+  postId: string,
 }) => {
 
   return (
     <Grid container direction="row" 
       sx={{
         width: "100%"
-
       }}
     >
       { comments.length > 0 ? (comments.map(comment => (
@@ -43,6 +47,11 @@ const PostComments = ({
                 {`${comment.comment}`}
               </MuiMarkdown>
             )}
+            <CommentLikes
+              comment={comment}
+              postAuthorId={postAuthorId}
+              postId={postId}
+            />
           </CardContent>
         </Card>
       )))
