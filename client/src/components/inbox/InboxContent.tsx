@@ -10,7 +10,7 @@ import InboxLikeItem from "./InboxLikeItem";
 import Loading from "../ui/Loading";
 import Button from "@mui/material/Button";
 import { toast } from "react-toastify";
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import ClearInboxModal from "./ClearInboxModal";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -139,7 +139,8 @@ const InboxContent = () => {
         alignItems="center"
         sx={{
           borderBottom: "1px solid #dbd9d9",
-          paddingX: 2,
+          paddingLeft: 2,
+          paddingRight: 1,
           paddingY: 1,
         }}
       >
@@ -157,10 +158,12 @@ const InboxContent = () => {
             size="small"
             sx={{
               color: "black",
-              padding: 0
+              padding: 0,
+              borderRadius: 100,
+              paddingX: 1
             }}
             onClick={openClearInboxModal}
-            endIcon={<RemoveCircleOutlineIcon />}
+            endIcon={<PlaylistRemoveIcon />}
           >
             <Typography
               variant="subtitle1"
