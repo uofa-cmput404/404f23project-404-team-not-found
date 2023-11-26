@@ -10,11 +10,13 @@ import { toast } from "react-toastify";
 
 import HeadBar from "../template/AppBar";
 import LeftNavBar from "../template/LeftNavBar";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
   const [inboxItems, setInboxItems] = useState<Post[]>([]);
 
@@ -74,6 +76,8 @@ export default function HomePage() {
 
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -133,11 +137,15 @@ export default function HomePage() {
             borderRight: "1px solid #dbd9d9",
           }}
         >
-          <PostsList
-            posts={posts}
-            deletePost={deletePost}
-            onPostEdited={fetchPosts}
-          />
+          {isLoading ? (
+            <Loading />
+          ): (
+            <PostsList
+              posts={posts}
+              deletePost={deletePost}
+              onPostEdited={fetchPosts}
+            />
+          )}
         </Grid>
         {isMakePostModalOpen && (
           <MakePostModal
