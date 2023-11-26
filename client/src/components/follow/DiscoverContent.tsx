@@ -45,13 +45,20 @@ const DiscoverContent = () => {
 
   return (
     <Grid container direction={"row"}>
-      <Grid container>
+      <Grid
+        container
+        alignItems="center"
+        sx={{
+          borderBottom: "1px solid #dbd9d9",
+          paddingX: 2,
+          paddingY: 1,
+        }}
+      >
         <Grid item xs={12} textAlign="center">
           <Typography
             variant="h6"
             sx={{
-              padding: 2,
-              borderBottom: "1px solid #dbd9d9",
+              padding: 0,
               fontWeight: "bold"
             }}
           >
