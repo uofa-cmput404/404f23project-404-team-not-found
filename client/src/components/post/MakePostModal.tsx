@@ -18,6 +18,7 @@ import PostCategoriesField from "./PostCategoriesField";
 
 import { ShareType } from "../../enums/enums";
 import { toast } from "react-toastify";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 const style = {
   display: "flex",
@@ -54,12 +55,12 @@ const MakePostModal = ({
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
 
-  const [followerIds, setFollowerIds] = useState<string[]>([]);
-  const [authorData, setauthorData] = useState<string[]>([]);
-
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
+  const [showAdditionalMenu, setShowAdditionalMenu] = useState(false);
+  const [selectedFollower, setSelectedFollower] = useState('');
+  const [followersData, setFollowersData] = useState<Author[]>([]);
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -191,6 +192,12 @@ const MakePostModal = ({
           }
         }
       }
+
+      if (visibility === 'PRIVATE') {
+        const postData = await fetchFirstPostData(getAuthorId() ?? '');
+        const selectedFollowerId = selectedFollower; 
+        await axios.post(`${selectedFollowerId}/inbox/`, postData);
+      }
       
       if (onPostCreated) {
         onPostCreated()
@@ -202,6 +209,26 @@ const MakePostModal = ({
       toast.error("Failed to create post")
     }
   };
+
+  useEffect(() => {
+    setShowAdditionalMenu(visibility === ShareType.PRIVATE);
+
+    if (visibility === ShareType.PRIVATE) {
+      const fetchFollowersData = async () => {
+        try {
+          const followerIds = await fetchFollowers(getAuthorId() ?? '');
+          const followersData = await Promise.all(
+            followerIds.map(async (followerId) => await fetchAuthorData(followerId))
+          );
+          setFollowersData(followersData);
+        } catch (error) {
+          console.error("Error fetching followers data:", error);
+        }
+      };
+
+      fetchFollowersData();
+    }
+  }, [visibility]);
 
   return (
     <>
@@ -236,6 +263,27 @@ const MakePostModal = ({
             unlisted={unlisted}
             setUnlisted={setUnlisted}
           />
+          
+          {showAdditionalMenu && visibility === ShareType.PRIVATE && (
+            <Box>
+              <FormControl fullWidth>
+                <InputLabel id="follower-selection-label">Select a Follower to send to...</InputLabel>
+                <Select
+                  labelId="follower-selection-label"
+                  id="follower-selection"
+                  value={selectedFollower}
+                  label="Select a Follower to send to..."
+                  onChange={(event: SelectChangeEvent) => setSelectedFollower(event.target.value as string)}
+                >
+                  {followersData.map((follower) => (
+                    <MenuItem key={follower.id} value={`${follower.id}`}>
+                      {follower.displayName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
           {textType &&           
             <TextPostView
               title={title}
