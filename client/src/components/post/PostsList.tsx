@@ -189,15 +189,18 @@ const PostsList = ({
                   </Tooltip>
                 </Grid>
                 <Grid item>
-                  <Tooltip title="Share" placement="bottom-end">
-                    <IconButton
-                      size="small"
-                      sx={{ marginRight: 1 }}
-                      onClick={() => handleShare(post)}
-                    >
-                      <ShareIcon fontSize="medium" />
-                    </IconButton>
-                  </Tooltip>
+                {post.visibility !== 'PRIVATE' &&
+                  !(post.visibility === 'FRIENDS' && post.contentType === 'image/png;base64') && (
+                    <Tooltip title="Share" placement="bottom-end">
+                      <IconButton
+                        size="small"
+                        sx={{ marginRight: 1 }}
+                        onClick={() => handleShare(post)}
+                      >
+                        <ShareIcon fontSize="medium" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   <SharePostModal
                     isModalOpen={isShareModalOpen}
                     setIsModalOpen={setIsShareModalOpen}
