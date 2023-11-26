@@ -1,5 +1,3 @@
-// postinboxitem.tsx
-import React from "react";
 import { Button, Grid, Typography } from "@mui/material";
 import { Card, CardHeader, Avatar } from "@mui/material";
 import { InboxItem } from "../../interfaces/interfaces";

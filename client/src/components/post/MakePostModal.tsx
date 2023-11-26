@@ -174,7 +174,6 @@ const MakePostModal = ({
       
       if (visibility === 'PUBLIC') { 
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        console.log("Post data:", postData);
 
         const inboxItemUrl = `${APP_URI}authors/`;
 

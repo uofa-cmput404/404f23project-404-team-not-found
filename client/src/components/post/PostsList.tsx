@@ -1,5 +1,4 @@
-import React from 'react';
-import { Post } from "../../interfaces/interfaces";
+import { Post, Author } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link ,Grid , Button,IconButton} from "@mui/material";
 import { theme } from "../../index";
 import { formatDateTime } from "../../utils/dateUtils";
@@ -13,10 +12,13 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import SharePostModal from './SharePostModal';
 
 import MoreMenu from './edit/MoreMenu';
 
+const APP_URI = process.env.REACT_APP_URI;
 
 const PostsList = ({
   posts, deletePost, onPostEdited
@@ -27,13 +29,46 @@ const PostsList = ({
 }) => {
 
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
-  // TODO : implement backend requests
   const [comments, setComments] = useState([]);
   const [comment, setComment] = useState("");
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharedPost, setSharedPost] = useState<Post | null>(null);
+
+
+  const useFollowers = () => {
+    const [followers, setFollowers] = useState<Author[]>([]);
+  
+    useEffect(() => {
+      const fetchFollowers = async (): Promise<void> => {
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
+  
+        try {
+          const response = await axios.get(url);
+          const followersData = response.data.items as Author[];
+          setFollowers(followersData);
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+          setFollowers([]);
+        }
+      };
+  
+      fetchFollowers();
+  
+    }, []);
+  
+    return { followers };
+  };
+
+  const { followers } = useFollowers();
+
   // TODO : implement like modal
   const handlelike = () => { };
-  // TODO : implement share modal
-  const handleShare = () => { };
+
+  const handleShare = (post: Post) => {
+    setIsShareModalOpen(true);
+    setSharedPost(post);
+  };
 
   const openMakeCommentModal = () => {
     setIsMakeCommentModalOpen(true);
@@ -155,14 +190,20 @@ const PostsList = ({
                 </Grid>
                 <Grid item>
                   <Tooltip title="Share" placement="bottom-end">
-                  <IconButton
-                    size="small"
-                    sx={{ marginRight: 1 }}
-                    onClick={handleShare}
-                  >
-                    <ShareIcon fontSize="medium" />
-                  </IconButton>
+                    <IconButton
+                      size="small"
+                      sx={{ marginRight: 1 }}
+                      onClick={() => handleShare(post)}
+                    >
+                      <ShareIcon fontSize="medium" />
+                    </IconButton>
                   </Tooltip>
+                  <SharePostModal
+                    isModalOpen={isShareModalOpen}
+                    setIsModalOpen={setIsShareModalOpen}
+                    followers={followers}
+                    post={sharedPost}
+                  />
                 </Grid>
               </Grid>
             </CardContent>
