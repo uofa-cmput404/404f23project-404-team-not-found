@@ -41,9 +41,12 @@ const InboxContent = () => {
             },
           });
           const items = response.data["items"];
-          setInboxItems(items);
+          const filteredItems = items.filter(
+            (item: any) => item !== null
+          );
+          setInboxItems(filteredItems);
 
-          const followItems = items.filter((item: any) =>
+          const followItems = filteredItems.filter((item: any) =>
             item.type === InboxItemType.FOLLOW);
           const followDataPromises = followItems.map(async (followItem: any) => {
             const authorId = getAuthorIdFromResponse(followItem.actor.id);

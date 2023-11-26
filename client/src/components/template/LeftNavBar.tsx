@@ -15,7 +15,7 @@ const LeftNavBar = ({
   page
 }:{
   openMakePostModal: () => void;
-  page: String;
+  page?: String;
 }) => {
   const navigate = useNavigate();
   const { authorId } = useParams();
