@@ -4,8 +4,7 @@ import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 import { authorsListSubheader } from "../../objects/objects";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { localAuthorHosts } from "../../lists/lists";
 
 const AuthorsList = ({
   authors,
@@ -16,7 +15,7 @@ const AuthorsList = ({
   const loggedUser = getUserData();
 
   const getSubheader = (host: string) => {
-    if (APP_URI!.includes(host)) {
+    if (localAuthorHosts.includes(host)) {
       return "Local";
     } else if (Object.keys(authorsListSubheader).includes(host)) {
       return authorsListSubheader[host];

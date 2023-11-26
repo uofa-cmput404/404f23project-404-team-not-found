@@ -30,4 +30,5 @@ export enum Username {
 
 export enum Hosts {
   CODEMONKEYS = "http://www.chimp-chat.win/",
+  NOTFOUND = "https://distributed-network-37d054f03cf4.herokuapp.com/",
 }
