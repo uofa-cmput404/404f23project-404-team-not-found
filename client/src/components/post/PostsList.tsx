@@ -32,7 +32,9 @@ const CardContentNoPadding = styled(CardContent)(`
 `);
 
 const PostsList = ({
-  posts, deletePost, onPostEdited
+  posts,
+  deletePost,
+  onPostEdited
 }: {
   posts: Post[];
   deletePost: (postId: string) => void;
