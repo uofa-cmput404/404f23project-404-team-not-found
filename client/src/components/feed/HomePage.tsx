@@ -26,16 +26,24 @@ export default function HomePage() {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
     const inboxurl = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
+    const allInboxPosts: Post[] = [];
 
     try {
       const response = await axios.get(url);
       const inboxresponse = await axios.get(inboxurl);
+
       const inboxPosts = inboxresponse.data.items.filter(
         (item: any) => item && item.type === "post"
       );
-
       const validPosts = response.data.filter((item: any) => item !== null);
-      const combinedPosts = [...inboxPosts.reverse(), ...validPosts];
+      
+      inboxPosts.forEach((item: any) => {
+        if (!allInboxPosts.some((post) => post.id === item.id)) {
+          allInboxPosts.push(item);
+        }
+      });
+
+      const combinedPosts = [...allInboxPosts, ...validPosts];
 
       setPosts(combinedPosts);
     } catch (error) {
