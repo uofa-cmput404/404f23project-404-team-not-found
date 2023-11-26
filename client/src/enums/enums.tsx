@@ -23,3 +23,11 @@ export enum ShareType {
     PUBLIC = "PUBLIC",
     UNLISTED = "UNLISTED",
 }
+
+export enum Username {
+  NOTFOUND = "node-404-team-not-found",
+}
+
+export enum Hosts {
+  CODEMONKEYS = "http://www.chimp-chat.win/",
+}
