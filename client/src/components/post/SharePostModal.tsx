@@ -23,7 +23,6 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
     try {
       if (post) {
         setSharedFollowers([...sharedFollowers, follower.id]);
-        console.log(post)
         await axios.post(`${follower.id}/inbox/`, post);
         toast.success(`Shared with ${follower.displayName} successfully!`);
         handleClose();

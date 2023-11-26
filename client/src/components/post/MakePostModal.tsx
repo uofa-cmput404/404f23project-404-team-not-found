@@ -167,10 +167,7 @@ const MakePostModal = ({
     try {
       await axios.post(url, data);
       
-      // const authorData = await fetchAuthorData(getAuthorId() ?? '');
-      // console.log("Author data:", authorData.displayName);
       const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
-      console.log("Author followers:", authorFollowers);
       
       if (visibility === 'PUBLIC') { 
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
@@ -184,7 +181,6 @@ const MakePostModal = ({
 
       if (visibility === 'FRIENDS') {
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        console.log("Post data:", postData);
 
         const inboxItemUrl = `${APP_URI}authors/`;
 
