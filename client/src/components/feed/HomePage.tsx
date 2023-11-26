@@ -22,31 +22,22 @@ export default function HomePage() {
     setIsMakePostModalOpen(true);
   };
 
-  const fetchInboxItems = async () => {
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
-
-    try {
-      const response = await axios.get(url);
-      const inboxPosts = response.data.items.filter(
-        (item: any) => item && item.type === "post"
-      );
-
-      setPosts((prevPosts) => [...inboxPosts.reverse(), ...prevPosts]);
-    } catch (error) {
-      console.error("Error fetching inbox items:", error);
-    }
-  };
-
   const fetchPosts = async () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
+    const inboxurl = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
 
     try {
       const response = await axios.get(url);
-      const validPosts = response.data.filter((item: any) => item !== null);
+      const inboxresponse = await axios.get(inboxurl);
+      const inboxPosts = inboxresponse.data.items.filter(
+        (item: any) => item && item.type === "post"
+      );
 
-      setPosts(validPosts);
+      const validPosts = response.data.filter((item: any) => item !== null);
+      const combinedPosts = [...inboxPosts.reverse(), ...validPosts];
+
+      setPosts(combinedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -68,7 +59,6 @@ export default function HomePage() {
   // https://react.dev/reference/react/useEffect
   useEffect(() => {
     fetchPosts();
-    fetchInboxItems();
   }, []);
 
   return (
