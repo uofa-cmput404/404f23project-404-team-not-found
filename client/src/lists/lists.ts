@@ -1,3 +1,5 @@
+import { Hosts } from "../enums/enums";
+
 export const remoteAuthorHosts = [
-  "http://www.chimp-chat.win/",
+  Hosts.CODEMONKEYS,
 ];

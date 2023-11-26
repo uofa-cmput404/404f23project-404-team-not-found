@@ -27,3 +27,7 @@ export enum ShareType {
 export enum Username {
   NOTFOUND = "node-404-team-not-found",
 }
+
+export enum Hosts {
+  CODEMONKEYS = "http://www.chimp-chat.win/",
+}

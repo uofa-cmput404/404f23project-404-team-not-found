@@ -23,7 +23,7 @@ import {
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from "@mui/icons-material/Edit";
-import { ImageLink } from "../../enums/enums";
+import { Hosts, ImageLink, Username } from "../../enums/enums";
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
@@ -33,6 +33,7 @@ import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import FollowAuthorButton from "./FollowAuthorButton";
 import Tooltip from "@mui/material/Tooltip";
 import ProfileTabs from "./ProfileTabs";
+import { codes } from "../../objects/objects";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -98,7 +99,16 @@ const ProfilePage = () => {
 
   const userCredentials = getUserCredentials();
 
+  const isLocal = () => {
+    return (isLoggedUser ||
+      !otherAuthorObject ||
+      APP_URI!.includes(otherAuthorObject.host));
+  }
+
   const fetchAuthor = useCallback(async () => {
+    // this is also just for local calls, see on one of the useEffects that it's called when
+    // it's from ProfilePage or if the profile being viewed is the logged in user
+    // this is also called in handleSave (which can only be done by the logged in user)
     const url = `${APP_URI}authors/${authorId}/`;
 
     try {
@@ -126,24 +136,42 @@ const ProfilePage = () => {
   };
 
   const fetchPosts = useCallback(async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/`;
+    const url = (isLocal()) ?
+      `${APP_URI}authors/${authorId}/posts/` :
+      `${otherAuthorObject.id}/posts/`;
 
     try {
-      if (userCredentials.username && userCredentials.password) {
+      if (isLocal()) {
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          setPosts(response.data);
+        }
+      } else {
         const response = await axios.get(url, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[otherAuthorObject.host],
           },
         });
-        setPosts(response.data);
+
+        if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
+          setPosts(response.data["items"]);
+        }
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
+
   }, [authorId]);
 
   const deletePost = async (postId: string) => {
+    // this should also be only for local authors, so we don't have to handle remote connections
+    // local authors can delete their own posts
     try {
       const APIurl = `${postId}/`;
       if (userCredentials.username && userCredentials.password) {
@@ -167,7 +195,7 @@ const ProfilePage = () => {
     if (isLoggedUser || !otherAuthorObject) {
       fetchAuthor();
     } else {
-      // go in here when user is navigating from the Discovery page
+      // go in here when user is navigating from the Discovery page or Inbox
       setAuthorData(otherAuthorObject);
       setUserinfo({
         displayName: otherAuthorObject.displayName,
@@ -179,6 +207,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchIsAuthorFollowingUser = async () => {
+      // this one is also for local use, it checks if the current author is following the logged in (local) use
       const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
       try {
@@ -208,6 +237,8 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
+    // Don't need to handle other remote authors here since this is only for local use
+    // This is for editing one's profile, and we can technically only edit local authors
     const url = `${APP_URI}authors/${loggedUserId}/`;
 
     const formData = new FormData();
@@ -339,6 +370,7 @@ const ProfilePage = () => {
               <Box display="flex" alignItems="center" justifyContent="center">
                 <FollowAuthorButton
                   authorId={authorId!}
+                  isLocal={isLocal()}
                   otherAuthorObject={otherAuthorObject}
                   setIsUserFollowingAuthor={setIsUserFollowingAuthor}
                   userObject={userObject}
