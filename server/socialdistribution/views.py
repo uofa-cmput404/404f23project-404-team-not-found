@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
 
 # for authentication purpose
 from .serializers import *
@@ -46,8 +47,14 @@ class AuthorsView(APIView):
         retrieve all profiles on the server (paginated)
         TODO: paginate response
         """
+
         authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True, context={"request": request})
+
+        paginator = Paginator(authors, 25)  # Show 25 contacts per page.
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        
+        serializer = AuthorSerializer(page_obj, many=True, context={"request": request})
 
         return Response(
             data={"type": "authors", "items": serializer.data},
