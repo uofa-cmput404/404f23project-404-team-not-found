@@ -46,15 +46,21 @@ class AuthorsView(APIView):
 
     def get(self, request):
         """
-        retrieve all profiles on the server (paginated)
-        TODO: paginate response
+        Retrieve all profiles on the server (paginated)
         """
         authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True, context={"request": request})
 
-        return Response(
+        # Use the pagination class to paginate the queryset
+        paginator = self.pagination_class()
+        paginated_authors = paginator.paginate_queryset(authors, request)
+
+        serializer = AuthorSerializer(
+            paginated_authors, many=True, context={"request": request}
+        )
+
+        # Return the paginated response
+        return paginator.get_paginated_response(
             data={"type": "authors", "items": serializer.data},
-            status=status.HTTP_200_OK,
         )
 
 
