@@ -412,8 +412,9 @@ const ProfilePage = () => {
             )}
           </Grid>
           <ProfileTabs
-            authorId={authorId!}
+            author={authorData!}
             deletePost={deletePost}
+            isLocal={isLocal()}
             fetchPosts={fetchPosts}
             posts={posts}
           />

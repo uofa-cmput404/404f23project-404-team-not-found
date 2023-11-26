@@ -5,8 +5,8 @@ import { Author, Post } from "../../interfaces/interfaces";
 import AuthorsList from "../author/AuthorsList";
 import PostsList from "../post/PostsList";
 import { getUserCredentials } from "../../utils/localStorageUtils";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { Username } from "../../enums/enums";
+import { codes } from "../../objects/objects";
 
 const CustomTab = styled(Tab)({
   width: "50%",
@@ -16,13 +16,15 @@ const CustomTab = styled(Tab)({
 });
 
 const ProfileTabs = ({
-  authorId,
+  author,
   deletePost,
+  isLocal,
   fetchPosts,
   posts,
 }: {
-  authorId: string;
+  author: Author;
   deletePost: (posId: string) => void;
+  isLocal: boolean;
   fetchPosts: () => void;
   posts: Post[];
 }) => {
@@ -31,31 +33,49 @@ const ProfileTabs = ({
 
   useEffect(() => {
     const fetchFollowers = async () => {
-      const url = `${APP_URI}authors/${authorId}/followers/`;
+      const url = `${author.id}/followers/`;
       const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
-        await axios
-          .get(url, {
+      try {
+        let followers: any;
+
+        if (isLocal) {
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+
+            followers = response.data["items"];
+          }
+        } else {
+          const response = await axios.get(url, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[author.host],
             },
-          })
-          .then((response: any) => {
-            setFollowers(response.data["items"]);
-          })
-          .catch((error) => {
-            console.log("Unable to fetch followers: ", error);
           });
+
+          followers = response.data["items"];
+        }
+
+        const filteredFollowers = followers.filter(
+          (follower: Author) => follower !== null
+        );
+        setFollowers(filteredFollowers);
+      } catch(error) {
+        console.error("Unable to fetch followers: ", error);
       }
     };
+
     if (tabValue === "posts") {
       fetchPosts();
     } else {
       fetchFollowers();
     }
-  }, [authorId, tabValue]);
+  }, [author, tabValue]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setTabValue(newValue);
