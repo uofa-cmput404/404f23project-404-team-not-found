@@ -2,18 +2,26 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Grid, Typography } from "@mui/material";
 import { getAuthorId, getUserData, getUserCredentials } from "../../utils/localStorageUtils";
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
 import InboxCommentItem from "./InboxCommentItem";
-import Loading from "../ui/Loading";
 import InboxLikeItem from "./InboxLikeItem";
+import Loading from "../ui/Loading";
+import Button from "@mui/material/Button";
+import { toast } from "react-toastify";
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
+import ClearInboxModal from "./ClearInboxModal";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [followData, setFollowData] = useState<any>({});
+  const [isClearInboxModalOpen, setIsClearInboxModalOpen] = useState<boolean>(false);
   const userData = getUserData();
+  const loggedUserId = getAuthorId();
 
   const removeFollowItem = (actorId: string, objectId: string) => {
     setInboxItems((currentItems) =>
@@ -37,7 +45,36 @@ const InboxContent = () => {
               password: userCredentials.password,
             },
           });
-          setInboxItems(response.data["items"]);
+          const items = response.data["items"];
+          const filteredItems = items.filter(
+            (item: any) => item !== null
+          );
+          setInboxItems(filteredItems);
+
+          const followItems = filteredItems.filter((item: any) =>
+            item.type === InboxItemType.FOLLOW);
+          const followDataPromises = followItems.map(async (followItem: any) => {
+            const authorId = getAuthorIdFromResponse(followItem.actor.id);
+            const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
+
+            try {
+              const response = await axios.get(url, {
+                auth: {
+                  username: userCredentials.username!,
+                  password: userCredentials.password!,
+                },
+              });
+
+              return { [`follow-${followItem.actor.id}-${followItem.object.id}`]: response.data.is_follower };
+            } catch (error) {
+              console.error("Error fetching follow data", error);
+              return { [`follow-${followItem.actor.id}-${followItem.object.id}`]: false };
+            }
+          });
+
+          const results = await Promise.all(followDataPromises);
+          const combinedFollowData = results.reduce((acc, data) => ({ ...acc, ...data }), {});
+          setFollowData(combinedFollowData);
         }
       } catch (error) {
         console.error("Failed to fetch inbox items: ", error);
@@ -71,20 +108,70 @@ const InboxContent = () => {
     return key;
   };
 
+  const openClearInboxModal = () => {
+    setIsClearInboxModalOpen(true);
+  };
+
+  const handleInboxClear = async () => {
+    const url = `${APP_URI}authors/${loggedUserId}/inbox/`;
+
+    try {
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.delete(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setInboxItems([]);
+      }
+    } catch (error) {
+      toast.error("Failed to clear the inbox");
+    }
+  };
+
   return (
     <Grid container direction={"row"}>
-      <Grid container>
-        <Grid item xs={12} textAlign="center">
+      <Grid
+        container
+        alignItems="center"
+        sx={{
+          borderBottom: "1px solid #dbd9d9",
+          paddingLeft: 2,
+          paddingRight: 1,
+          paddingY: 1,
+        }}
+      >
+        <Grid item xs={9} textAlign="left">
           <Typography
             variant="h6"
             sx={{
-              padding: 2,
-              borderBottom: "1px solid #dbd9d9",
               fontWeight: "bold",
-            }}
-          >
+            }}>
             Inbox
           </Typography>
+        </Grid>
+        <Grid item xs={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            size="small"
+            sx={{
+              color: "black",
+              padding: 0,
+              borderRadius: 100,
+              paddingX: 1
+            }}
+            onClick={openClearInboxModal}
+            endIcon={<PlaylistRemoveIcon />}
+          >
+            <Typography
+              variant="subtitle1"
+              textTransform="none"
+            >
+              Clear
+            </Typography>
+          </Button>
         </Grid>
       </Grid>
       {isLoading ? (
@@ -101,6 +188,7 @@ const InboxContent = () => {
                 {inboxItem.type === InboxItemType.FOLLOW && (
                   <InboxFollowItem
                     followItem={inboxItem}
+                    isFollowAccepted={followData[getInboxItemKey(inboxItem, index)]}
                     removeFollowItem={removeFollowItem}
                   />
                 )}
@@ -128,6 +216,13 @@ const InboxContent = () => {
             </Typography>
           )}
         </Grid>
+      )}
+      {isClearInboxModalOpen && (
+        <ClearInboxModal
+          isModalOpen={isClearInboxModalOpen}
+          setIsModalOpen={setIsClearInboxModalOpen}
+          clearInbox={handleInboxClear}
+        />
       )}
     </Grid>
   );

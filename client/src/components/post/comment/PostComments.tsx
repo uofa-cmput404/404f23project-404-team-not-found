@@ -47,12 +47,22 @@ const PostComments = ({
                 {`${comment.comment}`}
               </MuiMarkdown>
             )}
-            <CommentLikes
-              comment={comment}
-              postAuthorId={postAuthorId}
-              postId={postId}
-            />
+
           </CardContent>
+          <Grid container 
+            justifyContent="flex-start"
+            sx={{
+              paddingLeft: 1,
+              paddingBottom: 1,
+              paddingTop: 1
+            }}
+          >
+            <CommentLikes
+                comment={comment}
+                postAuthorId={postAuthorId}
+                postId={postId}
+              />
+          </Grid>
         </Card>
       )))
     : (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -16,52 +16,22 @@ import {
   getUserData,
 } from "../../utils/localStorageUtils";
 import { toast } from "react-toastify";
-import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const InboxFollowItem = ({
   followItem,
+  isFollowAccepted,
   removeFollowItem,
 }: {
   followItem: any;
+  isFollowAccepted: boolean;
   removeFollowItem: (actorId: string, objectId: string) => void;
 }) => {
   const navigate = useNavigate();
-  const [followAccepted, setFollowAccepted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [followAccepted, setFollowAccepted] = useState(isFollowAccepted);
   const loggedUserId = getAuthorId();
   const loggedUser = getUserData();
-
-  useEffect(() => {
-    const fetchIsUserFollowingAuthor = async () => {
-      const authorId = getAuthorIdFromResponse(followItem.actor.id);
-      const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
-
-      try {
-        const userCredentials = getUserCredentials();
-        if (userCredentials.username && userCredentials.password) {
-          const response = await axios.get(url, {
-            auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
-            },
-          });
-          setFollowAccepted(response.data.is_follower);
-        }
-      } catch (error) {
-        setFollowAccepted(false);
-        console.error(
-          "Failed to fetch if user is following the author: ",
-          error
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchIsUserFollowingAuthor();
-  }, []);
 
   const handleAuthorProfileClick = () => {
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
@@ -119,9 +89,7 @@ const InboxFollowItem = ({
     }
   };
 
-  return isLoading ? (
-    <Loading />
-  ) : (
+  return (
     <Grid
       container
       alignItems="center"
