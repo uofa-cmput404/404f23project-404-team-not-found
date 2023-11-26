@@ -7,11 +7,13 @@ import AuthorsList from "../author/AuthorsList";
 import {remoteAuthorHosts} from "../../lists/lists";
 import {codes} from "../../objects/objects";
 import {Username} from "../../enums/enums";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const loggedUserData = getUserData();
 
   useEffect(() => {
@@ -60,6 +62,7 @@ const DiscoverContent = () => {
         });
 
         setAuthors(filteredAuthors);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching authors:', error);
       }
@@ -91,24 +94,28 @@ const DiscoverContent = () => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container>
-        {authors.length > 0 ? (
-          <AuthorsList authors={authors} />
-        ) : (
-          <Typography
-            variant="h6"
-            align="center"
-            sx={{
-              marginTop: 5,
-              marginLeft: "auto",
-              marginRight: "auto",
-              color: "#858585",
-            }}
-          >
-            No authors to discover...
-          </Typography>
-        )}
-      </Grid>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Grid container>
+          {authors.length > 0 ? (
+            <AuthorsList authors={authors} />
+          ) : (
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                marginTop: 5,
+                marginLeft: "auto",
+                marginRight: "auto",
+                color: "#858585",
+              }}
+            >
+              No authors to discover...
+            </Typography>
+          )}
+        </Grid>
+      )}
     </Grid>
   );
 };
