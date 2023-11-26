@@ -6,7 +6,8 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
-from django.core.paginator import Paginator
+
+from .pagination import CustomPageNumberPagination
 
 # for authentication purpose
 from .serializers import *
@@ -35,6 +36,7 @@ from urllib.parse import urlparse
 
 class AuthorsView(APIView):
     http_method_names = ["get"]
+    pagination_class = CustomPageNumberPagination
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -47,14 +49,8 @@ class AuthorsView(APIView):
         retrieve all profiles on the server (paginated)
         TODO: paginate response
         """
-
         authors = Author.objects.all()
-
-        paginator = Paginator(authors, 25)  # Show 25 contacts per page.
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
-        
-        serializer = AuthorSerializer(page_obj, many=True, context={"request": request})
+        serializer = AuthorSerializer(authors, many=True, context={"request": request})
 
         return Response(
             data={"type": "authors", "items": serializer.data},
@@ -331,7 +327,9 @@ class ImagePostView(APIView):
 
         if is_image(post_object.contentType) and post_object.content:
             base64_encoded = base64.b64encode(post_object.content)
-            return Response(f"data:{post_object.contentType},{base64_encoded.decode('utf-8')}")
+            return Response(
+                f"data:{post_object.contentType},{base64_encoded.decode('utf-8')}"
+            )
         else:
             data = {"message": "Post is not an image"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
