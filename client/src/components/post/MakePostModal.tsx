@@ -64,6 +64,7 @@ const MakePostModal = ({
 
   const [followerIds, setFollowerIds] = useState<string[]>([]);
   const [authorData, setauthorData] = useState<string[]>([]);
+  const [responseData, setResponseData] = useState<Post[]>([]);
 
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
@@ -84,44 +85,73 @@ const MakePostModal = ({
     const postUrl = `${APP_URI}authors/${authorId}/posts/`;
   
     try {
-      const response = await axios.get<Post[]>(postUrl);
+      const userCredentials = getUserCredentials();
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get<Post[]>(postUrl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
   
-      if (response.data.length > 0) {
-        return response.data[0];
-      } else {
-        return null;
+        if (response.data.length > 0) {
+          return response.data[0];
+        } else {
+          return null;
+        }
       }
     } catch (error) {
       throw new Error("Failed to fetch post data");
-    }
+    } return null;
   };
   
   const fetchAuthorData = async (authorId: string): Promise<Author> => {
     const authorUrl = `${APP_URI}authors/${authorId}/`;
   
     try {
-      const response = await axios.get<Author>(authorUrl);
-      return response.data;
+      const userCredentials = getUserCredentials();
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get<Author>(authorUrl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+  
+        return response.data;
+      }
     } catch (error) {
       throw new Error("Failed to fetch author data");
     }
+    return {} as Author;
   };
 
   const fetchFollowers = async (authorId: string): Promise<string[]> => {
     const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
   
     try {
-      const response = await axios.get<{ items: Follower[] }>(followersUrl);
+      const userCredentials = getUserCredentials();
+
+    if (userCredentials.username && userCredentials.password) {
+      const response = await axios.get<{ items: Follower[] }>(followersUrl, {
+        auth: {
+          username: userCredentials.username,
+          password: userCredentials.password,
+        },
+      });
+
       const followerIds = response.data.items.map((follower) => {
         const parts = follower.id.split('/');
         return parts[parts.length - 1];
       });
-  
+
       return followerIds;
+    }
     } catch (error) {
       console.error("Error fetching followers:", error);
       throw new Error("Failed to fetch followers");
     }
+    return [] as string[];
   };
 
   const handleTextContent = () => {
@@ -178,33 +208,52 @@ const MakePostModal = ({
       const userCredentials = getUserCredentials();
 
       if (userCredentials.username && userCredentials.password) {
-        await axios.post(url, data, {
+        const response = await axios.post(url, data, {
           auth: {
             username: userCredentials.username,
             password: userCredentials.password,
           },
         });
+        setResponseData(response.data);
       }
+
+      console.log(responseData);
 
       const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
       
       if (visibility === 'PUBLIC') { 
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
+        const userCredentials = getUserCredentials();
 
         const inboxItemUrl = `${APP_URI}authors/`;
 
         for (const followerId of authorFollowers) {
-          await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+          if (userCredentials.username && userCredentials.password) {
+            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+          }
         }
       } else if (visibility === 'FRIENDS') {
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
+        const userCredentials = getUserCredentials();
 
         const inboxItemUrl = `${APP_URI}authors/`;
 
         for (const followerId of authorFollowers) {
           const followerFollowers = await fetchFollowers(followerId ?? '');
           if (followerFollowers.includes(getAuthorId() ?? '')) {
-            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+            if (userCredentials.username && userCredentials.password) {
+              await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+                auth: {
+                  username: userCredentials.username,
+                  password: userCredentials.password,
+                },
+              });
+            }
           }
         }
       }

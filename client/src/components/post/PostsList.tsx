@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SharePostModal from './SharePostModal';
+import { getUserCredentials } from '../../utils/localStorageUtils';
 
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
@@ -53,9 +54,17 @@ const PostsList = ({
         const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
   
         try {
-          const response = await axios.get(url);
-          const followersData = response.data.items as Author[];
-          setFollowers(followersData);
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+            const followersData = response.data.items as Author[];
+            setFollowers(followersData);
+          }
         } catch (error) {
           console.error('Error fetching followers:', error);
           setFollowers([]);
