@@ -498,11 +498,13 @@ const ProfilePage = () => {
               </Button>
             </Box>
           </Modal>
-          <MakePostModal
-            isModalOpen={isMakePostModalOpen}
-            onPostCreated={fetchPosts}
-            setIsModalOpen={setIsMakePostModalOpen}
-          />
+          {isMakePostModalOpen && (
+            <MakePostModal
+              isModalOpen={isMakePostModalOpen}
+              onPostCreated={fetchPosts}
+              setIsModalOpen={setIsMakePostModalOpen}
+            />
+          )}
         </div>
       </Grid>
     </>

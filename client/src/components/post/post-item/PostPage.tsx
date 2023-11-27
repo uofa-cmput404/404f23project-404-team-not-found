@@ -404,10 +404,12 @@ const PostPage = () => {
           </Grid>
       )}
     </Grid>
-    <MakePostModal
+    {isMakePostModalOpen && (
+      <MakePostModal
         isModalOpen={isMakePostModalOpen}
         setIsModalOpen={setIsMakePostModalOpen}
-    />
+      />
+    )}
   </>
   );
 };
