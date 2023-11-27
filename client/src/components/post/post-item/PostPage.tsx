@@ -10,7 +10,7 @@ import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/loc
 import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
-import { Post, Comment } from "../../../interfaces/interfaces";
+import { Post, Comment, Author } from "../../../interfaces/interfaces";
 import axios from "axios";
 import PostComments from "../comment/PostComments";
 import Loading from "../../ui/Loading";
@@ -22,6 +22,7 @@ import styled from "@emotion/styled";
 import SendIcon from "@mui/icons-material/Send";
 import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
+import SharePostModal from "../SharePostModal";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -43,6 +44,9 @@ const PostPage = () => {
   const userData = getUserData();
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharedPost, setSharedPost] = useState<Post | null>(null);
 
   const fetchPost = async () => {
     const url = `${APP_URI}authors/${authorId}/posts/${postId}/`;
@@ -190,6 +194,45 @@ const PostPage = () => {
     }
   };
 
+  const useFollowers = () => {
+    const [followers, setFollowers] = useState<Author[]>([]);
+  
+    useEffect(() => {
+      const fetchFollowers = async (): Promise<void> => {
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
+  
+        try {
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+            const followersData = response.data.items as Author[];
+            setFollowers(followersData);
+          }
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+          setFollowers([]);
+        }
+      };
+  
+      fetchFollowers();
+  
+    }, []);
+  
+    return { followers };
+  };
+
+  const { followers } = useFollowers();
+
+  const handleShare = (post: Post) => {
+    setIsShareModalOpen(true);
+    setSharedPost(post);
+  };
 
   return (
     <>
@@ -348,6 +391,9 @@ const PostPage = () => {
                   <IconButton
                     size="small"
                     sx={{ marginRight: 1 }}
+                    onClick={() => {
+                      handleShare(post);
+                    }}
                   >
                     <ShareIcon fontSize="medium" />
                   </IconButton>
@@ -410,6 +456,14 @@ const PostPage = () => {
         setIsModalOpen={setIsMakePostModalOpen}
       />
     )}
+    { isShareModalOpen && 
+      <SharePostModal
+        isModalOpen={isShareModalOpen}
+        setIsModalOpen={setIsShareModalOpen}
+        followers={followers}
+        post={sharedPost!}
+      />
+    }
   </>
   );
 };
