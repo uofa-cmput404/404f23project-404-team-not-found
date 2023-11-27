@@ -9,7 +9,6 @@ from socialdistribution.auth.node_authentication import (
 # TODO: Update this with our local address
 LOCAL_REFERERS = [
     "https://distributed-network-37d054f03cf4.herokuapp.com/",
-    "http://127.0.0.1:8000/"
 ]
 
 
