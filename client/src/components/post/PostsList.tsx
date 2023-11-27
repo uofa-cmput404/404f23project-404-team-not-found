@@ -1,8 +1,7 @@
 import React from 'react';
-import { Like, Post, Author } from "../../interfaces/interfaces";
+import { Post, Author } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-  Grid, Button, IconButton, CardActionArea, ButtonBase, CardActions } from "@mui/material";
-import { theme } from "../../index";
+  Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';

@@ -13,10 +13,10 @@ import {
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
-import NotesIcon from '@mui/icons-material/Notes';
-import ImageIcon from '@mui/icons-material/Image';
-import SendIcon from '@mui/icons-material/Send';
-import { Follower, Author, Post } from "../../interfaces/interfaces";
+import NotesIcon from "@mui/icons-material/Notes";
+import ImageIcon from "@mui/icons-material/Image";
+import SendIcon from "@mui/icons-material/Send";
+import { Follower, Post } from "../../interfaces/interfaces";
 import axios from "axios";
 
 import VisibilityMenu from "./VisibilityMenu";
@@ -24,7 +24,7 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ShareType } from "../../enums/enums";
+import { ShareType, ToastMessages } from "../../enums/enums";
 import { toast } from "react-toastify";
 
 const style = {
@@ -81,72 +81,27 @@ const MakePostModal = ({
     setDescription("");
   };
 
-  const fetchFirstPostData = async (authorId: string): Promise<Post | null> => {
-    const postUrl = `${APP_URI}authors/${authorId}/posts/`;
-  
-    try {
-      const userCredentials = getUserCredentials();
-      if (userCredentials.username && userCredentials.password) {
-        const response = await axios.get<Post[]>(postUrl, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        });
-  
-        if (response.data.length > 0) {
-          return response.data[0];
-        } else {
-          return null;
-        }
-      }
-    } catch (error) {
-      throw new Error("Failed to fetch post data");
-    } return null;
-  };
-  
-  const fetchAuthorData = async (authorId: string): Promise<Author> => {
-    const authorUrl = `${APP_URI}authors/${authorId}/`;
-  
-    try {
-      const userCredentials = getUserCredentials();
-      if (userCredentials.username && userCredentials.password) {
-        const response = await axios.get<Author>(authorUrl, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        });
-  
-        return response.data;
-      }
-    } catch (error) {
-      throw new Error("Failed to fetch author data");
-    }
-    return {} as Author;
-  };
-
   const fetchFollowers = async (authorId: string): Promise<string[]> => {
     const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
   
     try {
       const userCredentials = getUserCredentials();
 
-    if (userCredentials.username && userCredentials.password) {
-      const response = await axios.get<{ items: Follower[] }>(followersUrl, {
-        auth: {
-          username: userCredentials.username,
-          password: userCredentials.password,
-        },
-      });
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get<{ items: Follower[] }>(followersUrl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
 
-      const followerIds = response.data.items.map((follower) => {
-        const parts = follower.id.split('/');
-        return parts[parts.length - 1];
-      });
+        const followerIds = response.data.items.map((follower) => {
+          const parts = follower.id.split('/');
+          return parts[parts.length - 1];
+        });
 
-      return followerIds;
-    }
+        return followerIds;
+      }
     } catch (error) {
       console.error("Error fetching followers:", error);
       throw new Error("Failed to fetch followers");
@@ -214,21 +169,15 @@ const MakePostModal = ({
             password: userCredentials.password,
           },
         });
-        setResponseData(response.data);
-      }
 
-      console.log(responseData);
-
-      const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
-      
-      if (visibility === 'PUBLIC') { 
-        const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        const userCredentials = getUserCredentials();
-
+        const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
+        const postData = response.data;
         const inboxItemUrl = `${APP_URI}authors/`;
 
-        for (const followerId of authorFollowers) {
-          if (userCredentials.username && userCredentials.password) {
+        if (visibility === "PUBLIC") {
+          const inboxItemUrl = `${APP_URI}authors/`;
+
+          for (const followerId of authorFollowers) {
             await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
               auth: {
                 username: userCredentials.username,
@@ -236,30 +185,27 @@ const MakePostModal = ({
               },
             });
           }
-        }
-      } else if (visibility === 'FRIENDS') {
-        const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        const userCredentials = getUserCredentials();
-
-        const inboxItemUrl = `${APP_URI}authors/`;
-
-        for (const followerId of authorFollowers) {
-          const followerFollowers = await fetchFollowers(followerId ?? '');
-          if (followerFollowers.includes(getAuthorId() ?? '')) {
-            if (userCredentials.username && userCredentials.password) {
-              await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
-                auth: {
-                  username: userCredentials.username,
-                  password: userCredentials.password,
-                },
-              });
+        } else if (visibility === "FRIENDS") {
+          for (const followerId of authorFollowers) {
+            const followerFollowers = await fetchFollowers(followerId ?? '');
+            if (followerFollowers.includes(getAuthorId() ?? '')) {
+              if (userCredentials.username && userCredentials.password) {
+                await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+                  auth: {
+                    username: userCredentials.username,
+                    password: userCredentials.password,
+                  },
+                });
+              }
             }
           }
         }
-      }
-      
-      if (onPostCreated) {
-        onPostCreated()
+
+        if (onPostCreated) {
+          onPostCreated()
+        }
+      } else {
+        toast.error(ToastMessages.NOUSERCREDS)
       }
       
       handleClose();
