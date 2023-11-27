@@ -25,6 +25,8 @@ export default function HomePage() {
   };
 
   const fetchPosts = async () => {
+    // this should also be local use only since it's getting posts of the logged-in user
+    // and all the posts sent to the inbox
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
     const inboxurl = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
@@ -82,6 +84,7 @@ export default function HomePage() {
   };
 
   const deletePost = async (postId: string) => {
+    // this is local use only for the logged-in user
     try {
       const userCredentials = getUserCredentials();
 

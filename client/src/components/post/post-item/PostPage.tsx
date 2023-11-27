@@ -120,6 +120,8 @@ const PostPage = () => {
           });
 
           setComments(response.data["comments"]);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
         const response = await axios.get(url, {
@@ -198,7 +200,6 @@ const PostPage = () => {
             },
           });
 
-          handleClear();
           post.count = post.count + 1;
           await fetchComments(post.id, post.author.id);
           if (loggedUserId !== authorId) {
@@ -215,11 +216,12 @@ const PostPage = () => {
           },
         });
 
-        handleClear();
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.id);
         await sendCommentToInbox(comment, contentType, response.data["id"]);
       }
+
+      handleClear();
     } catch (error) {
       toast.error("Error posting comment");
     }
@@ -541,7 +543,6 @@ const PostPage = () => {
             <Grid>
               <PostComments
                 comments={comments}
-                postAuthorId={authorId!}
                 postId={postId!}
               />
             </Grid>

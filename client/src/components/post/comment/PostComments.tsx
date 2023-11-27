@@ -6,11 +6,9 @@ import CommentLikes from "../like/CommentLikes";
 
 const PostComments = ({
   comments,
-  postAuthorId,
   postId
 }:{
   comments: Comment[],
-  postAuthorId: string,
   postId: string,
 }) => {
 
