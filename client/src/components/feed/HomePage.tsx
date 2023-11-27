@@ -68,7 +68,6 @@ export default function HomePage() {
           return dateB - dateA; 
         });
 
-        console.log(combinedPosts);
         
         setPosts(combinedPosts);
       }
