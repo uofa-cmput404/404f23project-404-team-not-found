@@ -132,8 +132,9 @@ const PostsList = ({
             <CardHeader
               avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
               title={post.author.displayName}
-              subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-              `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
+              subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
+                `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
+                `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
               }
               sx = {{margin:0}}
             />
