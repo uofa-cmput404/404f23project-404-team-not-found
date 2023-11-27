@@ -390,7 +390,7 @@ class InboxView(APIView):
         author_object = get_object_or_404(Author, id=author_id)
         inbox_object = get_object_or_404(Inbox, author=author_object)
 
-        inbox_items = InboxItem.objects.filter(inbox=inbox_object)
+        inbox_items = InboxItem.objects.filter(inbox=inbox_object).order_by("-id")
 
         paginator = self.pagination_class()
         paginated_items = paginator.paginate_queryset(inbox_items, request)
