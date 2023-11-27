@@ -1,5 +1,3 @@
-// postinboxitem.tsx
-import React from "react";
 import { Button, Grid, Typography } from "@mui/material";
 import { Card, CardHeader, Avatar } from "@mui/material";
 import { InboxItem } from "../../interfaces/interfaces";
@@ -7,7 +5,7 @@ import { InboxItem } from "../../interfaces/interfaces";
 const PostInboxItem = ({ inboxItem }: { inboxItem: InboxItem }) => {
 
 return (
-    <Grid container alignItems="center">
+    <Grid container alignItems="center" sx={{ borderBottom: "1px solid #dbd9d9" }}>
         <Grid item xs={6}>
             <Card
             style={{

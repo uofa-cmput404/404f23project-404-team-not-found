@@ -1,14 +1,22 @@
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
+import React, { useState } from "react";
 
-import { getAuthorId } from "../../utils/localStorageUtils";
-import React, { useCallback, useEffect, useState } from "react";
-
-import { Modal, Box, Button, IconButton, Grid, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  Modal,
+  Box,
+  Button,
+  IconButton,
+  Grid,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
-import NotesIcon from '@mui/icons-material/Notes';
-import ImageIcon from '@mui/icons-material/Image';
-import SendIcon from '@mui/icons-material/Send';
-import { Follower, Author, Post } from "../../interfaces/interfaces";
+import NotesIcon from "@mui/icons-material/Notes";
+import ImageIcon from "@mui/icons-material/Image";
+import SendIcon from "@mui/icons-material/Send";
+import { Follower, Post } from "../../interfaces/interfaces";
 import axios from "axios";
 
 import VisibilityMenu from "./VisibilityMenu";
@@ -16,7 +24,7 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ShareType } from "../../enums/enums";
+import { ShareType, ToastMessages } from "../../enums/enums";
 import { toast } from "react-toastify";
 
 const style = {
@@ -56,6 +64,7 @@ const MakePostModal = ({
 
   const [followerIds, setFollowerIds] = useState<string[]>([]);
   const [authorData, setauthorData] = useState<string[]>([]);
+  const [responseData, setResponseData] = useState<Post[]>([]);
 
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
@@ -72,48 +81,32 @@ const MakePostModal = ({
     setDescription("");
   };
 
-  const fetchFirstPostData = async (authorId: string): Promise<Post | null> => {
-    const postUrl = `${APP_URI}authors/${authorId}/posts/`;
-  
-    try {
-      const response = await axios.get<Post[]>(postUrl);
-  
-      if (response.data.length > 0) {
-        return response.data[0];
-      } else {
-        return null;
-      }
-    } catch (error) {
-      throw new Error("Failed to fetch post data");
-    }
-  };
-  
-  const fetchAuthorData = async (authorId: string): Promise<Author> => {
-    const authorUrl = `${APP_URI}authors/${authorId}/`;
-  
-    try {
-      const response = await axios.get<Author>(authorUrl);
-      return response.data;
-    } catch (error) {
-      throw new Error("Failed to fetch author data");
-    }
-  };
-
   const fetchFollowers = async (authorId: string): Promise<string[]> => {
     const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
   
     try {
-      const response = await axios.get<{ items: Follower[] }>(followersUrl);
-      const followerIds = response.data.items.map((follower) => {
-        const parts = follower.id.split('/');
-        return parts[parts.length - 1];
-      });
-  
-      return followerIds;
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get<{ items: Follower[] }>(followersUrl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+
+        const followerIds = response.data.items.map((follower) => {
+          const parts = follower.id.split('/');
+          return parts[parts.length - 1];
+        });
+
+        return followerIds;
+      }
     } catch (error) {
       console.error("Error fetching followers:", error);
       throw new Error("Failed to fetch followers");
     }
+    return [] as string[];
   };
 
   const handleTextContent = () => {
@@ -125,7 +118,7 @@ const MakePostModal = ({
       setImagePrev("");
       setMarkdownCheckbox(false);
     }
-  }
+  };
 
   const handleImageContent = () => {
     // reset some vars when switching between text -> image
@@ -135,9 +128,11 @@ const MakePostModal = ({
       setMarkdownCheckbox(false);
       setContent("");
     }
-  }
+  };
 
-  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMarkdownContent = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType("text/markdown");
     else setContentType("text/plain");
@@ -150,7 +145,7 @@ const MakePostModal = ({
     content: string,
     contentType: string,
     visibility: string,
-    unlisted: boolean,
+    unlisted: boolean
   ) => {
     const data = {
       title: title,
@@ -165,46 +160,58 @@ const MakePostModal = ({
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
-      await axios.post(url, data);
-      
-      // const authorData = await fetchAuthorData(getAuthorId() ?? '');
-      // console.log("Author data:", authorData.displayName);
-      const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
-      console.log("Author followers:", authorFollowers);
-      
-      if (visibility === 'PUBLIC') { 
-        const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        console.log("Post data:", postData);
+      const userCredentials = getUserCredentials();
 
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.post(url, data, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+
+        const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
+        const postData = response.data;
         const inboxItemUrl = `${APP_URI}authors/`;
 
-        for (const followerId of authorFollowers) {
-          await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
-        }
-      }
+        if (visibility === "PUBLIC") {
+          const inboxItemUrl = `${APP_URI}authors/`;
 
-      if (visibility === 'FRIENDS') {
-        const postData = await fetchFirstPostData(getAuthorId() ?? '');
-        console.log("Post data:", postData);
-
-        const inboxItemUrl = `${APP_URI}authors/`;
-
-        for (const followerId of authorFollowers) {
-          const followerFollowers = await fetchFollowers(followerId ?? '');
-          if (followerFollowers.includes(getAuthorId() ?? '')) {
-            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
+          for (const followerId of authorFollowers) {
+            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+          }
+        } else if (visibility === "FRIENDS") {
+          for (const followerId of authorFollowers) {
+            const followerFollowers = await fetchFollowers(followerId ?? '');
+            if (followerFollowers.includes(getAuthorId() ?? '')) {
+              if (userCredentials.username && userCredentials.password) {
+                await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+                  auth: {
+                    username: userCredentials.username,
+                    password: userCredentials.password,
+                  },
+                });
+              }
+            }
           }
         }
-      }
-      
-      if (onPostCreated) {
-        onPostCreated()
+
+        if (onPostCreated) {
+          onPostCreated()
+        }
+      } else {
+        toast.error(ToastMessages.NOUSERCREDS)
       }
       
       handleClose();
 
     } catch (error) {
-      toast.error("Failed to create post")
+      toast.error("Failed to create post");
     }
   };
 
@@ -226,12 +233,9 @@ const MakePostModal = ({
               </IconButton>
             </Grid>
             <Grid item xs={6} textAlign="center">
-                <Typography 
-                  variant="h6"
-                  sx={{paddingTop:0.2}}
-                >
-                  Create a Post 
-                </Typography>
+              <Typography variant="h6" sx={{ paddingTop: 0.2 }}>
+                Create a Post
+              </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
           </Grid>
@@ -241,7 +245,7 @@ const MakePostModal = ({
             unlisted={unlisted}
             setUnlisted={setUnlisted}
           />
-          {textType &&           
+          {textType && (
             <TextPostView
               title={title}
               setTitle={setTitle}
@@ -252,8 +256,8 @@ const MakePostModal = ({
               contentType={contentType}
               setContentType={setContentType}
             />
-          }
-          {imageType && 
+          )}
+          {imageType && (
             <ImagePostView
               title={title}
               setTitle={setTitle}
@@ -266,34 +270,43 @@ const MakePostModal = ({
               imagePrev={imagePrev}
               setImagePrev={setImagePrev}
             />
-          }
+          )}
           <Grid container>
-            <PostCategoriesField categories={categories} setCategories={setCategories} />
+            <PostCategoriesField
+              categories={categories}
+              setCategories={setCategories}
+            />
           </Grid>
-          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
+          <Grid
+            container
+            spacing={0}
+            alignItems="center"
+            justifyContent="flex-end"
+            paddingLeft={0.5}
+          >
             <Grid item>
-              <IconButton 
-              color={textType ? "info" : "default"}
-              id="txt"
-              size="small"
-              onClick={handleTextContent}
+              <IconButton
+                color={textType ? "info" : "default"}
+                id="txt"
+                size="small"
+                onClick={handleTextContent}
               >
-                <NotesIcon fontSize="medium"/> 
+                <NotesIcon fontSize="medium" />
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton 
-              color={imageType ? "info" : "default"}
-              size="small"
-              sx={{marginRight: 1}}
-              onClick={() => {
-                handleImageContent();
-              }}
-              > 
-                <ImageIcon fontSize="medium"/> 
+              <IconButton
+                color={imageType ? "info" : "default"}
+                size="small"
+                sx={{ marginRight: 1 }}
+                onClick={() => {
+                  handleImageContent();
+                }}
+              >
+                <ImageIcon fontSize="medium" />
               </IconButton>
             </Grid>
-            {textType &&
+            {textType && (
               <Grid item>
                 <FormControlLabel
                   control={
@@ -305,11 +318,11 @@ const MakePostModal = ({
                   label="Markdown"
                 />
               </Grid>
-            }
+            )}
             <Button
               variant="contained"
               color="primary"
-              disabled={content === "" || title === "" || description === ""} 
+              disabled={content === "" || title === "" || description === ""}
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -331,8 +344,8 @@ const MakePostModal = ({
                 );
                 setIsModalOpen(false);
               }}
-              endIcon={<SendIcon/>}
-              >
+              endIcon={<SendIcon />}
+            >
               Post
             </Button>
           </Grid>
