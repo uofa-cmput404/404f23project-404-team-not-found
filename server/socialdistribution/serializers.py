@@ -127,6 +127,7 @@ class PostSerializer(serializers.ModelSerializer):
 class InboxItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = InboxItem
+        fields = "__all__"
 
     # Michael Van De Waeter, handling polymorhic types, October 23, 2023
     # https://stackoverflow.com/questions/19976202/django-rest-framework-django-polymorphic-modelserialization

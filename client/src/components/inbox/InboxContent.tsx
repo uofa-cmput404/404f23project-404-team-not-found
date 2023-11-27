@@ -5,6 +5,7 @@ import { getAuthorId, getUserData, getUserCredentials } from "../../utils/localS
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
+import PostInboxItem from "./PostInboxItem";
 import InboxCommentItem from "./InboxCommentItem";
 import InboxLikeItem from "./InboxLikeItem";
 import Loading from "../ui/Loading";
@@ -198,6 +199,11 @@ const InboxContent = () => {
                 {inboxItem.type === InboxItemType.LIKE
                   && inboxItem.author.id !== userData.id && (
                   <InboxLikeItem likeItem={inboxItem} />
+                )}
+                {inboxItem.type === InboxItemType.POST && (
+                  <>
+                  <PostInboxItem inboxItem={inboxItem} />
+                  </>
                 )}
               </Grid>
             ))

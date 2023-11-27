@@ -44,10 +44,12 @@ const InboxPage = () => {
         <InboxContent/>
       </Grid>
     </Grid>
-    <MakePostModal
+    {isMakePostModalOpen && (
+      <MakePostModal
         isModalOpen={isMakePostModalOpen}
         setIsModalOpen={setIsMakePostModalOpen}
-    />
+      />
+    )}
   </>
   );
 };

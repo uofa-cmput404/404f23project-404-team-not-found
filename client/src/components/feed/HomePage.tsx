@@ -104,11 +104,13 @@ export default function HomePage() {
             onPostEdited={fetchPosts}
           />
         </Grid>
-        <MakePostModal
-          isModalOpen={isMakePostModalOpen}
-          onPostCreated={fetchPosts}
-          setIsModalOpen={setIsMakePostModalOpen}
-        />
+        {isMakePostModalOpen && (
+          <MakePostModal
+            isModalOpen={isMakePostModalOpen}
+            onPostCreated={fetchPosts}
+            setIsModalOpen={setIsMakePostModalOpen}
+          />
+        )}
       </Grid>
     </>
   );
