@@ -242,20 +242,30 @@ const PostsList = ({
                   </Tooltip>
                 </Grid>
                 <Grid item xs={4} container justifyContent="flex-end">
-                  <Tooltip title="Share" placement="bottom-end">
-                  <IconButton
-                    size="small"
-                    sx={{ marginRight: 1 }}
-                    onMouseDown={event => event.stopPropagation()}
-                    onClick={event => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      handleShare(post);
-                    }}
-                  >
-                    <ShareIcon fontSize="medium" />
-                  </IconButton>
-                  </Tooltip>
+                {post.visibility !== 'PRIVATE' &&
+                  !(post.visibility === 'FRIENDS' && post.contentType === 'image/png;base64') && (
+                    <Tooltip title="Share" placement="bottom-end">
+                    <IconButton
+                      size="small"
+                      sx={{ marginRight: 1 }}
+                      onMouseDown={event => event.stopPropagation()}
+                      onClick={event => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleShare(post);
+                      }}
+                    >
+                      <ShareIcon fontSize="medium" />
+                    </IconButton>
+                    </Tooltip>
+                  )}
+
+                  <SharePostModal
+                    isModalOpen={isShareModalOpen}
+                    setIsModalOpen={setIsShareModalOpen}
+                    followers={followers}
+                    post={sharedPost}
+                  />
                 </Grid>
               </Grid>
             </CardContent>
@@ -300,15 +310,6 @@ const PostsList = ({
           setIsCModalOpen={setIsMakeCommentModalOpen}
         />
       }
-      {isShareModalOpen &&
-        <SharePostModal
-          isModalOpen={isShareModalOpen}
-          setIsModalOpen={setIsShareModalOpen}
-          followers={followers}
-          post={sharedPost!}
-        />
-      }
-
     </Grid>
   );
 };
