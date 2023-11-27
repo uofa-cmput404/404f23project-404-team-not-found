@@ -19,7 +19,6 @@ import {
   storeUserCredentials,
 } from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
-import { Password } from "@mui/icons-material";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -67,7 +66,7 @@ const Login = () => {
           });
       })
       .catch((error) => {
-        toast.error("Wrong password or user does not exist");
+        toast.error(error.response.data.message);
       });
     return;
   };

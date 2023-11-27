@@ -390,7 +390,7 @@ class InboxView(APIView):
         author_object = get_object_or_404(Author, id=author_id)
         inbox_object = get_object_or_404(Inbox, author=author_object)
 
-        inbox_items = InboxItem.objects.filter(inbox=inbox_object)
+        inbox_items = InboxItem.objects.filter(inbox=inbox_object).order_by("-id")
 
         paginator = self.pagination_class()
         paginated_items = paginator.paginate_queryset(inbox_items, request)
@@ -403,8 +403,8 @@ class InboxView(APIView):
                 "type": "inbox",
                 "items": serializer.data,
                 # TODO: The serializer for inbox is implemented differently for InboxSerializer and InboxItemSerializer,
-                # so I had to get the author url in a not very nice way ... 
-                "author": reverse('author', args=[author_object.id], request=request),
+                # so I had to get the author url in a not very nice way ...
+                "author": reverse("author", args=[author_object.id], request=request),
             },
         )
 
@@ -531,20 +531,28 @@ class LoginView(APIView):
 
         try:
             user = User.objects.get(username=username)
-            success = user.check_password(password)
 
-            # on success login check
-            if success:
-                # create token
-                token, created = Token.objects.get_or_create(user=user)
-                matching_author = Author.objects.get(user=user)
+            # only allow active user
+            if user.is_active:
+                success = user.check_password(password)
 
-                data = {"token": token.key, "author_id": matching_author.id}
-                return Response(data, status=status.HTTP_201_CREATED)
-            # on wrong password
+                # on success login check
+                if success:
+                    # create token
+                    token, created = Token.objects.get_or_create(user=user)
+                    matching_author = Author.objects.get(user=user)
+
+                    data = {"token": token.key, "author_id": matching_author.id}
+                    return Response(data, status=status.HTTP_201_CREATED)
+                # on wrong password
+                else:
+                    data = {"message": "Wrong password"}
+                    return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+            
+            # if not activated yet, return 403
             else:
-                data = {"message": "Wrong password"}
-                return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+                data = {"message": "User is not activated yet"}
+                return Response(data, status=status.HTTP_403_FORBIDDEN)
 
         except User.DoesNotExist:
             data = {"message": "User not found"}
@@ -573,6 +581,11 @@ class SignUpView(APIView):
             user_object = User.objects.create_user(
                 username=username, email=email, password=password
             )
+
+            # User `is_active` is set to False for newly created user
+            user_object.is_active = False
+            user_object.save()
+
             author_object = create_author(author_data, request, user_object)
             author_data["host"] = author_object.host
             author_data["url"] = author_object.url

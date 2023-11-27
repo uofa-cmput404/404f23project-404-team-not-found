@@ -256,12 +256,6 @@ const PostsList = ({
                     <ShareIcon fontSize="medium" />
                   </IconButton>
                   </Tooltip>
-                  <SharePostModal
-                    isModalOpen={isShareModalOpen}
-                    setIsModalOpen={setIsShareModalOpen}
-                    followers={followers}
-                    post={sharedPost}
-                  />
                 </Grid>
               </Grid>
             </CardContent>
@@ -306,6 +300,15 @@ const PostsList = ({
           setIsCModalOpen={setIsMakeCommentModalOpen}
         />
       }
+      {isShareModalOpen &&
+        <SharePostModal
+          isModalOpen={isShareModalOpen}
+          setIsModalOpen={setIsShareModalOpen}
+          followers={followers}
+          post={sharedPost!}
+        />
+      }
+
     </Grid>
   );
 };

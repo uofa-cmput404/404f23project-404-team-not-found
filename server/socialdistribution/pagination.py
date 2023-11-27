@@ -6,7 +6,7 @@ from rest_framework import status
 class CustomPageNumberPagination(pagination.PageNumberPagination):
     # page_size is default page size
     # max_page_size does not allow user to request the page unreasonably big
-    page_size = 10
+    page_size = 1000
     page_size_query_param = "size"
     max_page_size = 1000
     page_query_param = "page"
