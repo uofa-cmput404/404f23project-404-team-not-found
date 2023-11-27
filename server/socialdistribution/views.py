@@ -6,6 +6,10 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.reverse import reverse
+
+
+from .pagination import CustomPageNumberPagination
 
 # for authentication purpose
 from .serializers import *
@@ -34,6 +38,7 @@ from urllib.parse import urlparse
 
 class AuthorsView(APIView):
     http_method_names = ["get"]
+    pagination_class = CustomPageNumberPagination
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -43,15 +48,21 @@ class AuthorsView(APIView):
 
     def get(self, request):
         """
-        retrieve all profiles on the server (paginated)
-        TODO: paginate response
+        Retrieve all profiles on the server (paginated)
         """
         authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True, context={"request": request})
 
-        return Response(
+        # Use the pagination class to paginate the queryset
+        paginator = self.pagination_class()
+        paginated_authors = paginator.paginate_queryset(authors, request)
+
+        serializer = AuthorSerializer(
+            paginated_authors, many=True, context={"request": request}
+        )
+
+        # Return the paginated response
+        return paginator.get_paginated_response(
             data={"type": "authors", "items": serializer.data},
-            status=status.HTTP_200_OK,
         )
 
 
@@ -199,6 +210,7 @@ class PostsView(APIView):
     # Django Software Foundation, Allowing HTTP request, October 20, 2023,
     # https://docs.djangoproject.com/en/4.2/ref/class-based-views/base/#django.views.generic.base.View.http_method_names
     http_method_names = ["get", "post"]
+    pagination_class = CustomPageNumberPagination
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -209,12 +221,20 @@ class PostsView(APIView):
     def get(self, request, author_id):
         """
         get the recent posts from author AUTHOR_ID
-        TODO: paginate
         """
         posts = Post.objects.filter(author__id=author_id).order_by("-published")
-        serializer = PostSerializer(posts, many=True, context={"request": request})
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        paginator = self.pagination_class()
+        paginated_posts = paginator.paginate_queryset(posts, request)
+
+        serializer = PostSerializer(
+            paginated_posts, many=True, context={"request": request}
+        )
+
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(
+            data={"type": "posts", "items": serializer.data},
+        )
 
     def post(self, request, author_id):
         """
@@ -324,7 +344,9 @@ class ImagePostView(APIView):
 
         if is_image(post_object.contentType) and post_object.content:
             base64_encoded = base64.b64encode(post_object.content)
-            return Response(f"data:{post_object.contentType},{base64_encoded.decode('utf-8')}")
+            return Response(
+                f"data:{post_object.contentType},{base64_encoded.decode('utf-8')}"
+            )
         else:
             data = {"message": "Post is not an image"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -334,6 +356,7 @@ class InboxView(APIView):
     http_method_names = ["delete", "get", "post"]
     queryset = InboxItem.objects.all()
     serializer_class = InboxItemSerializer
+    pagination_class = CustomPageNumberPagination
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -354,16 +377,27 @@ class InboxView(APIView):
     def get(self, request, author_id):
         """
         If authenticated get a list of posts sent to AUTHOR_ID
-        TODO: add authentication_classes and permission_classes
-        TODO: paginate
         """
         author_object = get_object_or_404(Author, id=author_id)
         inbox_object = get_object_or_404(Inbox, author=author_object)
-        serializer = InboxSerializer(
-            instance=inbox_object, context={"request": request}
-        )
 
-        return Response(serializer.data)
+        inbox_items = InboxItem.objects.filter(inbox=inbox_object)
+
+        paginator = self.pagination_class()
+        paginated_items = paginator.paginate_queryset(inbox_items, request)
+
+        serializer = InboxItemSerializer(
+            instance=paginated_items, many=True, context={"request": request}
+        )
+        return paginator.get_paginated_response(
+            data={
+                "type": "inbox",
+                "items": serializer.data,
+                # TODO: The serializer for inbox is implemented differently for InboxSerializer and InboxItemSerializer,
+                # so I had to get the author url in a not very nice way ... 
+                "author": reverse('author', args=[author_object.id], request=request),
+            },
+        )
 
     def post(self, request, author_id):
         """
@@ -548,6 +582,7 @@ class SignUpView(APIView):
 
 class CommentsView(APIView):
     http_method_names = ["get", "post"]
+    pagination_class = CustomPageNumberPagination
 
     def get_authenticators(self):
         return get_custom_authenticators(self.request)
@@ -559,19 +594,34 @@ class CommentsView(APIView):
     def get(self, request, author_id, post_id):
         post_object = get_object_or_404(Post, id=post_id)
         comments = Comment.objects.order_by("-published").filter(post=post_object)
+
+        paginator = self.pagination_class()
+        paginated_comments = paginator.paginate_queryset(comments, request)
+
         post_url = build_default_post_uri(obj=post_object, request=request)
-        return Response(
-            {
+        serializer = CommentSerializer(
+            paginated_comments, context={"request": request}, many=True
+        )
+
+        return paginator.get_paginated_response(
+            data={
                 "type": "comments",
-                "page": None,
-                "size": None,
+                "items": serializer.data,
                 "post": post_url,
                 "id": request.build_absolute_uri(),
-                "comments": CommentSerializer(
-                    comments, context={"request": request}, many=True
-                ).data,
-            }
+            },
         )
+
+        # return Response(
+        #     {
+        #         "type": "comments",
+        #         "page": None,
+        #         "size": None,
+        #         "post": post_url,
+        #         "id": request.build_absolute_uri(),
+        #         "comments": serializers.data,
+        #     }
+        # )
 
     def post(self, request, author_id, post_id):
         post_object = get_object_or_404(Post, id=post_id)

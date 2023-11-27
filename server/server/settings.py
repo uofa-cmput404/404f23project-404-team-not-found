@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
-    "rest_framework.authtoken"
+    "rest_framework.authtoken",
 ]
 
 MIDDLEWARE = [
@@ -140,12 +140,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ORIGIN_ALLOW_ALL = True
 
 
-
 # Django Rest Framework
-REST_FRAMEWORK = { 
-    'DEFAULT_AUTHENTICATION_CLASSES': [ 
-        'rest_framework.authentication.BasicAuthentication', 
-    ] 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
 }
 
 django_on_heroku.settings(locals())
