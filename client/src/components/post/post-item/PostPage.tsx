@@ -1,13 +1,15 @@
-import { CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
-  CardMedia, Link, Tooltip, IconButton, Button, TextField, InputAdornment } from "@mui/material";
+import {
+  CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
+  CardMedia, Link, Tooltip, IconButton, Button, TextField, InputAdornment, Chip
+} from "@mui/material";
 import HeadBar from "../../template/AppBar";
 import LeftNavBar from "../../template/LeftNavBar";
 import MakePostModal from "../MakePostModal";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
-import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author } from "../../../interfaces/interfaces";
@@ -74,8 +76,8 @@ const PostPage = () => {
           },
         });
         setPost(response.data);
-        setPostHost(APP_URI!);
-        return [response.data.id!, APP_URI];
+        setPostHost(response.data.author.host);
+        return [response.data.id!, response.data.author.host];
       }
     } catch (error) {
     }
@@ -104,7 +106,7 @@ const PostPage = () => {
   };
 
   const fetchComments = async (postUrlId: string, host: string) => {
-    const isPostLocal = isLocal(host);
+    const isPostLocal = isHostLocal(host);
     const url = `${postUrlId}/comments/`
 
     try {
@@ -151,6 +153,7 @@ const PostPage = () => {
       // otherwise, fetch the post object
       if (location.state?.post) {
         setPost(location.state.post);
+        setPostHost(location.state.post.author.host);
         await fetchComments(location.state.post.id, location.state.post.author.host);
         isHostFound = true;
       } else {
@@ -187,7 +190,7 @@ const PostPage = () => {
     };
 
     const url = `${post.id}/comments/`;
-    const isPostLocal = isLocal(postHost);
+    const isPostLocal = isHostLocal(postHost);
 
     try {
       if (isPostLocal) {
@@ -241,7 +244,7 @@ const PostPage = () => {
     };
 
     const url = `${postHost}authors/${authorId}/inbox/`;
-    const isPostLocal = isLocal(postHost);
+    const isPostLocal = isHostLocal(postHost);
 
     try {
       if (isPostLocal) {
@@ -383,7 +386,23 @@ const PostPage = () => {
                       onPostEdited={fetchPost}
                     />
                 )}
-                title={post.author.displayName}
+                title={
+                  <Grid container direction="row">
+                    <Typography>
+                      {`${post.author.displayName}`}
+                    </Typography>
+                    <Chip
+                      label={
+                        <Typography sx={{fontSize: "1em", color: "text.secondary"}}>
+                          {`${isHostLocal(postHost) ? "Local" : "Remote"}`}
+                        </Typography>
+                      }
+                      size="small"
+                      variant="filled"
+                      sx={{ marginLeft: 0.5 }}
+                    />
+                  </Grid>
+                }
                 subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
                   `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
                   `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`

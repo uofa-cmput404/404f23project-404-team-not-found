@@ -1,13 +1,15 @@
 import React from 'react';
 import { Post, Author } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-  Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
+import {
+  Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link,
+  Grid, Button, IconButton, CardActionArea, ButtonBase, Chip
+} from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
@@ -132,7 +134,23 @@ const PostsList = ({
           >
             <CardHeader
               avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
-              title={post.author.displayName}
+              title={
+                <Grid container direction="row">
+                  <Typography>
+                    {`${post.author.displayName}`}
+                  </Typography>
+                  <Chip
+                    label={
+                      <Typography sx={{fontSize: "1em", color: "text.secondary"}}>
+                        {`${isHostLocal(post.author.host) ? "Local" : "Remote"}`}
+                      </Typography>
+                    }
+                    size="small"
+                    variant="filled"
+                    sx={{ marginLeft: 0.5 }}
+                  />
+                </Grid>
+              }
               subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
                 `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
                 `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`

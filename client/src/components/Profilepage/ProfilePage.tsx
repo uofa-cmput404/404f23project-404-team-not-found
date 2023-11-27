@@ -34,7 +34,7 @@ import FollowAuthorButton from "./FollowAuthorButton";
 import Tooltip from "@mui/material/Tooltip";
 import ProfileTabs from "./ProfileTabs";
 import { codes } from "../../objects/objects";
-import { localAuthorHosts } from "../../lists/lists";
+import { isHostLocal } from "../../utils/responseUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -103,7 +103,7 @@ const ProfilePage = () => {
   const isLocal = () => {
     return (isLoggedUser ||
       !otherAuthorObject ||
-      localAuthorHosts.includes(otherAuthorObject.host));
+      isHostLocal(otherAuthorObject.host));
   }
 
   const fetchAuthor = useCallback(async () => {

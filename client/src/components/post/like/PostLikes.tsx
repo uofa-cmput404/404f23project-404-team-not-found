@@ -3,14 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, Post } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 import { Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
-import { localAuthorHosts } from "../../../lists/lists";
 
 const PostLikes = ({
   post,
@@ -20,7 +19,7 @@ const PostLikes = ({
   const [postLikes, setPostLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
   const postId = getAuthorIdFromResponse(post.id);
-  const isLocal = localAuthorHosts.includes(post.author.host);
+  const isLocal = isHostLocal(post.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
