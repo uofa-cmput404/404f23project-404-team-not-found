@@ -59,7 +59,16 @@ export default function HomePage() {
         });
         
         const combinedPosts = [...allInboxPosts, ...validPosts];
+
+        combinedPosts.sort((a, b) => {
+          const dateA = new Date(a.published).getTime();
+          const dateB = new Date(b.published).getTime();
         
+          // Compare the dates
+          return dateB - dateA; 
+        });
+
+        console.log(combinedPosts);
         
         setPosts(combinedPosts);
       }
