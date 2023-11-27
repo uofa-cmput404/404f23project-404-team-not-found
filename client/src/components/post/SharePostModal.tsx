@@ -1,16 +1,18 @@
-import { Box, Grid, Typography, IconButton, Button } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Button, Modal, Card, Avatar, CardHeader, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
 import { Author, Post } from "../../interfaces/interfaces";
 import { useState } from "react";
 import axios from "axios";
 import { getUserCredentials } from "../../utils/localStorageUtils";
+import LinkIcon from '@mui/icons-material/Link';
+import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 
 interface SharePostModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   followers: Author[];
-  post: Post | null;
+  post: Post;
 }
 
 const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: SharePostModalProps) => {
@@ -18,6 +20,17 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
 
   const handleClose = () => {
     setIsModalOpen(false);
+  };
+
+  const copyLink = () => {
+    const authorID = getAuthorIdFromResponse(post.author.id);
+    const postID = getAuthorIdFromResponse(post.id);
+    const url = window.location.href;
+    const path = window.location.pathname;
+    const uri = url.replace(path, '');
+    const link = `${uri}/${authorID}/posts/${postID}/`
+    navigator.clipboard.writeText(link);
+    toast.success("Copied to clipboard");
   };
 
   const handleShare = async (follower: Author) => {
@@ -46,15 +59,15 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
 
   return (
     <>
-      {isModalOpen && (
+    <Modal open={isModalOpen} onClose={handleClose}>
         <Box
           sx={{
             position: "fixed",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "60vh",
-            bgcolor: "rgba(255, 255, 255, 0.95)",
+            width: "40vh",
+            bgcolor: "white",
             boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             p: 0.5,
             borderRadius: "8px",
@@ -64,7 +77,15 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
         >
           <Grid container>
             <Grid item xs={3}>
-              <IconButton sx={{ marginRight: "auto" }} onClick={handleClose}>
+              <IconButton 
+                sx={{ marginRight: "auto" }} 
+                onMouseDown={event => event.stopPropagation()}
+                onClick={event => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  handleClose();
+                }}
+                >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Grid>
@@ -73,52 +94,83 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
                 Share
               </Typography>
             </Grid>
-            <Grid item xs={3}></Grid>
+            <Grid container item xs={3} justifyContent="flex-end">
+              <Tooltip title="Copy Link" placement="left">
+                <IconButton onClick={copyLink}>
+                  <LinkIcon
+                  fontSize="medium"
+                  sx={{
+                    transform: "rotate(-45deg)"
+                  }}
+                  />
+                </IconButton>
+              </Tooltip>
+            </Grid>
           </Grid>
 
           {/* Display followers with shared design */}
-          <Grid container spacing={2} justifyContent="center">
+          <Grid container justifyContent="center" direction="column">
             {followers.map((follower) => (
-              <Grid item key={follower.id} xs={6}>
-                <Box
-                  sx={{
-                    margin: "auto",
-                    width: "100%",
-                    border: 0,
-                  }}
-                >
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={8}>
-                      <Typography variant="subtitle1">{follower.displayName}</Typography>
-                    </Grid>
-                    <Grid item xs={4}>
-                      {!sharedFollowers.includes(follower.id) ? (
-                        <Button
-                          onClick={() => handleShare(follower)}
-                          variant="contained"
-                          color="primary"
-                          sx={{ width: "100%" }}
-                        >
-                          Send
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          sx={{ width: "100%" }}
-                          disabled
-                        >
-                          Sent
-                        </Button>
-                      )}
-                    </Grid>
-                  </Grid>
-                </Box>
+              <Grid container 
+                key={follower.id}
+                alignItems="center"
+                sx={{
+                  // borderBottom: "1px solid #dbd9d9"
+                }}
+              >
+                <Grid item xs={6}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      margin: "auto",
+                      width: "100%",
+                      border:0,
+                    }}
+                  >
+                    <CardHeader
+                      avatar={<Avatar src={follower.profileImage} alt={follower.displayName}/>}
+                      title={follower.displayName}
+                      titleTypographyProps={{
+                        fontSize: "1em",
+                      }}
+                      sx={{
+                        paddingY: 1
+                      }}
+                    />
+                  </Card>
+                </Grid>
+                <Grid container item xs={6} justifyContent="flex-end" paddingRight={1}>
+                  {!sharedFollowers.includes(follower.id) ? (
+                    <Button
+                      onClick={() => handleShare(follower)}
+                      variant="contained"
+                      color="primary"
+                      sx={{ 
+                        width: "8rem",
+                        borderRadius: 20,
+                      }}
+                    >
+                      Send
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{ 
+                        width: "8rem",
+                        borderRadius: 20,
+                      }}
+                      disabled
+                    >
+                      Sent
+                    </Button>
+                  )}
+                </Grid>
               </Grid>
             ))}
           </Grid>
         </Box>
-      )}
+    </Modal>
     </>
   );
 };
