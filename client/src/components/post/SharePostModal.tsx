@@ -109,66 +109,78 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
           </Grid>
 
           {/* Display followers with shared design */}
-          <Grid container justifyContent="center" direction="column">
-            {followers.map((follower) => (
-              <Grid container 
-                key={follower.id}
-                alignItems="center"
-                sx={{
-                  // borderBottom: "1px solid #dbd9d9"
-                }}
-              >
-                <Grid item xs={6}>
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      margin: "auto",
-                      width: "100%",
-                      border:0,
-                    }}
-                  >
-                    <CardHeader
-                      avatar={<Avatar src={follower.profileImage} alt={follower.displayName}/>}
-                      title={follower.displayName}
-                      titleTypographyProps={{
-                        fontSize: "1em",
-                      }}
+          <Box
+            sx={{
+              width: "100%",
+              overflowY: "auto",
+              maxHeight: "40vh",
+              display: "flex",
+              flexGrow: 1,
+              flexDirection: "column",
+            }}
+          >
+            <Grid container direction="column">
+              {followers.map((follower) => (
+                <Grid container 
+                  key={follower.id}
+                  alignItems="center"
+                  sx={{
+                    // borderBottom: "1px solid #dbd9d9"
+                  }}
+                >
+                  <Grid item xs={6}>
+                    <Card
+                      variant="outlined"
                       sx={{
-                        paddingY: 1
-                      }}
-                    />
-                  </Card>
-                </Grid>
-                <Grid container item xs={6} justifyContent="flex-end" paddingRight={1}>
-                  {!sharedFollowers.includes(follower.id) ? (
-                    <Button
-                      onClick={() => handleShare(follower)}
-                      variant="contained"
-                      color="primary"
-                      sx={{ 
-                        width: "8rem",
-                        borderRadius: 20,
+                        margin: "auto",
+                        width: "100%",
+                        border:0,
                       }}
                     >
-                      Send
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      sx={{ 
-                        width: "8rem",
-                        borderRadius: 20,
-                      }}
-                      disabled
-                    >
-                      Sent
-                    </Button>
-                  )}
+                      <CardHeader
+                        avatar={<Avatar src={follower.profileImage} alt={follower.displayName}/>}
+                        title={follower.displayName}
+                        titleTypographyProps={{
+                          fontSize: "1em",
+                        }}
+                        sx={{
+                          paddingY: 1
+                        }}
+                      />
+                    </Card>
+                  </Grid>
+                  <Grid container item xs={6} justifyContent="flex-end" paddingRight={1}>
+                    {!sharedFollowers.includes(follower.id) ? (
+                      <Button
+                        onClick={() => handleShare(follower)}
+                        variant="contained"
+                        color="primary"
+                        sx={{ 
+                          width: "6rem",
+                          borderRadius: 20,
+                        }}
+                      >
+                        <Typography textTransform="none">Send</Typography>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ 
+                          width: "6rem",
+                          borderRadius: 20,
+                        }}
+                        disabled
+                      >
+                        <Typography textTransform="none">Sent</Typography>
+                      </Button>
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
-            ))}
-          </Grid>
+              ))}
+            </Grid>
+            
+          </Box>
         </Box>
     </Modal>
     </>
