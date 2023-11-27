@@ -12,5 +12,6 @@ from .follower import Follower
 from .inbox import Inbox
 from .inbox_item import InboxItem
 from .post import Post
+from .node import Node
 from .comment import Comment
 from .like import Like

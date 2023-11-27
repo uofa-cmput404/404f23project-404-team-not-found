@@ -9,6 +9,7 @@ import ProfilePage from "./components/Profilepage/ProfilePage";
 import NotFound from "./components/NotFound";
 import DiscoverPage from "./components/follow/DiscoverPage";
 import InboxPage from "./components/inbox/InboxPage";
+import PostPage from "./components/post/post-item/PostPage";
 
 import "./App.css";
 import { ToastContainer } from "react-toastify";
@@ -94,6 +95,14 @@ const App = () => {
           element={
             <ProtectedRoute user={userToken}>
               <InboxPage/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/:authorId/posts/:postId"
+          element={
+            <ProtectedRoute user={userToken}>
+              <PostPage/>
             </ProtectedRoute>
           }
         />

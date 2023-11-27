@@ -52,7 +52,12 @@ const MoreMenu = ({
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
+        onMouseDown={event => event.stopPropagation()}
+        onClick={event => {
+          event.stopPropagation();
+          event.preventDefault();
+          handleClick(event);
+        }}    
         sx={{marginLeft: 1, marginRight: "auto"}}
         size="medium"
       >
@@ -90,20 +95,24 @@ const MoreMenu = ({
           <ListItemText sx={{color: "#ef5350"}}>Delete</ListItemText>
         </MenuItem>
       </Menu>
-      <EditPostModal
-        isModalOpen={IsEditPostModalOpen}
-        onPostEdited={onPostEdited}
-        setIsModalOpen={setIsEditPostModalOpen}
-        post={post}
-        image={isImage(post)}
-        text={isText(post)}
-      />
-      <DeletePostModal
-        isModalOpen={IsDeletePostModalOpen}
-        deletePost={deletePost}
-        setIsModalOpen={setIsDeletePostModalOpen}
-        post={post}
-      />
+      {IsEditPostModalOpen && (
+        <EditPostModal
+          isModalOpen={IsEditPostModalOpen}
+          onPostEdited={onPostEdited}
+          setIsModalOpen={setIsEditPostModalOpen}
+          post={post}
+          image={isImage(post)}
+          text={isText(post)}
+        />
+      )}
+      {IsDeletePostModalOpen && (
+        <DeletePostModal
+          isModalOpen={IsDeletePostModalOpen}
+          deletePost={deletePost}
+          setIsModalOpen={setIsDeletePostModalOpen}
+          post={post}
+        />
+      )}
     </Grid>
   );
 }

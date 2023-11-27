@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Post } from "../../../interfaces/interfaces";
-import { Box, Divider, Typography } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,8 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
   dialog: {
     borderRadius: "8px",
-    width: "18vw",
-    maxWidth: "18vw",
+    width: "15vw",
+    maxWidth: "15vw",
   }
 }));
 
@@ -40,51 +40,51 @@ const DeletePostModal = ({
   const styles = useStyles();
 
   return (
-    <div>
-      <Dialog
-        open={isModalOpen}
-        onClose={handleClose}
-        aria-labelledby="delete-post"
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{ className: styles.dialog }}
+    <Dialog
+      open={isModalOpen}
+      onClose={handleClose}
+      aria-labelledby="delete-post"
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{ className: styles.dialog }}
+    >
+      <DialogTitle>
+        Delete Post?
+      </DialogTitle>
+      <Divider />
+      <Typography
+        variant="body2"
+        color="textSecondary"
+        sx = {{ paddingX: 3, paddingY: 2 }}
       >
-        <DialogTitle id="alert-dialog-title">
-          Delete Post?
-        </DialogTitle>
-        <Divider />
-        <Box m={2}>
-          <Typography variant="body2" color="textSecondary">
-            This can't be undone and it will be removed from your profile.
-          </Typography>
-        </Box>
-        <DialogActions
-          sx={{
-            flexDirection: "column",
-            "& > :not(style) ~ :not(style)": {
-              marginLeft: 0,
-            }, }}>
-          <Button
-            variant="contained"
-            onClick={() => {
-              deletePost(post.id);
-              handleClose();
-            }}
-            color="error"
-            className={styles.button}>
-            Delete
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={handleClose}
-            color="primary"
-            className={styles.button}
-            sx={{ margin: 0 }}>
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+        This can't be undone and it will be removed from your profile.
+      </Typography>
+      <DialogActions
+        sx={{
+          flexDirection: "column",
+          "& > :not(style) ~ :not(style)": {
+            marginLeft: 0,
+          }, }}>
+        <Button
+          variant="contained"
+          onClick={() => {
+            deletePost(post.id);
+            handleClose();
+          }}
+          color="error"
+          className={styles.button}>
+          Delete
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={handleClose}
+          color="primary"
+          className={styles.button}
+          sx={{ margin: 0 }}>
+          Cancel
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

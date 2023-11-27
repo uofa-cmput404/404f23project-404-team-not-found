@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
+import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { authorsListSubheader } from "../../objects/objects";
+import { localAuthorHosts } from "../../lists/lists";
 
 const AuthorsList = ({
   authors,
@@ -15,6 +13,16 @@ const AuthorsList = ({
 }) => {
   const navigate = useNavigate();
   const loggedUser = getUserData();
+
+  const getSubheader = (host: string) => {
+    if (localAuthorHosts.includes(host)) {
+      return "Local";
+    } else if (Object.keys(authorsListSubheader).includes(host)) {
+      return authorsListSubheader[host];
+    } else {
+      return "Remote";
+    }
+  };
 
   const handleViewProfileClick = (author: Author) => {
     const authorId = getAuthorIdFromResponse(author.id);
@@ -52,6 +60,10 @@ const AuthorsList = ({
               <CardHeader
                 avatar={<Avatar src={author.profileImage} alt={author.displayName}/>}
                 title={author.displayName}
+                titleTypographyProps={{
+                  fontSize: "1em",
+                }}
+                subheader={getSubheader(author.host)}
               />
             </Card>
           </Grid>
@@ -64,7 +76,8 @@ const AuthorsList = ({
                 borderRadius: 20,
                 marginRight: 2,
                 paddingLeft: 2,
-                paddingRight: 2
+                paddingRight: 2,
+                width: "8rem"
               }}
               onClick={() => handleViewProfileClick(author)}
             >

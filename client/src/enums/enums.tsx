@@ -11,7 +11,9 @@ export enum ImageLink {
 }
 
 export enum InboxItemType {
+    COMMENT = "comment",
     FOLLOW = "Follow",
+    LIKE = "Like",
     POST = "post",
 }
 
@@ -20,4 +22,16 @@ export enum ShareType {
     PRIVATE = "PRIVATE",
     PUBLIC = "PUBLIC",
     UNLISTED = "UNLISTED",
+}
+
+export enum ToastMessages {
+  NOUSERCREDS = "Unable to make a post. Please sign out and log back in.",
+}
+export enum Username {
+  NOTFOUND = "node-404-team-not-found",
+}
+
+export enum Hosts {
+  CODEMONKEYS = "http://www.chimp-chat.win/",
+  NOTFOUND = "https://distributed-network-37d054f03cf4.herokuapp.com/",
 }

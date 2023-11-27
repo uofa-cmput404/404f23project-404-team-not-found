@@ -21,7 +21,6 @@ const ImagePostView = (props: any) => {
   const handleFileRead = async (event: any) => {
       const file = event.target.files[0];
       const base64:any = await convertBase64(file);
-      console.log(file);
       props.setImagePrev(base64);
       props.setContent(base64);
     };
