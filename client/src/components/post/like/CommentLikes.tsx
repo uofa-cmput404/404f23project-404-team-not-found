@@ -100,8 +100,11 @@ const CommentLikes = ({
           });
           let dataLikes: any;
 
+          // TODO: adapt for every team
           if (comment.author.host === Hosts.CODEMONKEYS) {
             dataLikes = response.data["items"];
+          } else {
+            dataLikes = response.data;
           }
 
           setCommentLikes(dataLikes);

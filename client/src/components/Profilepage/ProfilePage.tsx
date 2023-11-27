@@ -168,10 +168,13 @@ const ProfilePage = () => {
           },
         });
 
+        // TODO: adapt for every team
         if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
           const publicPosts = response.data["items"].filter((post: Post) =>
             post.visibility === ShareType.PUBLIC);
           setPosts(publicPosts);
+        } else {
+          setPosts(response.data);
         }
       }
     } catch (error) {

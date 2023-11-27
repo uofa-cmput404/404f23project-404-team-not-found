@@ -151,6 +151,7 @@ const FollowAuthorButton = ({
             },
           });
 
+          // TODO: adapt for every team
           if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
             isFollower = response.status === 200;
           }
