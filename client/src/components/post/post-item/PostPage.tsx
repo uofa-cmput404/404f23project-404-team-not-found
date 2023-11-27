@@ -26,9 +26,8 @@ import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
 import { localAuthorHosts, remoteAuthorHosts } from "../../../lists/lists";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
-import LinkIcon from '@mui/icons-material/Link';
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -55,10 +54,6 @@ const PostPage = () => {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
-
-  const isLocal = (host: string): boolean => {
-    return localAuthorHosts.includes(host);
-  };
 
   const fetchPost = async (): Promise<string[]> => {
     const endpoint = `authors/${authorId}/posts/${postId}/`;
