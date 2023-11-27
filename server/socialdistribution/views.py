@@ -222,7 +222,16 @@ class PostsView(APIView):
         """
         get the recent posts from author AUTHOR_ID
         """
-        posts = Post.objects.filter(author__id=author_id).order_by("-published")
+        referer = request.META.get("HTTP_REFERER")
+
+        # we will be filtering out posts on the front end so we want to query everything on local
+        # on remote, we should only show public posts
+        if any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
+            posts = Post.objects.filter(author__id=author_id).order_by("-published")
+        else:
+            posts = (Post.objects.filter(author__id=author_id,
+                                         visibility=Post.Visibility.PUBLIC)
+                     .order_by("-published"))
 
         paginator = self.pagination_class()
         paginated_posts = paginator.paginate_queryset(posts, request)
@@ -381,7 +390,7 @@ class InboxView(APIView):
         author_object = get_object_or_404(Author, id=author_id)
         inbox_object = get_object_or_404(Inbox, author=author_object)
 
-        inbox_items = InboxItem.objects.filter(inbox=inbox_object)
+        inbox_items = InboxItem.objects.filter(inbox=inbox_object).order_by("-id")
 
         paginator = self.pagination_class()
         paginated_items = paginator.paginate_queryset(inbox_items, request)
