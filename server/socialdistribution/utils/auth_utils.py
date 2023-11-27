@@ -4,14 +4,7 @@ from socialdistribution.auth.node_authentication import (
     NodeAuthentication,
     NodeIsAuthenticated,
 )
-
-# TODO: Can have the following list in .env
-# TODO: Update this with our local address
-LOCAL_REFERERS = [
-    "http://localhost:3000/",
-    "https://distributed-network-37d054f03cf4.herokuapp.com/",
-    "http://127.0.0.1:8000/"
-]
+from .constants import LOCAL_REFERERS
 
 
 def get_custom_authenticators(request):
