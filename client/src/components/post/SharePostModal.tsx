@@ -35,6 +35,8 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
     }
   };
 
+  console.log(followers);
+
   return (
     <>
       {isModalOpen && (
