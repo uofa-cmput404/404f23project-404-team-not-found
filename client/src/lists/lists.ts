@@ -5,6 +5,6 @@ export const localAuthorHosts: string[] = [
   "http://localhost:8000/",
 ];
 
-export const remoteAuthorHosts = [
+export const remoteAuthorHosts: string[] = [
   Hosts.CODEMONKEYS,
 ];
