@@ -1,7 +1,7 @@
 export const codes: { [key: string]: string } = {
-  "http://www.chimp-chat.win/": "chimpchatapi",
+  "https://chimp-chat-1e0cca1cc8ce.herokuapp.com/": "chimpchatapi",
 };
 
 export const authorsListSubheader: { [key: string]: string } = {
-  "http://www.chimp-chat.win/": "Remote: Code Monkeys",
+  "https://chimp-chat-1e0cca1cc8ce.herokuapp.com/": "Remote • Code Monkeys",
 };
