@@ -8,16 +8,20 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import UnfollowAuthorModal from "./UnfollowAuthorModal";
+import { Hosts, Username } from "../../enums/enums";
+import { codes } from "../../objects/objects";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const FollowAuthorButton = ({
   authorId,
+  isLocal,
   otherAuthorObject,
   setIsUserFollowingAuthor,
   userObject,
 }: {
   authorId: string;
+  isLocal: boolean;
   otherAuthorObject: Author;
   setIsUserFollowingAuthor: (value: boolean) => void;
   userObject: Author;
@@ -34,7 +38,7 @@ const FollowAuthorButton = ({
   };
 
   const sendFollowToInbox = async () => {
-    // actor is the one who wants to follow and object is the author actor wants to follow
+    // actor is the one who wants to follow and object is the author whom actor wants to follow
     const data = {
       type: "Follow",
       summary: `${userObject.displayName} wants to follow ${otherAuthorObject.displayName}`,
@@ -42,21 +46,33 @@ const FollowAuthorButton = ({
       object: otherAuthorObject,
     };
 
-    const url = `${APP_URI}authors/${authorId}/inbox/`;
+    const url = isLocal ?
+      `${APP_URI}authors/${authorId}/inbox/` :
+      `${otherAuthorObject.id}/inbox/`;
 
     try {
       const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+      if (isLocal) {
+        if (userCredentials.username && userCredentials.password) {
+          await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
+      } else {
         await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[otherAuthorObject.host],
           },
         });
+      }
+
         setFollowButtonText("Requested");
         setIsRequested(true);
-      }
     } catch (error) {
       toast.error("Failed to send a follow request");
     }
@@ -64,19 +80,33 @@ const FollowAuthorButton = ({
 
   useEffect(() => {
     const fetchFollowRequestExists = async () => {
-      const url = `${APP_URI}authors/${authorId}/inbox/`;
+      const url = isLocal ?
+      `${APP_URI}authors/${authorId}/inbox/` :
+      `${otherAuthorObject.id}/inbox/`;
 
       try {
         const userCredentials = getUserCredentials();
+        let response: any;
 
-        if (userCredentials.username && userCredentials.password) {
-          const response = await axios.get(url, {
+        if (isLocal) {
+          if (userCredentials.username && userCredentials.password) {
+            response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+          }
+        } else {
+          response = await axios.get(url, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[otherAuthorObject.host],
             },
           });
-          const items = response.data.items;
+        }
+
+          const items = response!.data.items;
           const followRequestExists: boolean = items.some(
             (item: any) =>
               item.type === "Follow" &&
@@ -84,7 +114,6 @@ const FollowAuthorButton = ({
               item.actor.id === userObject.id
           );
           setIsRequested(followRequestExists);
-        }
       } catch (error) {
         console.error("Error fetching if user already requested: ", error);
       }
@@ -95,32 +124,50 @@ const FollowAuthorButton = ({
 
   useEffect(() => {
     const fetchIsUserFollowingAuthor = async () => {
-      const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+      const url = isLocal ?
+        `${APP_URI}authors/${authorId}/followers/${loggedUserId}/` :
+        `${otherAuthorObject.id}/followers/${loggedUserId}/`;
 
       try {
         const userCredentials = getUserCredentials();
+        let isFollower = false;
 
-        if (userCredentials.username && userCredentials.password) {
+        if (isLocal) {
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+
+            isFollower = response.data.is_follower;
+          }
+        } else {
           const response = await axios.get(url, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[otherAuthorObject.host],
             },
           });
 
-          if (response.data.is_follower) {
-            setFollowButtonText("Following");
-            setIsFollowing(true);
-            setIcon(<HowToRegIcon />);
-          } else if (isRequested) {
-            setFollowButtonText("Requested");
-            setIsFollowing(false);
-          } else {
-            setFollowButtonText("Follow");
-            setIsFollowing(false);
+          if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
+            isFollower = response.status === 200;
           }
-          setIsUserFollowingAuthor(response.data.is_follower);
         }
+
+        if (isFollower) {
+          setFollowButtonText("Following");
+          setIsFollowing(true);
+          setIcon(<HowToRegIcon />);
+        } else if (isRequested) {
+          setFollowButtonText("Requested");
+          setIsFollowing(false);
+        } else {
+          setFollowButtonText("Follow");
+          setIsFollowing(false);
+        }
+        setIsUserFollowingAuthor(isFollower);
       } catch (error) {
         console.error("Error fetching is follower: ", error);
       }
@@ -130,25 +177,37 @@ const FollowAuthorButton = ({
   }, [isRequested]);
 
   const unfollowAuthor = async () => {
-    const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+    const url = isLocal ?
+      `${APP_URI}authors/${authorId}/followers/${loggedUserId}/` :
+      `${otherAuthorObject.id}/followers/${loggedUserId}/`;
 
     try {
       const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
-        const response = await axios.delete(url, {
+      if (isLocal) {
+        if (userCredentials.username && userCredentials.password) {
+          await axios.delete(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
+      } else {
+        await axios.delete(url, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[otherAuthorObject.host],
           },
         });
-        setFollowButtonText("Follow");
-        setIsRequested(false);
-        setIsFollowing(false);
-        setIsUserFollowingAuthor(false);
-        setIcon(<PersonAddIcon />);
-        toast.success("Successfully unfollowed");
       }
+
+      setFollowButtonText("Follow");
+      setIsRequested(false);
+      setIsFollowing(false);
+      setIsUserFollowingAuthor(false);
+      setIcon(<PersonAddIcon />);
+      toast.success("Successfully unfollowed");
     } catch (error) {
       toast.error("Failed to unfollow");
     }

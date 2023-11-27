@@ -16,6 +16,7 @@ const APP_URI = process.env.REACT_APP_URI;
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [inboxItems, setInboxItems] = useState<Post[]>([]);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
@@ -24,6 +25,8 @@ export default function HomePage() {
   const fetchPosts = async () => {
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
+    const inboxurl = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
+    const allInboxPosts: Post[] = [];
 
     try {
       const userCredentials = getUserCredentials();
@@ -35,8 +38,40 @@ export default function HomePage() {
             password: userCredentials.password,
           },
         });
-        setPosts(response.data);
+        
+        const inboxresponse = await axios.get(inboxurl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        
+        const inboxPosts = inboxresponse.data.items.filter(
+          (item: any) => item && item.type === "post"
+        );
+        
+        const validPosts = response.data.filter((item: any) => item !== null);
+        
+        inboxPosts.forEach((item: any) => {
+          if (!allInboxPosts.some((post) => post.id === item.id)) {
+            allInboxPosts.push(item);
+          }
+        });
+        
+        const combinedPosts = [...allInboxPosts, ...validPosts];
+
+        combinedPosts.sort((a, b) => {
+          const dateA = new Date(a.published).getTime();
+          const dateB = new Date(b.published).getTime();
+        
+          // Compare the dates
+          return dateB - dateA; 
+        });
+
+        
+        setPosts(combinedPosts);
       }
+
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -104,11 +139,13 @@ export default function HomePage() {
             onPostEdited={fetchPosts}
           />
         </Grid>
-        <MakePostModal
-          isModalOpen={isMakePostModalOpen}
-          onPostCreated={fetchPosts}
-          setIsModalOpen={setIsMakePostModalOpen}
-        />
+        {isMakePostModalOpen && (
+          <MakePostModal
+            isModalOpen={isMakePostModalOpen}
+            onPostCreated={fetchPosts}
+            setIsModalOpen={setIsMakePostModalOpen}
+          />
+        )}
       </Grid>
     </>
   );

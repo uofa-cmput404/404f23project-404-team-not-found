@@ -44,10 +44,12 @@ const DiscoverPage = () => {
           <DiscoverContent/>
         </Grid>
       </Grid>
-      <MakePostModal
+      {isMakePostModalOpen && (
+        <MakePostModal
           isModalOpen={isMakePostModalOpen}
           setIsModalOpen={setIsMakePostModalOpen}
-      />
+        />
+      )}
     </>
   );
 };

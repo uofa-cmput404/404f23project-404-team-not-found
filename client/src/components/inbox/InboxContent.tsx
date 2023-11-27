@@ -5,9 +5,14 @@ import { getAuthorId, getUserData, getUserCredentials } from "../../utils/localS
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { InboxItemType } from "../../enums/enums";
 import InboxFollowItem from "./InboxFollowItem";
+import PostInboxItem from "./PostInboxItem";
 import InboxCommentItem from "./InboxCommentItem";
 import InboxLikeItem from "./InboxLikeItem";
 import Loading from "../ui/Loading";
+import Button from "@mui/material/Button";
+import { toast } from "react-toastify";
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
+import ClearInboxModal from "./ClearInboxModal";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -15,6 +20,7 @@ const InboxContent = () => {
   const [inboxItems, setInboxItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [followData, setFollowData] = useState<any>({});
+  const [isClearInboxModalOpen, setIsClearInboxModalOpen] = useState<boolean>(false);
   const userData = getUserData();
   const loggedUserId = getAuthorId();
 
@@ -103,20 +109,70 @@ const InboxContent = () => {
     return key;
   };
 
+  const openClearInboxModal = () => {
+    setIsClearInboxModalOpen(true);
+  };
+
+  const handleInboxClear = async () => {
+    const url = `${APP_URI}authors/${loggedUserId}/inbox/`;
+
+    try {
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.delete(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setInboxItems([]);
+      }
+    } catch (error) {
+      toast.error("Failed to clear the inbox");
+    }
+  };
+
   return (
     <Grid container direction={"row"}>
-      <Grid container>
-        <Grid item xs={12} textAlign="center">
+      <Grid
+        container
+        alignItems="center"
+        sx={{
+          borderBottom: "1px solid #dbd9d9",
+          paddingLeft: 2,
+          paddingRight: 1,
+          paddingY: 1,
+        }}
+      >
+        <Grid item xs={9} textAlign="left">
           <Typography
             variant="h6"
             sx={{
-              padding: 2,
-              borderBottom: "1px solid #dbd9d9",
               fontWeight: "bold",
-            }}
-          >
+            }}>
             Inbox
           </Typography>
+        </Grid>
+        <Grid item xs={3} sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            size="small"
+            sx={{
+              color: "black",
+              padding: 0,
+              borderRadius: 100,
+              paddingX: 1
+            }}
+            onClick={openClearInboxModal}
+            endIcon={<PlaylistRemoveIcon />}
+          >
+            <Typography
+              variant="subtitle1"
+              textTransform="none"
+            >
+              Clear
+            </Typography>
+          </Button>
         </Grid>
       </Grid>
       {isLoading ? (
@@ -144,6 +200,11 @@ const InboxContent = () => {
                   && inboxItem.author.id !== userData.id && (
                   <InboxLikeItem likeItem={inboxItem} />
                 )}
+                {inboxItem.type === InboxItemType.POST && (
+                  <>
+                  <PostInboxItem inboxItem={inboxItem} />
+                  </>
+                )}
               </Grid>
             ))
           ) : (
@@ -161,6 +222,13 @@ const InboxContent = () => {
             </Typography>
           )}
         </Grid>
+      )}
+      {isClearInboxModalOpen && (
+        <ClearInboxModal
+          isModalOpen={isClearInboxModalOpen}
+          setIsModalOpen={setIsClearInboxModalOpen}
+          clearInbox={handleInboxClear}
+        />
       )}
     </Grid>
   );
