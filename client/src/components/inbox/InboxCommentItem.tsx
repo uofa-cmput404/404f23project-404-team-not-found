@@ -1,4 +1,4 @@
-import { Avatar, Card, CardHeader, Grid } from "@mui/material";
+import { Avatar, Card, CardHeader, Grid, CardActionArea } from "@mui/material";
 import { getUserData } from "../../utils/localStorageUtils";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,10 @@ const InboxCommentItem = ({
 }) => {
   const navigate = useNavigate();
   const loggedUser = getUserData();
+  const url = commentItem.id;
+  const splitObject = url.split("/");
+  const authorId = splitObject[5];
+  const postId = splitObject[7];
 
   const handleAuthorProfileClick = () => {
     const authorId = getAuthorIdFromResponse(commentItem.author.id);
@@ -22,6 +26,12 @@ const InboxCommentItem = ({
         }
       }
     );
+  };
+
+  const handleViewPostClick = () => {
+    navigate(
+      `/${authorId}/posts/${postId}/`
+    )
   };
 
   return(
@@ -40,32 +50,44 @@ const InboxCommentItem = ({
             border: 0,
           }}
           variant="outlined"
+        >
+          <CardActionArea
+            component="span"
+            disableRipple
+            onClick={() => {
+              handleViewPostClick();
+            }} 
           >
-          <CardHeader
-            sx={{
-              display: "flex",
-              overflow: "hidden",
-              "& .MuiCardHeader-content": {
-                overflow: "hidden"
+            <CardHeader
+              sx={{
+                display: "flex",
+                overflow: "hidden",
+                "& .MuiCardHeader-content": {
+                  overflow: "hidden"
+                }
+              }}
+              avatar={
+                <Avatar
+                  alt={commentItem.author.displayName}
+                  sx={{
+                    cursor: "pointer",
+                  }}
+                  src={commentItem.author.profileImage}
+                  onClick={event => { 
+                    event.stopPropagation();
+                    event.preventDefault();
+                    handleAuthorProfileClick() 
+                  }}
+                />
               }
-            }}
-            avatar={
-              <Avatar
-                alt={commentItem.author.displayName}
-                sx={{
-                  cursor: "pointer",
-                }}
-                src={commentItem.author.profileImage}
-                onClick={() => { handleAuthorProfileClick() }}
-              />
-            }
-            title={`${commentItem.author.displayName} commented on your post`}
-            titleTypographyProps={{
-              fontSize: "1em",
-            }}
-            subheaderTypographyProps={{ noWrap: true }}
-            subheader={`${commentItem.comment}`}
-          />
+              title={`${commentItem.author.displayName} commented on your post`}
+              titleTypographyProps={{
+                fontSize: "1em",
+              }}
+              subheaderTypographyProps={{ noWrap: true }}
+              subheader={`${commentItem.comment}`}
+            />
+          </CardActionArea>
         </Card>
       </Grid>
     </Grid>
