@@ -5,7 +5,7 @@ import { InboxItem } from "../../interfaces/interfaces";
 const PostInboxItem = ({ inboxItem }: { inboxItem: InboxItem }) => {
 
 return (
-    <Grid container alignItems="center">
+    <Grid container alignItems="center" sx={{ borderBottom: "1px solid #dbd9d9" }}>
         <Grid item xs={6}>
             <Card
             style={{
