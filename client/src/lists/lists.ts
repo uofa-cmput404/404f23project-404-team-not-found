@@ -1,6 +1,6 @@
 import { Hosts } from "../enums/enums";
 
-export const localAuthorHosts = [
+export const localAuthorHosts: string[] = [
   Hosts.NOTFOUND,
 ];
 
