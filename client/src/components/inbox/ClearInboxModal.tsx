@@ -3,7 +3,6 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Post } from "../../../interfaces/interfaces";
 import { Divider, Typography } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
@@ -21,16 +20,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const DeletePostModal = ({
+const ClearInboxModal = ({
   isModalOpen,
-  deletePost,
   setIsModalOpen,
-  post,
+  clearInbox,
 }: {
   isModalOpen: boolean;
-  deletePost: (postId: string) => void;
   setIsModalOpen: (isOpen: boolean) => void;
-  post: Post;
+  clearInbox: () => void;
 }) => {
 
   const handleClose = () => {
@@ -43,13 +40,13 @@ const DeletePostModal = ({
     <Dialog
       open={isModalOpen}
       onClose={handleClose}
-      aria-labelledby="delete-post"
+      aria-labelledby="clear-inbox"
       maxWidth="xs"
       fullWidth
       PaperProps={{ className: styles.dialog }}
     >
       <DialogTitle>
-        Delete Post?
+        Clear inbox?
       </DialogTitle>
       <Divider />
       <Typography
@@ -57,7 +54,7 @@ const DeletePostModal = ({
         color="textSecondary"
         sx = {{ paddingX: 3, paddingY: 2 }}
       >
-        This can't be undone and it will be removed from your profile.
+        This can't be undone and will delete all your inbox items.
       </Typography>
       <DialogActions
         sx={{
@@ -68,12 +65,12 @@ const DeletePostModal = ({
         <Button
           variant="contained"
           onClick={() => {
-            deletePost(post.id);
+            clearInbox();
             handleClose();
           }}
           color="error"
           className={styles.button}>
-          Delete
+          Clear
         </Button>
         <Button
           variant="outlined"
@@ -88,4 +85,4 @@ const DeletePostModal = ({
   );
 }
 
-export default DeletePostModal;
+export default ClearInboxModal;

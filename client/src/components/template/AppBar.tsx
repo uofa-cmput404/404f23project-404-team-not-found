@@ -5,11 +5,15 @@ import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import { toast } from "react-toastify";
 
-import { removeToken, removeAuthorId, removeUserData } from "../../utils/localStorageUtils";
+import {
+  removeToken,
+  removeAuthorId,
+  removeUserData,
+  removeUserCredentials,
+} from "../../utils/localStorageUtils";
 import UserContext from "../../contexts/UserContext";
 import { Link } from "react-router-dom";
-import LogoutIcon from '@mui/icons-material/Logout';
-
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const HeadBar = () => {
   const { userToken, setUserToken } = useContext(UserContext);
@@ -19,6 +23,10 @@ const HeadBar = () => {
     removeAuthorId();
     removeUserData();
     setUserToken(null);
+
+    // those variables are to use for HTTP basic auth
+    removeUserCredentials();
+
     toast.success(
       "You have successfuly logged out! Please log in again to use our service!"
     );
@@ -38,7 +46,7 @@ const HeadBar = () => {
         borderBottom: "1px solid #dbd9d9",
       }}
     >
-      <Link to="/home-page" style={{ textDecoration: "none"}}>
+      <Link to="/home-page" style={{ textDecoration: "none" }}>
         <Typography
           variant="h4"
           align="left"
@@ -62,7 +70,7 @@ const HeadBar = () => {
           marginRight: "10px",
         }}
         onClick={handleSignOut}
-        endIcon={<LogoutIcon/>}
+        endIcon={<LogoutIcon />}
       >
         <Typography textTransform="none">Sign Out</Typography>
       </Button>

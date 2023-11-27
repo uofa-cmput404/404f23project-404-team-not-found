@@ -1,7 +1,9 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.models import Follower, Author
 from socialdistribution.tests.utils import (
@@ -21,17 +23,22 @@ class TestFollowerView(TestCase):
         self.follower = create_author()
         self.url = reverse("follower", kwargs={"author_id": self.author.id, "follower_id": self.follower.id})
 
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
+        
     def test_delete_follower(self):
         author_json = create_author_dict(author_id=self.follower.id)
         create_follower(self.author, author_json)
 
-        response = self.client.delete(self.url)
+        response = self.client.delete(self.url, **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Follower.objects.filter(author=self.author, follower_author=author_json).exists())
 
     def test_delete_non_existent_follower(self):
-        response = self.client.delete(self.url)
+        response = self.client.delete(self.url, **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -39,13 +46,13 @@ class TestFollowerView(TestCase):
         author_json = create_author_dict(author_id=self.follower.id)
         create_follower(self.author, author_json)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["is_follower"])
 
     def test_get_to_check_non_follower(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data["is_follower"])
@@ -55,7 +62,7 @@ class TestFollowerView(TestCase):
             "actor": create_author_dict(author_id=self.follower.id)
         }
 
-        response = self.client.put(self.url, data, format="json")
+        response = self.client.put(self.url, data, format="json", **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Follower.objects.filter(author=self.author, follower_author=data["actor"]).exists())
@@ -65,6 +72,6 @@ class TestFollowerView(TestCase):
         data = {"actor": author_json}
         create_follower(self.author, author_json)
 
-        response = self.client.put(self.url, data, format="json")
+        response = self.client.put(self.url, data, format="json", **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

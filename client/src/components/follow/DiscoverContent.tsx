@@ -1,70 +1,106 @@
-import React, { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
-import { getAuthorId, getUserData } from "../../utils/localStorageUtils";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
-import { useNavigate } from "react-router-dom";
+import { getUserCredentials, getUserData } from "../../utils/localStorageUtils";
 import AuthorsList from "../author/AuthorsList";
+import {remoteAuthorHosts} from "../../lists/lists";
+import {codes} from "../../objects/objects";
+import {Username} from "../../enums/enums";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const DiscoverContent = () => {
   const [authors, setAuthors] = useState<Author[]>([]);
-  const navigate = useNavigate();
-  const loggedUser = getUserData();
-
-  const fetchAuthors = useCallback(async () => {
-    const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}authors/`;
-    try {
-      const response = await axios.get(url);
-      const filtered_authors = response.data["items"].filter((author: Author) =>
-        getAuthorIdFromResponse(author.id) !== AUTHOR_ID)
-      setAuthors(filtered_authors);
-    } catch (error) {
-      console.error('Failed to fetch authors:', error);
-    }
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const loggedUserData = getUserData();
 
   useEffect(() => {
-    fetchAuthors();
-  }, [fetchAuthors]);
+    const fetchAuthors = async () => {
+      const remoteAuthorsUrls = remoteAuthorHosts.map(url => `${url}authors/`);
 
-  const handleViewProfileClick = (author: Author) => {
-    const authorId = getAuthorIdFromResponse(author.id);
-    navigate(
-      `/authors/${authorId}`,
-      {
-        state: {
-          otherAuthorObject: author,
-          userObject: loggedUser
-        }
+      const fetchAuthorsPromises = remoteAuthorsUrls.map(url => {
+        const baseUrl = url.split("authors/")[0];
+        const code = codes[baseUrl];
+
+        return axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: code,
+          },
+        });
+      });
+
+      const userCredentials = getUserCredentials();
+      const localAuthorsUrl = `${APP_URI}authors/`;
+
+      if (userCredentials.username && userCredentials.password) {
+        fetchAuthorsPromises.push(
+          axios.get(localAuthorsUrl, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          })
+        );
       }
-    );
-  };
+
+      try {
+        const results = await Promise.allSettled(fetchAuthorsPromises);
+        const successfulResults = results
+          .filter(result => result.status === "fulfilled")
+          .map(result => (result as any).value.data.items)
+          .flat();
+
+        const filteredAuthors = successfulResults.filter(
+          (author: Author) => author.id !== loggedUserData.id
+        );
+
+        filteredAuthors.sort((a, b) => {
+            return a.displayName.localeCompare(b.displayName);
+        });
+
+        setAuthors(filteredAuthors);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching authors:', error);
+      }
+    };
+
+    fetchAuthors();
+  }, []);
 
   return (
     <Grid container direction={"row"}>
-      <Grid container>
+      <Grid
+        container
+        alignItems="center"
+        sx={{
+          borderBottom: "1px solid #dbd9d9",
+          paddingX: 2,
+          paddingY: 1,
+        }}
+      >
         <Grid item xs={12} textAlign="center">
           <Typography
             variant="h6"
             sx={{
-              padding: 2,
-              borderBottom: "1px solid #dbd9d9"
+              padding: 0,
+              fontWeight: "bold"
             }}
           >
             Discover Authors
           </Typography>
         </Grid>
       </Grid>
-      <Grid container>
-        {authors.length > 0 ?
-          (
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Grid container>
+          {authors.length > 0 ? (
             <AuthorsList authors={authors} />
-          )
-          : (
+          ) : (
             <Typography
               variant="h6"
               align="center"
@@ -77,9 +113,9 @@ const DiscoverContent = () => {
             >
               No authors to discover...
             </Typography>
-          )
-        }
-      </Grid>
+          )}
+        </Grid>
+      )}
     </Grid>
   );
 };

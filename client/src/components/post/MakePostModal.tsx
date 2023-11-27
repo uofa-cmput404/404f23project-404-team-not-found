@@ -1,8 +1,16 @@
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
+import React, { useState } from "react";
 
-import { getAuthorId } from "../../utils/localStorageUtils";
-import React, { useCallback, useEffect, useState } from "react";
-
-import { Modal, Box, Button, IconButton, Grid, Typography, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  Modal,
+  Box,
+  Button,
+  IconButton,
+  Grid,
+  Typography,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from '@mui/icons-material/Notes';
@@ -125,7 +133,7 @@ const MakePostModal = ({
       setImagePrev("");
       setMarkdownCheckbox(false);
     }
-  }
+  };
 
   const handleImageContent = () => {
     // reset some vars when switching between text -> image
@@ -135,9 +143,11 @@ const MakePostModal = ({
       setMarkdownCheckbox(false);
       setContent("");
     }
-  }
+  };
 
-  const handleMarkdownContent = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMarkdownContent = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setMarkdownCheckbox(event.target.checked);
     if (event.target.checked) setContentType("text/markdown");
     else setContentType("text/plain");
@@ -150,7 +160,7 @@ const MakePostModal = ({
     content: string,
     contentType: string,
     visibility: string,
-    unlisted: boolean,
+    unlisted: boolean
   ) => {
     const data = {
       title: title,
@@ -165,8 +175,17 @@ const MakePostModal = ({
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
-      await axios.post(url, data);
-      
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        await axios.post(url, data, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+      }
+
       const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
       
       if (visibility === 'PUBLIC') { 
@@ -177,9 +196,7 @@ const MakePostModal = ({
         for (const followerId of authorFollowers) {
           await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData);
         }
-      }
-
-      if (visibility === 'FRIENDS') {
+      } else if (visibility === 'FRIENDS') {
         const postData = await fetchFirstPostData(getAuthorId() ?? '');
 
         const inboxItemUrl = `${APP_URI}authors/`;
@@ -199,7 +216,7 @@ const MakePostModal = ({
       handleClose();
 
     } catch (error) {
-      toast.error("Failed to create post")
+      toast.error("Failed to create post");
     }
   };
 
@@ -221,12 +238,9 @@ const MakePostModal = ({
               </IconButton>
             </Grid>
             <Grid item xs={6} textAlign="center">
-                <Typography 
-                  variant="h6"
-                  sx={{paddingTop:0.2}}
-                >
-                  Create a Post 
-                </Typography>
+              <Typography variant="h6" sx={{ paddingTop: 0.2 }}>
+                Create a Post
+              </Typography>
             </Grid>
             <Grid item xs={3}></Grid>
           </Grid>
@@ -236,7 +250,7 @@ const MakePostModal = ({
             unlisted={unlisted}
             setUnlisted={setUnlisted}
           />
-          {textType &&           
+          {textType && (
             <TextPostView
               title={title}
               setTitle={setTitle}
@@ -247,8 +261,8 @@ const MakePostModal = ({
               contentType={contentType}
               setContentType={setContentType}
             />
-          }
-          {imageType && 
+          )}
+          {imageType && (
             <ImagePostView
               title={title}
               setTitle={setTitle}
@@ -261,34 +275,43 @@ const MakePostModal = ({
               imagePrev={imagePrev}
               setImagePrev={setImagePrev}
             />
-          }
+          )}
           <Grid container>
-            <PostCategoriesField categories={categories} setCategories={setCategories} />
+            <PostCategoriesField
+              categories={categories}
+              setCategories={setCategories}
+            />
           </Grid>
-          <Grid container spacing={0} alignItems="center" justifyContent="flex-end" paddingLeft={0.5}>
+          <Grid
+            container
+            spacing={0}
+            alignItems="center"
+            justifyContent="flex-end"
+            paddingLeft={0.5}
+          >
             <Grid item>
-              <IconButton 
-              color={textType ? "info" : "default"}
-              id="txt"
-              size="small"
-              onClick={handleTextContent}
+              <IconButton
+                color={textType ? "info" : "default"}
+                id="txt"
+                size="small"
+                onClick={handleTextContent}
               >
-                <NotesIcon fontSize="medium"/> 
+                <NotesIcon fontSize="medium" />
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton 
-              color={imageType ? "info" : "default"}
-              size="small"
-              sx={{marginRight: 1}}
-              onClick={() => {
-                handleImageContent();
-              }}
-              > 
-                <ImageIcon fontSize="medium"/> 
+              <IconButton
+                color={imageType ? "info" : "default"}
+                size="small"
+                sx={{ marginRight: 1 }}
+                onClick={() => {
+                  handleImageContent();
+                }}
+              >
+                <ImageIcon fontSize="medium" />
               </IconButton>
             </Grid>
-            {textType &&
+            {textType && (
               <Grid item>
                 <FormControlLabel
                   control={
@@ -300,11 +323,11 @@ const MakePostModal = ({
                   label="Markdown"
                 />
               </Grid>
-            }
+            )}
             <Button
               variant="contained"
               color="primary"
-              disabled={content === "" || title === "" || description === ""} 
+              disabled={content === "" || title === "" || description === ""}
               sx={{
                 borderRadius: 20,
                 justifyContent: "center",
@@ -326,8 +349,8 @@ const MakePostModal = ({
                 );
                 setIsModalOpen(false);
               }}
-              endIcon={<SendIcon/>}
-              >
+              endIcon={<SendIcon />}
+            >
               Post
             </Button>
           </Grid>

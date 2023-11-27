@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chip } from "@mui/material";
+import { Chip, Typography } from "@mui/material";
 
 const PostCategories = ({
   categories,
@@ -12,9 +12,13 @@ return (
     {categories.map((category) => (
       <Chip
         key={category}
-        label={category}
+        label={
+          <Typography sx={{fontSize: "15px", color: "text.secondary"}}>
+            {category}
+          </Typography>
+        }
         size="small"
-        variant="outlined"
+        variant="filled"
         style={{ margin: 1.5 }}
       />
     ))}
