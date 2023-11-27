@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Author, Post } from "../../interfaces/interfaces";
 import { useState } from "react";
 import axios from "axios";
+import { getUserCredentials } from "../../utils/localStorageUtils";
 
 interface SharePostModalProps {
   isModalOpen: boolean;
@@ -23,7 +24,15 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
     try {
       if (post) {
         setSharedFollowers([...sharedFollowers, follower.id]);
-        await axios.post(`${follower.id}/inbox/`, post);
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          await axios.post(`${follower.id}/inbox/`, post, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
         toast.success(`Shared with ${follower.displayName} successfully!`);
         handleClose();
       } else {

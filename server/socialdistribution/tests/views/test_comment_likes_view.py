@@ -1,7 +1,9 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.tests.utils import (
     create_author,
@@ -23,8 +25,13 @@ class TestCommentLikesView(TestCase):
         self.url = reverse("comment_likes", args=[self.author.id, self.post.id, self.comment.id])
         self.post_url = reverse("single_post", args=[self.author.id, self.post.id])
 
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
+
     def test_get_post_likes(self):
-        post_response = self.client.get(self.post_url)
+        post_response = self.client.get(self.post_url, **self.headers)
         post_json_obj = deserialize_response(post_response)
         comment_url = f"{post_json_obj['id']}/comments/{self.comment.id}"
 
@@ -32,7 +39,7 @@ class TestCommentLikesView(TestCase):
         author_liker_json = create_author_dict(self.author_liker.id)
         create_like(author_liker_json, self.post, self.comment)
 
-        likes_response = self.client.get(self.url)
+        likes_response = self.client.get(self.url, **self.headers)
         likes_json_obj = deserialize_response(likes_response)
 
         self.assertEqual(likes_response.status_code, status.HTTP_200_OK)

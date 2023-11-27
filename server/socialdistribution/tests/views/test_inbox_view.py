@@ -1,7 +1,9 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.models import InboxItem, Inbox, Post
 from socialdistribution.tests.utils import (
@@ -29,6 +31,11 @@ class TestInboxView(TestCase):
         self.comments_url = reverse("comments", args=[self.author.id, self.post.id])
         self.posts_url = reverse('posts', args=[self.author.id])
 
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
+
     def test_delete_to_clear_inbox(self):
         inbox_object = Inbox.objects.get(author_id=self.author.id)
         author_json = create_author_dict(author_id=self.follower.id)
@@ -36,16 +43,16 @@ class TestInboxView(TestCase):
         follow_object = create_follow(self.author, author_json)
         create_inbox_item(follow_object, inbox_object)
 
-        response = self.client.delete(self.url)
+        response = self.client.delete(self.url, **self.headers)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(InboxItem.objects.filter(inbox=inbox_object).exists())
 
     def test_delete_to_clear_empty_inbox(self):
-        response = self.client.delete(self.url)
+        response = self.client.delete(self.url, **self.headers)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_get_with_empty_inbox(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -59,7 +66,7 @@ class TestInboxView(TestCase):
         follow_object = create_follow(self.author, author_json)
         create_inbox_item(follow_object, inbox_object)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -73,7 +80,7 @@ class TestInboxView(TestCase):
         post_object = create_plain_text_post(self.author)
         create_inbox_item(post_object, inbox_object)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -89,7 +96,7 @@ class TestInboxView(TestCase):
         comment_object = create_comment(author, post_object, "text/plain")
         create_inbox_item(comment_object, inbox_object)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -106,7 +113,7 @@ class TestInboxView(TestCase):
         like_object = create_like(author, post_object, comment_object)
         create_inbox_item(like_object, inbox_object)
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -122,7 +129,7 @@ class TestInboxView(TestCase):
             "object": create_author_dict(author_id=self.author.id)
         }
 
-        response = self.client.post(self.url, data=data, format='json')
+        response = self.client.post(self.url, data=data, format='json', **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -143,11 +150,11 @@ class TestInboxView(TestCase):
             "unlisted": False
         }
 
-        post_response = self.client.post(self.posts_url, data=post_data, format="json")
+        post_response = self.client.post(self.posts_url, data=post_data, format="json", **self.headers)
         post_json_obj = deserialize_response(post_response)
         post_data["id"] = post_json_obj["id"]
 
-        inbox_response = self.client.post(self.url, data=post_data, format='json')
+        inbox_response = self.client.post(self.url, data=post_data, format='json', **self.headers)
         inbox_json_obj = deserialize_response(inbox_response)
 
         self.assertEqual(inbox_response.status_code, status.HTTP_201_CREATED)
@@ -164,12 +171,12 @@ class TestInboxView(TestCase):
             "author": create_author_dict(author_id=self.author.id)
         }
 
-        comment_response = self.client.post(self.comments_url, data=comment_data, format="json")
+        comment_response = self.client.post(self.comments_url, data=comment_data, format="json", **self.headers)
         comment_json_obj = deserialize_response(comment_response)
         comment_data["id"] = comment_json_obj["id"]
         comment_data["author"] = comment_json_obj["author"]
 
-        inbox_response = self.client.post(self.url, data=comment_data, format="json")
+        inbox_response = self.client.post(self.url, data=comment_data, format="json", **self.headers)
         inbox_json_obj = deserialize_response(inbox_response)
 
         self.assertEqual(inbox_response.status_code, status.HTTP_201_CREATED)
@@ -194,11 +201,11 @@ class TestInboxView(TestCase):
             "author": create_author_dict(author_id=self.author.id)
         }
 
-        post_response = self.client.post(self.posts_url, data=post_data, format="json")
+        post_response = self.client.post(self.posts_url, data=post_data, format="json", **self.headers)
         post_json_obj = deserialize_response(post_response)
         like_data["object"] = post_json_obj["id"]
 
-        response = self.client.post(self.url, data=like_data, format='json')
+        response = self.client.post(self.url, data=like_data, format='json', **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -214,6 +221,6 @@ class TestInboxView(TestCase):
             "object": create_author_dict(author_id=self.author.id)
         }
 
-        response = self.client.post(self.url, data=data, format='json')
+        response = self.client.post(self.url, data=data, format='json', **self.headers)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

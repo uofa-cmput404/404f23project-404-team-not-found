@@ -34,3 +34,19 @@ export const getUserData = () => {
 export const removeUserData = () => {
   return localStorage.removeItem("user_data");
 };
+
+export const storeUserCredentials = (username: string, password: string) => {
+  localStorage.setItem("username", username);
+  localStorage.setItem("password", password);
+};
+
+export const getUserCredentials = () => {
+  const username = localStorage.getItem("username");
+  const password = localStorage.getItem("password");
+  return { username: username, password: password };
+};
+
+export const removeUserCredentials = () => {
+  localStorage.removeItem("username");
+  localStorage.removeItem("password");
+};

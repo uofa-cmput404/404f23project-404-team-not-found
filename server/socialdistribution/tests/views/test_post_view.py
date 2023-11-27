@@ -1,9 +1,11 @@
+import base64
 import uuid
 
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_user
 
 from socialdistribution.models import Post
 from socialdistribution.tests.utils import (
@@ -21,11 +23,17 @@ class TestPostView(TestCase):
         self.client = APIClient()
         self.author = create_author()
 
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
+        
+
     def test_get_post_given_author_and_post_ids(self):
         post_obj = create_plain_text_post(self.author)
         url = reverse('single_post', args=[self.author.id, post_obj.id])
 
-        response = self.client.get(url)
+        response = self.client.get(url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -41,7 +49,7 @@ class TestPostView(TestCase):
         }
         url = reverse('single_post', args=[self.author.id, post_obj.id])
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, data, format="json", **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -61,7 +69,7 @@ class TestPostView(TestCase):
         }
         url = reverse('single_post', args=[self.author.id, post_obj.id])
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, data, format="json", **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -84,7 +92,7 @@ class TestPostView(TestCase):
         }
         url = reverse('single_post', args=[self.author.id, post_id])
 
-        response = self.client.put(url, data, format='json')
+        response = self.client.put(url, data, format='json', **self.headers)
         json_obj = deserialize_response(response)
         uri = json_obj["author"]["host"]
 

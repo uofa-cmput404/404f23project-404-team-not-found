@@ -1,7 +1,10 @@
+import base64
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.urls import reverse
+
+from socialdistribution.tests.utils.auth_tests_utils import create_auth_author, create_auth_user
 
 from socialdistribution.tests.utils import (
     create_author,
@@ -18,9 +21,14 @@ class TestPostsView(TestCase):
         """
         self.client = APIClient()
         self.url = reverse("authors")
+        
+        user_obj = create_auth_user()
+        self.auth_header = f'Basic {base64.b64encode(f"test_user:123456".encode()).decode()}'
+        self.headers = {"HTTP_REFERER": "http://localhost:3000/"}
+        self.client.credentials(HTTP_AUTHORIZATION=self.auth_header)
 
     def test_get_no_authors(self):
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         expected_response = {
             "type": "authors",
             "items": [],
@@ -33,7 +41,7 @@ class TestPostsView(TestCase):
         author_obj_1 = create_author()
         author_obj_2 = create_author()
 
-        response = self.client.get(self.url)
+        response = self.client.get(self.url, **self.headers)
         json_obj = deserialize_response(response)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

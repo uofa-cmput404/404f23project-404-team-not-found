@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import { CssBaseline } from "@mui/material";
-import { getAuthorId } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
 import MakePostModal from "../post/MakePostModal";
 import PostsList from "../post/PostsList";
 import axios from "axios";
@@ -26,8 +26,17 @@ export default function HomePage() {
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
-      const response = await axios.get(url);
-      setPosts(response.data);
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get(url, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+        setPosts(response.data);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -35,8 +44,18 @@ export default function HomePage() {
 
   const deletePost = async (postId: string) => {
     try {
+      const userCredentials = getUserCredentials();
+
       const APIurl = `${postId}/`;
-      await axios.delete(APIurl);
+      if (userCredentials.username && userCredentials.password) {
+        await axios.delete(APIurl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+      }
+
       setPosts((currentPosts) =>
         currentPosts.filter((post) => post.id !== postId)
       );
@@ -57,21 +76,21 @@ export default function HomePage() {
       <HeadBar />
       <Grid
         container
-        style={{ 
+        style={{
           width: "100%",
-          height: "100vh", 
-          margin: "0 auto", 
-          marginTop: 60, 
-          overscrollBehavior: "none"
+          height: "100vh",
+          margin: "0 auto",
+          marginTop: 60,
+          overscrollBehavior: "none",
         }}
       >
         <Grid item xs={3.6} style={{ height: "80vh" }}>
-          <LeftNavBar
-            openMakePostModal={openMakePostModal}
-            page={"home"}
-          />
+          <LeftNavBar openMakePostModal={openMakePostModal} page={"home"} />
         </Grid>
-        <Grid item xs={4.8} justifyContent='center'
+        <Grid
+          item
+          xs={4.8}
+          justifyContent="center"
           sx={{
             minHeight: "calc(100vh - 60px)",
             maxHeight: "auto",
@@ -79,7 +98,11 @@ export default function HomePage() {
             borderRight: "1px solid #dbd9d9",
           }}
         >
-          <PostsList posts={posts} deletePost={deletePost} onPostEdited={fetchPosts} />
+          <PostsList
+            posts={posts}
+            deletePost={deletePost}
+            onPostEdited={fetchPosts}
+          />
         </Grid>
         <MakePostModal
           isModalOpen={isMakePostModalOpen}

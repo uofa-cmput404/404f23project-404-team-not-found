@@ -47,6 +47,13 @@ export interface Follower {
   url: string;
 }
 
+export interface Like {
+  context: string;
+  summary: string;
+  author: Author;
+  object: string;
+}
+
 export interface Post {
   id: string;
   author: Author;
@@ -61,4 +68,14 @@ export interface Post {
   updatedAt?: string | null;
   visibility: string;
   unlisted: boolean;
+  count: number;
+  comments: string;
+}
+
+export interface Comment {
+  id: string;
+  author: Author;
+  comment: string;
+  contentType: ContentType;
+  published: string;
 }
