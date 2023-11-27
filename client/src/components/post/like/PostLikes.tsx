@@ -10,8 +10,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 import { Hosts, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { localAuthorHosts } from "../../../lists/lists";
 
 const PostLikes = ({
   post,
@@ -20,9 +19,8 @@ const PostLikes = ({
 }) => {
   const [postLikes, setPostLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const authorId = getAuthorIdFromResponse(post.author.id);
   const postId = getAuthorIdFromResponse(post.id);
-  const isLocal = APP_URI!.includes(post.author.host);
+  const isLocal = localAuthorHosts.includes(post.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
