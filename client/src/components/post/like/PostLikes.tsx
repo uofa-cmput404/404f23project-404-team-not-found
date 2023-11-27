@@ -94,10 +94,10 @@ const PostLikes = ({
         }
           setPostLikes(dataLikes);
           const isAuthorLiked = dataLikes.some((like: Like) =>
-            like.author.id === userData.id
+            like !== null && like.author?.id === userData.id
           );
           setIsUserLiked(isAuthorLiked);
-      } catch(error) {
+      } catch (error) {
         console.error("Error fetching likes", error);
       }
     };
