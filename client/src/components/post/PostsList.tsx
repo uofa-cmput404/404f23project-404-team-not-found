@@ -47,6 +47,7 @@ const PostsList = ({
   const navigate = useNavigate();
 
   const useFollowers = () => {
+    // this is only for the logged in user's followers
     const [followers, setFollowers] = useState<Author[]>([]);
   
     useEffect(() => {
