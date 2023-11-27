@@ -16,7 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from "@mui/icons-material/Notes";
 import ImageIcon from "@mui/icons-material/Image";
 import SendIcon from "@mui/icons-material/Send";
-
+import { Follower, Post } from "../../interfaces/interfaces";
 import axios from "axios";
 
 import VisibilityMenu from "./VisibilityMenu";
@@ -24,7 +24,7 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ShareType } from "../../enums/enums";
+import { ShareType, ToastMessages } from "../../enums/enums";
 import { toast } from "react-toastify";
 
 const style = {
@@ -62,6 +62,10 @@ const MakePostModal = ({
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
 
+  const [followerIds, setFollowerIds] = useState<string[]>([]);
+  const [authorData, setauthorData] = useState<string[]>([]);
+  const [responseData, setResponseData] = useState<Post[]>([]);
+
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
@@ -75,6 +79,34 @@ const MakePostModal = ({
     setContent("");
     setTitle("");
     setDescription("");
+  };
+
+  const fetchFollowers = async (authorId: string): Promise<string[]> => {
+    const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
+  
+    try {
+      const userCredentials = getUserCredentials();
+
+      if (userCredentials.username && userCredentials.password) {
+        const response = await axios.get<{ items: Follower[] }>(followersUrl, {
+          auth: {
+            username: userCredentials.username,
+            password: userCredentials.password,
+          },
+        });
+
+        const followerIds = response.data.items.map((follower) => {
+          const parts = follower.id.split('/');
+          return parts[parts.length - 1];
+        });
+
+        return followerIds;
+      }
+    } catch (error) {
+      console.error("Error fetching followers:", error);
+      throw new Error("Failed to fetch followers");
+    }
+    return [] as string[];
   };
 
   const handleTextContent = () => {
@@ -131,17 +163,53 @@ const MakePostModal = ({
       const userCredentials = getUserCredentials();
 
       if (userCredentials.username && userCredentials.password) {
-        await axios.post(url, data, {
+        const response = await axios.post(url, data, {
           auth: {
             username: userCredentials.username,
             password: userCredentials.password,
           },
         });
+
+        const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
+        const postData = response.data;
+        const inboxItemUrl = `${APP_URI}authors/`;
+
+        if (visibility === "PUBLIC") {
+          const inboxItemUrl = `${APP_URI}authors/`;
+
+          for (const followerId of authorFollowers) {
+            await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+          }
+        } else if (visibility === "FRIENDS") {
+          for (const followerId of authorFollowers) {
+            const followerFollowers = await fetchFollowers(followerId ?? '');
+            if (followerFollowers.includes(getAuthorId() ?? '')) {
+              if (userCredentials.username && userCredentials.password) {
+                await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+                  auth: {
+                    username: userCredentials.username,
+                    password: userCredentials.password,
+                  },
+                });
+              }
+            }
+          }
+        }
+
+        if (onPostCreated) {
+          onPostCreated()
+        }
+      } else {
+        toast.error(ToastMessages.NOUSERCREDS)
       }
-      if (onPostCreated) {
-        onPostCreated();
-      }
+      
       handleClose();
+
     } catch (error) {
       toast.error("Failed to create post");
     }

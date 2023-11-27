@@ -1,7 +1,7 @@
 import React from 'react';
-import { Like, Post } from "../../interfaces/interfaces";
+import { Post, Author } from "../../interfaces/interfaces";
 import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-  Grid, Button, IconButton, CardActionArea, ButtonBase, CardActions } from "@mui/material";
+  Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
@@ -12,12 +12,17 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
 import Tooltip from '@mui/material/Tooltip';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import SharePostModal from './SharePostModal';
+import { getUserCredentials } from '../../utils/localStorageUtils';
 
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
 import PostLikes from "./like/PostLikes";
+
+const APP_URI = process.env.REACT_APP_URI;
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -35,9 +40,50 @@ const PostsList = ({
 }) => {
   const [isMakeCommentModalOpen, setIsMakeCommentModalOpen] = useState(false);
   const [postToComment, setPostToComment] = useState<Post>();
-
-  const handleShare = () => { };
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharedPost, setSharedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
+
+  const useFollowers = () => {
+    const [followers, setFollowers] = useState<Author[]>([]);
+  
+    useEffect(() => {
+      const fetchFollowers = async (): Promise<void> => {
+        const AUTHOR_ID = getAuthorId();
+        const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
+  
+        try {
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+            const followersData = response.data.items as Author[];
+            setFollowers(followersData);
+          }
+        } catch (error) {
+          console.error('Error fetching followers:', error);
+          setFollowers([]);
+        }
+      };
+  
+      fetchFollowers();
+  
+    }, []);
+  
+    return { followers };
+  };
+
+  const { followers } = useFollowers();
+
+
+  const handleShare = (post: Post) => {
+    setIsShareModalOpen(true);
+    setSharedPost(post);
+  };
 
   const openMakeCommentModal = (post: Post) => {
     setPostToComment(post);
@@ -204,12 +250,18 @@ const PostsList = ({
                     onClick={event => {
                       event.stopPropagation();
                       event.preventDefault();
-                      handleShare();
+                      handleShare(post);
                     }}
                   >
                     <ShareIcon fontSize="medium" />
                   </IconButton>
                   </Tooltip>
+                  <SharePostModal
+                    isModalOpen={isShareModalOpen}
+                    setIsModalOpen={setIsShareModalOpen}
+                    followers={followers}
+                    post={sharedPost}
+                  />
                 </Grid>
               </Grid>
             </CardContent>

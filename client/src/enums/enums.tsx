@@ -24,6 +24,9 @@ export enum ShareType {
     UNLISTED = "UNLISTED",
 }
 
+export enum ToastMessages {
+  NOUSERCREDS = "Unable to make a post. Please sign out and log back in.",
+}
 export enum Username {
   NOTFOUND = "node-404-team-not-found",
 }
