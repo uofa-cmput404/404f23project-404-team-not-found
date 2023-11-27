@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
-import { Hosts, Username } from "../../../enums/enums";
+import { Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 import { localAuthorHosts } from "../../../lists/lists";
 
@@ -45,6 +45,8 @@ const PostLikes = ({
           });
           setPostLikes([...postLikes, response.data]);
           setIsUserLiked(true);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
         const response = await axios.post(url, data, {
@@ -67,8 +69,6 @@ const PostLikes = ({
       const url = `${post.author.id}/posts/${postId}/likes/`
 
       try {
-        let dataLikes: any;
-
         if (isLocal) {
           const userCredentials = getUserCredentials();
           if (userCredentials.username && userCredentials.password) {
@@ -78,7 +78,14 @@ const PostLikes = ({
                 password: userCredentials.password,
               },
             });
-            dataLikes = response.data;
+            const dataLikes = response.data;
+            setPostLikes(response.data);
+            const isAuthorLiked = dataLikes.some((like: Like) =>
+              like !== null && like.author?.id === userData.id
+            );
+            setIsUserLiked(isAuthorLiked);
+          } else {
+            toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
           const response = await axios.get(url, {
@@ -87,16 +94,18 @@ const PostLikes = ({
               password: codes[post.author.host],
             },
           });
+          let dataLikes: any;
 
           if (post.author.host === Hosts.CODEMONKEYS) {
             dataLikes = response.data["items"];
           }
-        }
+
           setPostLikes(dataLikes);
           const isAuthorLiked = dataLikes.some((like: Like) =>
             like !== null && like.author?.id === userData.id
           );
           setIsUserLiked(isAuthorLiked);
+        }
       } catch (error) {
         console.error("Error fetching likes", error);
       }

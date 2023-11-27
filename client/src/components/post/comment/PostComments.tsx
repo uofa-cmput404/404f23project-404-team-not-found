@@ -58,10 +58,9 @@ const PostComments = ({
             }}
           >
             <CommentLikes
-                comment={comment}
-                postAuthorId={postAuthorId}
-                postId={postId}
-              />
+              comment={comment}
+              postId={postId}
+            />
           </Grid>
         </Card>
       )))

@@ -1,5 +1,5 @@
 import { CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
-  CardMedia, ButtonBase, Link, Tooltip, IconButton, Button, TextField, InputAdornment } from "@mui/material";
+  CardMedia, Link, Tooltip, IconButton, Button, TextField, InputAdornment } from "@mui/material";
 import HeadBar from "../../template/AppBar";
 import LeftNavBar from "../../template/LeftNavBar";
 import MakePostModal from "../MakePostModal";
@@ -23,6 +23,10 @@ import SendIcon from "@mui/icons-material/Send";
 import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
+import { localAuthorHosts, remoteAuthorHosts } from "../../../lists/lists";
+import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { codes } from "../../../objects/objects";
+import LinkIcon from '@mui/icons-material/Link';
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -36,51 +40,99 @@ const APP_URI = process.env.REACT_APP_URI;
 const PostPage = () => {
   const location = useLocation();
   const [post, setPost] = useState<Post>();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [postHost, setPostHost] = useState<string>("");
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const { authorId, postId } = useParams();
   const [comments, setComments] = useState<Comment[]>([]);
   const [value, setValue] = useState("");
-  const userData = getUserData();
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
+  const userData = getUserData();
+  const loggedUserId = getAuthorId();
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
 
-  const fetchPost = async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/`;
+  const isLocal = (host: string): boolean => {
+    return localAuthorHosts.includes(host);
+  };
 
+  const fetchPost = async (): Promise<string[]> => {
+    const endpoint = `authors/${authorId}/posts/${postId}/`;
+    const localUrl = `${APP_URI}${endpoint}`;
+
+    // check if this post is a local post
     try {
       const userCredentials = getUserCredentials();
 
       if (userCredentials.username && userCredentials.password) {
-        const response = await axios.get(url, {
+        const response = await axios.get(localUrl, {
           auth: {
             username: userCredentials.username,
             password: userCredentials.password,
           },
         });
         setPost(response.data);
+        setPostHost(APP_URI!);
+        return [response.data.id!, APP_URI];
       }
     } catch (error) {
-      console.error("Error fetching post:", error);
     }
-  };
 
-  const fetchComments = async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
-
-    try {
-      const userCredentials = getUserCredentials();
-
-      if (userCredentials.username && userCredentials.password) {
+    // if it's not a local post, then it must be a remote host
+    // go through every remote host and see if it's their post
+    for (const remoteHost of remoteAuthorHosts) {
+      const url = `${remoteHost}${endpoint}`
+      try {
         const response = await axios.get(url, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[remoteHost],
           },
         });
+        setPost(response.data);
+        setPostHost(remoteHost);
+        return [response.data.id, remoteHost];
+      } catch (error) {
+      }
+    }
+
+    // if it reaches here, postId and authorId cannot be found
+    console.error("Unable to fetch post");
+    return [];
+  };
+
+  const fetchComments = async (postUrlId: string, host: string) => {
+    const isPostLocal = isLocal(host);
+    const url = `${postUrlId}/comments/`
+
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+
+          setComments(response.data["comments"]);
+        }
+      } else {
+        const response = await axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[host],
+          },
+          params: {
+            page: 1,
+            size: 10
+          }
+        });
+
         setComments(response.data["comments"]);
       }
     } catch (error) {
@@ -89,16 +141,36 @@ const PostPage = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    // If location.state exists, used the passed post object
-    // otherwise, fetch the post object
-    if (location.state?.postObject) {
-      setPost(location.state.postObject);
-    } else {
-      fetchPost();
-    }
-    fetchComments();
-    setIsLoading(false);
+    const initialize = async () => {
+      setIsLoading(true);
+      let isHostFound = false;
+
+      // If location.state exists, used the passed post object
+      // otherwise, fetch the post object
+      if (location.state?.post) {
+        setPost(location.state.post);
+        await fetchComments(location.state.post.id, location.state.post.author.host);
+        isHostFound = true;
+      } else {
+        try {
+          const results = await fetchPost();
+          if (results.length > 0) {
+            await fetchComments(results[0], results[1]);
+            isHostFound = true;
+          }
+        } catch (error) {
+          toast.error("Unable to load post.");
+        }
+      }
+
+      if (isHostFound) {
+        setIsLoading(false);
+      } else if (!location.state?.post) {
+        toast.error("Unable to load post.");
+      }
+    };
+
+  initialize();
   }, []);
 
   const openMakePostModal = () => {
@@ -112,56 +184,80 @@ const PostPage = () => {
       author: userData,
     };
 
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
+    const url = `${post.id}/comments/`;
+    const isPostLocal = isLocal(postHost);
 
-    const userCredentials = getUserCredentials();
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
 
-    if (userCredentials.username && userCredentials.password) {
-      axios
-        .post(url, data, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        })
-        .then((response: any) => {
-          fetchComments();
           handleClear();
           post.count = post.count + 1;
-          fetchComments();
-          if (getAuthorId() !== authorId) {
-            sendCommentToInbox(comment, contentType, response.data["id"]);
+          await fetchComments(post.id, post.author.id);
+          if (loggedUserId !== authorId) {
+            await sendCommentToInbox(comment, contentType, response.data["id"]);
           }
-        })
-        .catch((error) => {
-          toast.error("Error posting comment", error);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
+        const response = await axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
         });
+
+        handleClear();
+        post.count = post.count + 1;
+        await fetchComments(post.id, post.author.id);
+        await sendCommentToInbox(comment, contentType, response.data["id"]);
+      }
+    } catch (error) {
+      toast.error("Error posting comment");
     }
   };
 
   const sendCommentToInbox = async (
     comment: string,
     contentType: string,
-    id: string
+    commentId: string
   ) => {
     const data = {
       type: "comment",
       author: userData,
-      id: id,
+      id: commentId,
       comment: comment,
       contentType: contentType,
     };
 
-    const url = `${APP_URI}authors/${authorId}/inbox/`;
+    const url = `${postHost}authors/${authorId}/inbox/`;
+    const isPostLocal = isLocal(postHost);
 
     try {
-      const userCredentials = getUserCredentials();
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+        if (userCredentials.username && userCredentials.password) {
+          await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
+      } else {
         await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[postHost],
           },
         });
       }
@@ -175,6 +271,7 @@ const PostPage = () => {
   };
 
   const deletePost = async (postId: string) => {
+    // no need to update, this can only be done by the logged in (local) user
     try {
       const userCredentials = getUserCredentials();
 
@@ -351,7 +448,7 @@ const PostPage = () => {
               <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
                 <PostCategories categories={post.categories}/>
               </CardContent>
-              <Grid 
+              <Grid
                 sx={{
                   borderTop: "1px solid #dbd9d9",
                   paddingTop: 0.5,
@@ -403,7 +500,7 @@ const PostPage = () => {
               </Grid>
             </Grid>
             </Card>
-            <Grid container 
+            <Grid container
               sx={{
                 width: "100%",
                 borderBottom: "1px solid #dbd9d9",

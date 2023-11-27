@@ -9,21 +9,20 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { localAuthorHosts } from "../../../lists/lists";
+import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { codes } from "../../../objects/objects";
 
 const CommentLikes = ({
   comment,
-  postAuthorId,
   postId,
 }: {
   comment: Comment,
-  postAuthorId: string,
   postId: string,
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const commentAuthorId = getAuthorIdFromResponse(comment.author.id);
+  const isLocal = localAuthorHosts.includes(comment.author.host);
   const commentId = getAuthorIdFromResponse(comment.id);
   const userData = getUserData();
 
@@ -31,19 +30,36 @@ const CommentLikes = ({
     const data = {
       "type": "Like",
       "author": userData,
-      "object": comment.id
+      "object": comment.id,
+      "context": "https://www.w3.org/ns/activitystreams",
+      "summary": `${userData.displayName} Likes your post`
     }
-    const url = `${APP_URI}authors/${commentAuthorId}/inbox/`
+
+    const url = `${comment.author.id}/inbox/`
 
     try {
-      const userCredentials = getUserCredentials();
-      if (userCredentials.username && userCredentials.password) {
+      if (isLocal) {
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          setCommentLikes([...commentLikes, response.data]);
+          setIsUserLiked(true);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
         const response = await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[comment.author.host],
           },
         });
+
         setCommentLikes([...commentLikes, response.data]);
         setIsUserLiked(true);
       }
@@ -54,21 +70,43 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${APP_URI}authors/${postAuthorId}/posts/${postId}/comments/${commentId}/likes/`
+      const url = `${comment.author.id}/posts/${postId}/comments/${commentId}/likes/`
 
       try {
-        const userCredentials = getUserCredentials();
-        if (userCredentials.username && userCredentials.password) {
+        if (isLocal) {
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+            const dataLikes = response.data;
+            setCommentLikes(response.data);
+            const isAuthorLiked = dataLikes.some((like: Like) =>
+              like !== null && like.author?.id === userData.id
+            );
+            setIsUserLiked(isAuthorLiked);
+          } else {
+            toast.error(ToastMessages.NOUSERCREDS);
+          }
+        } else {
           const response = await axios.get(url, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[comment.author.host],
             },
           });
-          const dataLikes = response.data;
+          let dataLikes: any;
+
+          if (comment.author.host === Hosts.CODEMONKEYS) {
+            dataLikes = response.data["items"];
+          }
+
           setCommentLikes(dataLikes);
           const isAuthorLiked = dataLikes.some((like: Like) =>
-            like.author.id === userData.id
+            like !== null && like.author?.id === userData.id
           );
           setIsUserLiked(isAuthorLiked);
         }
