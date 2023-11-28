@@ -199,9 +199,9 @@ const PostPage = () => {
           });
 
           post.count = post.count + 1;
-          await fetchComments(post.id, post.author.id);
+          await fetchComments(post.id, post.author.host);
           if (loggedUserId !== authorId) {
-            await sendCommentToInbox(comment, contentType, response.data["id"]);
+            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
           }
         } else {
           toast.error(ToastMessages.NOUSERCREDS);
@@ -215,8 +215,8 @@ const PostPage = () => {
         });
 
         post.count = post.count + 1;
-        await fetchComments(post.id, post.author.id);
-        await sendCommentToInbox(comment, contentType, response.data["id"]);
+        await fetchComments(post.id, post.author.host);
+        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
       }
 
       handleClear();
@@ -228,7 +228,8 @@ const PostPage = () => {
   const sendCommentToInbox = async (
     comment: string,
     contentType: string,
-    commentId: string
+    commentId: string,
+    authorUrlId: string,
   ) => {
     const data = {
       type: "comment",
@@ -238,7 +239,7 @@ const PostPage = () => {
       contentType: contentType,
     };
 
-    const url = `${postHost}authors/${authorId}/inbox/`;
+    const url = `${authorUrlId}/inbox/`;
     const isPostLocal = isHostLocal(postHost);
 
     try {
