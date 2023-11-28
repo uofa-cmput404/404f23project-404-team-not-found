@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, isUrlIdLocal } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -21,7 +21,7 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const isLocal = isHostLocal(comment.author.host);
+  const isLocal = isUrlIdLocal(comment.id);
   const commentId = getAuthorIdFromResponse(comment.id);
   const userData = getUserData();
 
