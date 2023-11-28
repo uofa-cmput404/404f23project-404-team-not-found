@@ -7,6 +7,9 @@ import axios from "axios";
 import { getUserCredentials } from "../../utils/localStorageUtils";
 import LinkIcon from '@mui/icons-material/Link';
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { isHostLocal } from "../../utils/responseUtils";
+import { ToastMessages, Username } from "../../enums/enums";
+import { codes } from "../../objects/objects";
 
 interface SharePostModalProps {
   isModalOpen: boolean;
@@ -36,17 +39,33 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
   const handleShare = async (follower: Author) => {
     try {
       if (post) {
-        setSharedFollowers([...sharedFollowers, follower.id]);
-        const userCredentials = getUserCredentials();
-        if (userCredentials.username && userCredentials.password) {
+        if (isHostLocal(follower.host)) {
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            await axios.post(`${follower.id}/inbox/`, post, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+
+            setSharedFollowers([...sharedFollowers, follower.id]);
+            toast.success(`Shared with ${follower.displayName} successfully!`);
+          } else {
+            toast.error(ToastMessages.NOUSERCREDS);
+          }
+        } else {
           await axios.post(`${follower.id}/inbox/`, post, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[follower.host],
             },
           });
+
+          setSharedFollowers([...sharedFollowers, follower.id]);
+          toast.success(`Shared with ${follower.displayName} successfully!`);
         }
-        toast.success(`Shared with ${follower.displayName} successfully!`);
+
         handleClose();
       } else {
         console.error("Post object is null.");

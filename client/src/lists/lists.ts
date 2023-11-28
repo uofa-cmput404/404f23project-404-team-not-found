@@ -4,6 +4,6 @@ export const localAuthorHosts: string[] = [
   Hosts.NOTFOUND,
 ];
 
-export const remoteAuthorHosts = [
+export const remoteAuthorHosts: string[] = [
   Hosts.CODEMONKEYS,
 ];

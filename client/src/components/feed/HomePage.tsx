@@ -10,11 +10,13 @@ import { toast } from "react-toastify";
 
 import HeadBar from "../template/AppBar";
 import LeftNavBar from "../template/LeftNavBar";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 export default function HomePage() {
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
   const [inboxItems, setInboxItems] = useState<Post[]>([]);
 
@@ -23,6 +25,8 @@ export default function HomePage() {
   };
 
   const fetchPosts = async () => {
+    // this should also be local use only since it's getting posts of the logged-in user
+    // and all the posts sent to the inbox
     const AUTHOR_ID = getAuthorId();
     const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
     const inboxurl = `${APP_URI}authors/${AUTHOR_ID}/inbox/`;
@@ -74,10 +78,13 @@ export default function HomePage() {
 
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const deletePost = async (postId: string) => {
+    // this is local use only for the logged-in user
     try {
       const userCredentials = getUserCredentials();
 
@@ -133,11 +140,15 @@ export default function HomePage() {
             borderRight: "1px solid #dbd9d9",
           }}
         >
-          <PostsList
-            posts={posts}
-            deletePost={deletePost}
-            onPostEdited={fetchPosts}
-          />
+          {isLoading ? (
+            <Loading />
+          ): (
+            <PostsList
+              posts={posts}
+              deletePost={deletePost}
+              onPostEdited={fetchPosts}
+            />
+          )}
         </Grid>
         {isMakePostModalOpen && (
           <MakePostModal

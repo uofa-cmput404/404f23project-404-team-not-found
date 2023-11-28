@@ -1,4 +1,4 @@
-import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
+import { getAuthorId, getUserCredentials, getUserData } from "../../utils/localStorageUtils";
 import React, { useState, useEffect } from "react";
 
 import {
@@ -16,7 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import NotesIcon from "@mui/icons-material/Notes";
 import ImageIcon from "@mui/icons-material/Image";
 import SendIcon from "@mui/icons-material/Send";
-import { Author, Post } from "../../interfaces/interfaces";
+import { Author } from "../../interfaces/interfaces";
 import axios from "axios";
 
 import VisibilityMenu from "./VisibilityMenu";
@@ -24,9 +24,10 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ShareType, ToastMessages } from "../../enums/enums";
+import { ShareType, ToastMessages, Username } from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { getCodeFromObjectId, isUrlIdLocal } from "../../utils/responseUtils";
 
 const style = {
   display: "flex",
@@ -62,16 +63,14 @@ const MakePostModal = ({
   const [textType, setTextType] = useState(true);
   const [imageType, setImageType] = useState(false);
   const [imagePrev, setImagePrev] = useState("");
-
-  const [followerIds, setFollowerIds] = useState<string[]>([]);
-  const [authorData, setauthorData] = useState<string[]>([]);
-  const [responseData, setResponseData] = useState<Post[]>([]);
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const [visibility, setVisibility] = useState(ShareType.PUBLIC);
   const [unlisted, setUnlisted] = useState(false);
   const [showAdditionalMenu, setShowAdditionalMenu] = useState(false);
   const [selectedFollower, setSelectedFollower] = useState('');
   const [followersData, setFollowersData] = useState<Author[]>([]);
+
+  const loggedUserData = getUserData();
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -84,17 +83,28 @@ const MakePostModal = ({
     setDescription("");
   };
 
-  const fetchAuthorData = async (authorId: string): Promise<Author> => {
-    const authorUrl = `${APP_URI}authors/${authorId}/`;
+  const fetchAuthorData = async (authorUrlId: string): Promise<Author> => {
+    const isAuthorLocal = isUrlIdLocal(authorUrlId);
+    const authorUrl = `${authorUrlId}/`;
   
     try {
-      const userCredentials = getUserCredentials();
+      if (isAuthorLocal) {
+        const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get<Author>(authorUrl, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          return response.data;
+        }
+      } else {
         const response = await axios.get<Author>(authorUrl, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: getCodeFromObjectId(authorUrlId),
           },
         });
         return response.data;
@@ -105,26 +115,38 @@ const MakePostModal = ({
     return {} as Author;
   };
 
-  const fetchFollowers = async (authorId: string): Promise<string[]> => {
-    const followersUrl = `${APP_URI}authors/${authorId}/followers/`;
+  const fetchFollowers = async (authorUrlId: string): Promise<string[]> => {
+    const isAuthorLocal = isUrlIdLocal(authorUrlId);
+    const followersUrl = `${authorUrlId}/followers/`;
   
     try {
-      const userCredentials = getUserCredentials();
+      if (isAuthorLocal) {
+        const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get<{ items: Author[] }>(followersUrl, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+
+          // need this to be the author url id for remote connections
+          return response.data.items.map((follower) => {
+            return follower.id
+          });
+        }
+      } else {
         const response = await axios.get<{ items: Author[] }>(followersUrl, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: getCodeFromObjectId(authorUrlId),
           },
         });
 
-        const followerIds = response.data.items.map((follower) => {
-          const parts = follower.id.split('/');
-          return parts[parts.length - 1];
-        });
-
-        return followerIds;
+        return response.data.items.map((follower) => {
+            return follower.id
+          });
       }
     } catch (error) {
       console.error("Error fetching followers:", error);
@@ -194,44 +216,62 @@ const MakePostModal = ({
           },
         });
 
-        const authorFollowers = await fetchFollowers(getAuthorId() ?? '');
+        // this will contain a list of the followers' author url ids: "apiurl/authors/uuid"
+        const authorFollowers = await fetchFollowers(loggedUserData.id ?? '');
         const postData = response.data;
-        const inboxItemUrl = `${APP_URI}authors/`;
 
-        if (visibility === "PUBLIC") {
-          const inboxItemUrl = `${APP_URI}authors/`;
-
+        if (visibility === ShareType.PUBLIC) {
           for (const followerId of authorFollowers) {
-            if (userCredentials.username && userCredentials.password) {
-              await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+            if (isUrlIdLocal(followerId)) {
+              await axios.post(`${followerId}/inbox/`, postData, {
                 auth: {
                   username: userCredentials.username,
                   password: userCredentials.password,
                 },
               });
+            } else {
+              await axios.post(`${followerId}/inbox/`, postData, {
+                auth: {
+                  username: Username.NOTFOUND,
+                  password: getCodeFromObjectId(followerId),
+                },
+              });
             }
           }
-        } else if (visibility === "FRIENDS") {
+        } else if (visibility === ShareType.FRIENDS) {
           for (const followerId of authorFollowers) {
             const followerFollowers = await fetchFollowers(followerId ?? '');
-            if (followerFollowers.includes(getAuthorId() ?? '')) {
-              if (userCredentials.username && userCredentials.password) {
-                await axios.post(`${inboxItemUrl}${followerId}/inbox/`, postData, {
+            if (followerFollowers.includes(loggedUserData.id ?? '')) {
+              if (isUrlIdLocal(followerId)) {
+                await axios.post(`${followerId}/inbox/`, postData, {
                   auth: {
                     username: userCredentials.username,
                     password: userCredentials.password,
                   },
                 });
+              } else {
+                await axios.post(`${followerId}/inbox/`, postData, {
+                  auth: {
+                    username: Username.NOTFOUND,
+                    password: getCodeFromObjectId(followerId),
+                  },
+                });
               }
             }
           }
-        } else if (visibility === 'PRIVATE') {
-          const selectedFollowerId = selectedFollower;
-          if (userCredentials.username && userCredentials.password) {
-            await axios.post(`${selectedFollowerId}/inbox/`, postData, {
+        } else if (visibility === ShareType.PRIVATE) {
+          if (isUrlIdLocal(selectedFollower)) {
+            await axios.post(`${selectedFollower}/inbox/`, postData, {
               auth: {
                 username: userCredentials.username,
                 password: userCredentials.password,
+              },
+            });
+          } else {
+            await axios.post(`${selectedFollower}/inbox/`, postData, {
+              auth: {
+                username: Username.NOTFOUND,
+                password: getCodeFromObjectId(selectedFollower),
               },
             });
           }
@@ -245,7 +285,6 @@ const MakePostModal = ({
       }
       
       handleClose();
-
     } catch (error) {
       toast.error("Failed to create post");
     }
@@ -257,7 +296,7 @@ const MakePostModal = ({
     if (visibility === ShareType.PRIVATE) {
       const fetchFollowersData = async () => {
         try {
-          const followerIds = await fetchFollowers(getAuthorId() ?? '');
+          const followerIds = await fetchFollowers(loggedUserData.id ?? '');
           const followersData = await Promise.all(
             followerIds.map(async (followerId) => await fetchAuthorData(followerId))
           );

@@ -3,13 +3,13 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, Post } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
-
-const APP_URI = process.env.REACT_APP_URI;
+import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { codes } from "../../../objects/objects";
 
 const PostLikes = ({
   post,
@@ -18,27 +18,43 @@ const PostLikes = ({
 }) => {
   const [postLikes, setPostLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const authorId = getAuthorIdFromResponse(post.author.id);
   const postId = getAuthorIdFromResponse(post.id);
+  const isLocal = isHostLocal(post.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
     const data = {
       "type": "Like",
       "author": userData,
-      "object": post.id
+      "object": post.id,
+      "context": "https://www.w3.org/ns/activitystreams",
+      "summary": `${userData.displayName} Likes your post`
     }
-    const url = `${APP_URI}authors/${authorId}/inbox/`
+    const url = `${post.author.id}/inbox/`
 
     try {
-      const userCredentials = getUserCredentials();
-      if (userCredentials.username && userCredentials.password) {
+      if (isLocal) {
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+          setPostLikes([...postLikes, response.data]);
+          setIsUserLiked(true);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
         const response = await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
           },
         });
+
         setPostLikes([...postLikes, response.data]);
         setIsUserLiked(true);
       }
@@ -49,25 +65,47 @@ const PostLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${APP_URI}authors/${authorId}/posts/${postId}/likes/`
+      const url = `${post.author.id}/posts/${postId}/likes/`
 
       try {
-        const userCredentials = getUserCredentials();
-        if (userCredentials.username && userCredentials.password) {
+        if (isLocal) {
+          const userCredentials = getUserCredentials();
+          if (userCredentials.username && userCredentials.password) {
+            const response = await axios.get(url, {
+              auth: {
+                username: userCredentials.username,
+                password: userCredentials.password,
+              },
+            });
+            const dataLikes = response.data;
+            setPostLikes(response.data);
+            const isAuthorLiked = dataLikes.some((like: Like) =>
+              like !== null && like.author?.id === userData.id
+            );
+            setIsUserLiked(isAuthorLiked);
+          } else {
+            toast.error(ToastMessages.NOUSERCREDS);
+          }
+        } else {
           const response = await axios.get(url, {
             auth: {
-              username: userCredentials.username,
-              password: userCredentials.password,
+              username: Username.NOTFOUND,
+              password: codes[post.author.host],
             },
           });
-          const dataLikes = response.data;
+          let dataLikes: any;
+
+          if (post.author.host === Hosts.CODEMONKEYS) {
+            dataLikes = response.data["items"];
+          }
+
           setPostLikes(dataLikes);
           const isAuthorLiked = dataLikes.some((like: Like) =>
-            like.author.id === userData.id
+            like !== null && like.author?.id === userData.id
           );
           setIsUserLiked(isAuthorLiked);
         }
-      } catch(error) {
+      } catch (error) {
         console.error("Error fetching likes", error);
       }
     };
