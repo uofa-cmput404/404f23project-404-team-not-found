@@ -1,27 +1,24 @@
 import React from 'react';
-import { Post, Author,GitHubEvent } from "../../interfaces/interfaces";
-import { Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link, 
-    Grid, Button, IconButton, CardActionArea, ButtonBase } from "@mui/material";
+import { Post, Author, GitHubEvent } from "../../interfaces/interfaces";
+import {
+  Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link,
+  Grid, Button, IconButton, CardActionArea, ButtonBase
+} from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
-import { renderVisibility }from '../../utils/postUtils';
+import { renderVisibility } from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import MakeCommentModal from "./MakeCommentModal";
-import ShareIcon from '@mui/icons-material/Share';
+
 import Tooltip from '@mui/material/Tooltip';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import SharePostModal from './SharePostModal';
-import { getUserCredentials } from '../../utils/localStorageUtils';
 
 
-import MoreMenu from './edit/MoreMenu';
-import styled from '@emotion/styled';
-import PostLikes from "./like/PostLikes";
+
+
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -56,23 +53,27 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
             },
             payload: {
               size: event.payload?.size,
-              action : event.payload?.action,
+              action: event.payload?.action,
+              title: event.payload?.title,
+              issue: {
+                title: event.payload?.issue?.title
+              }
             }
           }))
           .filter((event: any): event is GitHubEvent => {
-            
+
             return (
               event.type === 'PushEvent' ||
               event.type === 'PullRequestEvent' ||
               event.type === 'ForkEvent' ||
               event.type === 'CreateEvent' ||
-              event.type === 'IssueEvent'
+              event.type === 'IssuesEvent'
             );
           });
 
         setGitHubEvents(filteredEvents.map((event: any) => ({
           ...event,
-           
+
         })));
       } catch (error) {
         console.error('Error fetching GitHub events:', error);
@@ -81,7 +82,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
     };
 
     fetchGitHubEvents();
-  }, [githubUrl, username,gitehubUrl]);
+  }, [githubUrl, username, gitehubUrl]);
 
   const renderEventContent = (event: GitHubEvent) => {
     switch (event.type) {
@@ -91,7 +92,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
           <>
             <Typography>
 
-              {event.actor.display_login} <strong> pushed </strong> {event.payload.size} commits to <strong>{event.repoName}</strong>
+              {event.actor.display_login} <strong> pushed </strong> {event.payload.size} commit/s to <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
@@ -99,7 +100,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
         return (
           <>
             <Typography>
-            {event.actor.display_login}<strong>{event.payload.size}</strong> a Pull Request.
+              {event.actor.display_login} <strong>{event.payload.action}</strong> a Pull Request in <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
@@ -107,7 +108,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
         return (
           <>
             <Typography>
-              <strong>Fork Event Specific Content:</strong> .
+              {event.actor.display_login} <strong> forked </strong> a repository from <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
@@ -115,15 +116,15 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
         return (
           <>
             <Typography>
-              <strong>Create Event Specific Content:</strong> .
+              {event.actor.display_login} <strong> created </strong> a repository at <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
-      case 'IssueEvent':
+      case 'IssuesEvent':
         return (
           <>
             <Typography>
-              <strong>Issue Event Specific Content:</strong> Y.
+              {event.actor.display_login}  <strong>{event.payload.action}</strong>  "<strong> {event.payload?.issue?.title} </strong>" issue in <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
@@ -137,18 +138,18 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
       {githubEvents.length > 0 ? (
         githubEvents.map((event) => (
           <Grid item key={event.id} xs={12}>
-            <Card>
-            <CardHeader
-              avatar={<Avatar src={event.actor.avatar_url} alt={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU'} />}
-              title={event.actor.display_login}
-              subheader={formatDateTime(event.created_at)}
-              sx = {{margin:0}}
-            />
+            <Card sx={{ boxShadow: 'none' }}>
+              <CardHeader
+                avatar={<Avatar src={event.actor.avatar_url} alt={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU'} />}
+                title={event.actor.display_login}
+                subheader={formatDateTime(event.created_at)}
+                sx={{ margin: 0 }}
+              />
               <CardContent>
-                <Typography variant="h6">{event.type}</Typography>
-                
-                
-                
+                {/* <Typography variant="h6">{event.type}</Typography> */}
+
+
+
                 {renderEventContent(event)}
               </CardContent>
             </Card>

@@ -342,6 +342,7 @@ const ProfilePage = () => {
               paddingTop: 2,
               paddingBottom: 5,
               borderBottom: "1px solid #dbd9d9",
+              
             }}
           >
             <Box
@@ -440,15 +441,14 @@ const ProfilePage = () => {
             fetchPosts={fetchPosts}
             posts={posts}
           />
-        </Grid>
-        <Grid item xs={3.6}>
-          
-        {authorData && authorData.github && (
-              <GitHubEventList
-                githubUrl={authorData.github}
-              />
-        )}
-        </Grid>
+        </Grid >
+        <Grid item xs={3.6} style={{ paddingLeft: '4px' }}>
+  {authorData && authorData.github && (
+    <GitHubEventList
+      githubUrl={authorData.github}
+    />
+  )}
+</Grid>
         <div>
           <Modal
             open={open}

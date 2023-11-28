@@ -85,7 +85,11 @@ export interface GitHubEvent {
   payload: {
     size?: number;
     action?: string;
-    
+    title?: string;
+    issue? : {
+      title?: string;
+      
+    }
   };
 }
 
