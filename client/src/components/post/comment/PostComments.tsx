@@ -6,11 +6,9 @@ import CommentLikes from "../like/CommentLikes";
 
 const PostComments = ({
   comments,
-  postAuthorId,
   postId
 }:{
   comments: Comment[],
-  postAuthorId: string,
   postId: string,
 }) => {
 
@@ -58,10 +56,9 @@ const PostComments = ({
             }}
           >
             <CommentLikes
-                comment={comment}
-                postAuthorId={postAuthorId}
-                postId={postId}
-              />
+              comment={comment}
+              postId={postId}
+            />
           </Grid>
         </Card>
       )))

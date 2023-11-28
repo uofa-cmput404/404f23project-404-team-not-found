@@ -21,10 +21,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { Post, Comment } from "../../interfaces/interfaces";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
+import { ToastMessages, Username } from "../../enums/enums";
+import { codes } from "../../objects/objects";
 
 const style = {
   display: "flex",
@@ -69,16 +71,19 @@ const MakeCommentModal = ({
 }) => {
   const [comment, setComment] = useState("");
   const [contentType, setContentType] = useState("text/plain");
-  const handleClose = () => {
-    setIsCModalOpen(false);
-  };
   const authorId = getAuthorIdFromResponse(post.author.id);
   const postId = getAuthorIdFromResponse(post.id);
+  const isPostLocal = isHostLocal(post.author.host);
+  const loggedUserId = getAuthorId();
   const [postComments, setPostComments] = useState<Comment[]>([]);
   const userData = getUserData();
   const [value, setValue] = useState("");
   const [markdownCheckbox, setMarkdownCheckbox] = useState(false);
   const classes = useStyles();
+
+  const handleClose = () => {
+    setIsCModalOpen(false);
+  };
 
   const handleMarkdownContent = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -89,22 +94,40 @@ const MakeCommentModal = ({
   };
 
   const fetchComments = useCallback(async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
-    const userCredentials = getUserCredentials();
-    if (userCredentials.username && userCredentials.password) {
-      axios
-        .get(url, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        })
-        .then((response: any) => {
+    const url = `${post.id}/comments/`;
+
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+
           setPostComments(response.data["comments"]);
-        })
-        .catch((error) => {
-          console.error("Error fetching comments", error);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
+        const response = await axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
+          params: {
+            page: 1,
+            size: 10
+          }
         });
+
+        setPostComments(response.data["comments"]);
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error);
     }
   }, []);
 
@@ -119,29 +142,43 @@ const MakeCommentModal = ({
       author: userData,
     };
 
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
+    const url = `${post.id}/comments/`;
 
-    const userCredentials = getUserCredentials();
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
 
-    if (userCredentials.username && userCredentials.password) {
-      axios
-        .post(url, data, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        })
-        .then((response: any) => {
-          fetchComments();
-          handleClear();
           post.count = post.count + 1;
-          if (getAuthorId() !== authorId) {
-            sendCommentToInbox(comment, contentType, response.data["id"]);
+          await fetchComments();
+          if (loggedUserId !== authorId) {
+            await sendCommentToInbox(comment, contentType, response.data["id"]);
           }
-        })
-        .catch((error) => {
-          toast.error("Error posting comment", error);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
+        const response = await axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
         });
+
+        post.count = post.count + 1;
+        await fetchComments();
+        await sendCommentToInbox(comment, contentType, response.data["id"]);
+      }
+
+      handleClear();
+    } catch (error) {
+      toast.error("Error posting comment");
     }
   };
 
@@ -158,16 +195,25 @@ const MakeCommentModal = ({
       contentType: contentType,
     };
 
-    const url = `${APP_URI}authors/${authorId}/inbox/`;
+    const url = `${post.author.id}/inbox/`;
 
     try {
-      const userCredentials = getUserCredentials();
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+        if (userCredentials.username && userCredentials.password) {
+          await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
+      } else {
         await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
           },
         });
       }
@@ -216,7 +262,6 @@ const MakeCommentModal = ({
         >
           <PostComments
             comments={postComments}
-            postAuthorId={authorId}
             postId={postId}
           />
         </Box>
