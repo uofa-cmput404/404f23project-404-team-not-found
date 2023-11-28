@@ -27,7 +27,9 @@ import { Hosts, ImageLink, ShareType, ToastMessages, Username } from "../../enum
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
+import PostsList from "../post/PostsList";
 
+import GitHubEventList from "../post/GitHubEventList";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import FollowAuthorButton from "./FollowAuthorButton";
@@ -126,6 +128,7 @@ const ProfilePage = () => {
           github: response.data.github,
           profileImage: response.data.profileImage,
         });
+        console.log("authorData", authorData);
       }
     } catch (error) {
       console.error("Error fetching author", error);
@@ -135,6 +138,8 @@ const ProfilePage = () => {
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
+
+
 
   const fetchPosts = useCallback(async () => {
     const url = (isLocal()) ?
@@ -435,6 +440,14 @@ const ProfilePage = () => {
             fetchPosts={fetchPosts}
             posts={posts}
           />
+        </Grid>
+        <Grid item xs={3.6}>
+          
+        {authorData && authorData.github && (
+              <GitHubEventList
+                githubUrl={authorData.github}
+              />
+        )}
         </Grid>
         <div>
           <Modal
