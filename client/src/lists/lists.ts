@@ -1,11 +1,10 @@
 import { Hosts } from "../enums/enums";
 
-export const localAuthorHosts = [
-  process.env.REACT_APP_URI,
+export const localAuthorHosts: string[] = [
   Hosts.NOTFOUND,
   "http://localhost:8000/",
 ];
 
-export const remoteAuthorHosts = [
+export const remoteAuthorHosts: string[] = [
   Hosts.CODEMONKEYS,
 ];
