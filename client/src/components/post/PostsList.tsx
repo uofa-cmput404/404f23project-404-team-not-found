@@ -9,7 +9,12 @@ import { getAuthorId } from "../../utils/localStorageUtils";
 import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
-import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
+import {
+  configureImageEncoding,
+  getAuthorIdFromResponse,
+  isHostCodeMonkeys,
+  isHostLocal
+} from "../../utils/responseUtils";
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import MakeCommentModal from "../post/MakeCommentModal";
 import ShareIcon from '@mui/icons-material/Share';
@@ -209,7 +214,7 @@ const PostsList = ({
                       width: "auto",
                       borderRadius: 12,
                     }}
-                    image={post.content}
+                    image={configureImageEncoding(post)}
                   />
                 </div>
               </CardContentNoPadding>

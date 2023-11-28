@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
-import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
+import { configureImageEncoding, getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author } from "../../../interfaces/interfaces";
@@ -455,7 +455,7 @@ const PostPage = () => {
                         width: "auto",
                         borderRadius: 12,
                       }}
-                      image={post.content}
+                      image={configureImageEncoding(post)}
                     />
                   </div>
                 </CardContentNoPadding>
