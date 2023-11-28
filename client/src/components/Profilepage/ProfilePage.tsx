@@ -128,7 +128,7 @@ const ProfilePage = () => {
           github: response.data.github,
           profileImage: response.data.profileImage,
         });
-        console.log("authorData", authorData);
+        
       }
     } catch (error) {
       console.error("Error fetching author", error);
