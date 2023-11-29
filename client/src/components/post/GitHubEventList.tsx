@@ -7,13 +7,18 @@ import {
   Typography,
   Grid,
   Paper,
+  Box
 } from "@mui/material";
+
+import { makeStyles } from "@mui/styles";
 
 import { formatDateTime } from "../../utils/dateUtils";
 
 import { useState, useEffect } from "react";
 
 import axios from "axios";
+
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 const extractUsernameFromUrl = (url: string): string | null => {
   try {
@@ -32,10 +37,19 @@ const extractUsernameFromUrl = (url: string): string | null => {
   }
 };
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "&::-webkit-scrollbar": {
+      width: 0,
+    },
+  },
+}));
+
 const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
   const [githubEvents, setGitHubEvents] = useState<GitHubEvent[]>([]);
   const username = extractUsernameFromUrl(githubUrl);
   const gitehubUrl = `https://api.github.com/users/${username}/events`;
+  const classes = useStyles();
 
   useEffect(() => {
     const fetchGitHubEvents = async (): Promise<void> => {
@@ -156,52 +170,72 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
             alignItems: "center",
           }}
         >
-          <img
-            src="https://static.vecteezy.com/system/resources/previews/016/833/880/non_2x/github-logo-git-hub-icon-with-text-on-white-background-free-vector.jpg"
-            style={{ width: "30%", maxWidth: "400px", borderRadius: "8px" }}
-          />
         </Grid>
         <Grid
           item
+          container
+          direction="column"
           xs={12}
           sx={{
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            width: "25vw",
+            backgroundColor: "white",
+            position: "fixed",
+            right: "2.5vw",
+            top: 60
           }}
         >
+          <Grid container 
+            direction="row" 
+            alignItems="center" 
+            justifyContent="center"
+            sx={{
+              marginBottom: 1
+            }}
+            >
+            <GitHubIcon fontSize="medium"/>
+            <Typography variant="h6">
+              Github
+            </Typography>
+          </Grid>
           <Paper
+            elevation={0}
             sx={{
               borderRadius: 4,
               overflow: "auto",
-              maxHeight: 400,
-              width: "80%",
-              backgroundColor: (theme) => theme.palette.background.paper,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+              maxHeight: "85vh",
+              width: "100%"
             }}
+            className={classes.root}
           >
             {githubEvents.length > 0 ? (
               githubEvents.map((event) => (
                 <Card
                   key={event.id}
-                  sx={{ boxShadow: "none", borderBottom: "1px solid #e0e0e0" }}
+                  sx={{ 
+                    boxShadow: "none", 
+                    borderBottom: "2px solid white", 
+                    backgroundColor: "#f7f8fa"
+                  }}
                 >
                   <CardHeader
                     avatar={<Avatar src={event.actor.avatar_url} />}
-                    title={event.actor.display_login}
+                    title={<strong>{event.actor.display_login}</strong>}
                     subheader={formatDateTime(event.created_at)}
                     sx={{ margin: 0 }}
                   />
-                  <CardContent>{renderEventContent(event)}</CardContent>
+                  <CardContent sx={{paddingTop: 0}}>{renderEventContent(event)}</CardContent>
                 </Card>
               ))
             ) : (
               <Typography
-                variant="h6"
+                variant="subtitle1"
                 align="center"
                 sx={{ fontWeight: "bold" }}
               >
-                GitHub activity unavailable please check username
+                GitHub activity unavailable, please check username
               </Typography>
             )}
           </Paper>
