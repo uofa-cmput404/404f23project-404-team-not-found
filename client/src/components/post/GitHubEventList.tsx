@@ -183,7 +183,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
             width: "25vw",
             backgroundColor: "white",
             position: "fixed",
-            right: "2.5vw",
+            left: "71.5vw",
             top: 60
           }}
         >
@@ -195,8 +195,8 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
               marginBottom: 1
             }}
             >
-            <GitHubIcon fontSize="medium"/>
-            <Typography variant="h6">
+            <GitHubIcon fontSize="medium" color="primary"/>
+            <Typography variant="h6" color="primary">
               Github
             </Typography>
           </Grid>

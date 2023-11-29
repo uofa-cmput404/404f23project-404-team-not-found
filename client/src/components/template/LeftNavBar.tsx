@@ -90,7 +90,7 @@ const LeftNavBar = ({
         <Button
           variant="contained"
           size="large"
-          style={{ marginTop: 20, width: "90%", borderRadius: 100 }}
+          style={{ marginTop: 20, width: "80%",borderRadius: 100, maxWidth: "250px" }}
           onClick={openMakePostModal}
         >
           <Typography 

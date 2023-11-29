@@ -10,6 +10,7 @@ import {
   TextField,
   Grid,
   IconButton,
+  Link
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
@@ -37,6 +38,7 @@ import Tooltip from "@mui/material/Tooltip";
 import ProfileTabs from "./ProfileTabs";
 import { codes } from "../../objects/objects";
 import { isHostLocal } from "../../utils/responseUtils";
+import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -88,6 +90,8 @@ const ProfilePage = () => {
     github: "",
     profileImage: "",
   });
+  const [isPostLoading, setIsPostLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const location = useLocation();
   const { otherAuthorObject, userObject } = location.state || {};
@@ -132,6 +136,8 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error("Error fetching author", error);
+    } finally {
+      setIsLoading(false);
     }
   }, [authorId]);
 
@@ -157,7 +163,7 @@ const ProfilePage = () => {
           });
           if (authorId !== loggedUserId) {
             const publicPosts = response.data.filter((post: Post) =>
-              post.visibility === ShareType.PUBLIC);
+              post.visibility === ShareType.PUBLIC && post.unlisted === false);
             setPosts(publicPosts);
           } else {
             setPosts(response.data);
@@ -187,6 +193,8 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
+      setIsPostLoading(false);
     }
 
   }, [authorId]);
@@ -224,6 +232,7 @@ const ProfilePage = () => {
         github: otherAuthorObject.github,
         profileImage: otherAuthorObject.profileImage,
       });
+      setIsLoading(false);
     }
   }, [authorId, fetchAuthor]);
 
@@ -336,119 +345,140 @@ const ProfilePage = () => {
             borderRight: "1px solid #dbd9d9",
           }}
         >
-          <Grid
-            sx={{
-              backgroundColor: "#FAF8F1",
-              paddingTop: 2,
-              paddingBottom: 5,
-              borderBottom: "1px solid #dbd9d9",
-              
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                height: 200,
-                width: 200,
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-              onMouseOver={() => setShowEdit(true)}
-              onMouseOut={() => setShowEdit(false)}
-            >
-              {showEdit && isLoggedUser && (
-                <IconButton
+          { isLoading  ? (
+            <Loading/>
+          ) : (
+            <>
+              <Grid
+                sx={{
+                  backgroundColor: "#FAF8F1",
+                  paddingTop: 2,
+                  paddingBottom: 5,
+                  borderBottom: "1px solid #dbd9d9",
+                }}
+              >
+                <Box
                   sx={{
-                    backgroundColor: "white",
-                    position: "absolute",
-                    right: 0,
-                    boxShadow: 1,
-                    transition: "all",
+                    position: "relative",
+                    height: 200,
+                    width: 200,
+                    marginLeft: "auto",
+                    marginRight: "auto",
                   }}
-                  onClick={handleOpen}
+                  onMouseOver={() => setShowEdit(true)}
+                  onMouseOut={() => setShowEdit(false)}
                 >
-                  <EditIcon />
-                </IconButton>
-              )}
-              <img
-                src={profilePic || defaultSrc}
-                alt="profile-pic"
-                className={classes.picture}
-              />
-            </Box>
-            <Typography
-              variant="h2"
-              align="center"
-              color="textPrimary"
-              style={{ fontFamily: "Bree Serif, serif" }}
-            >
-              {username}
-            </Typography>
-            <a href={github ?? ""} target="_blank" rel="noopener noreferrer">
-              <Typography align="center" variant="body2" color="primary">
-                {github}
-              </Typography>
-            </a>
-            {!isLoggedUser && (
-              <Box display="flex" alignItems="center" justifyContent="center">
-                <FollowAuthorButton
-                  authorId={authorId!}
-                  isLocal={isLocal()}
-                  otherAuthorObject={otherAuthorObject}
-                  setIsUserFollowingAuthor={setIsUserFollowingAuthor}
-                  userObject={userObject}
-                />
-                {!isLoggedUser &&
-                  isUserFollowingAuthor &&
-                  isAuthorFollowingUser && (
-                    <Tooltip
-                      title={
-                        <>
-                          <Typography
-                            color="inherit"
-                            flexGrow={1}
-                            textAlign={"center"}
-                          >
-                            True Friend
-                          </Typography>
-                          <em>{"You follow each other"}</em>
-                        </>
-                      }
+                  {showEdit && isLoggedUser && (
+                    <IconButton
+                      sx={{
+                        backgroundColor: "white",
+                        position: "absolute",
+                        right: 0,
+                        boxShadow: 1,
+                        transition: "all",
+                      }}
+                      onClick={handleOpen}
                     >
-                      <FavoriteRoundedIcon
-                        sx={{
-                          borderRadius: 100,
-                          fontSize: "35px",
-                          marginTop: "auto",
-                          marginBottom: "0.5px",
-                          marginLeft: 1,
-                          padding: "4px",
-                          paddingTop: "6px",
-                          color: "#FAF8F1",
-                          bgcolor: "#103F5B",
-                        }}
-                        color="primary"
-                      />
-                    </Tooltip>
+                      <EditIcon />
+                    </IconButton>
                   )}
-              </Box>
-            )}
-          </Grid>
-          <ProfileTabs
-            author={authorData!}
-            deletePost={deletePost}
-            isLocal={isLocal()}
-            fetchPosts={fetchPosts}
-            posts={posts}
-          />
-        </Grid >
+                  <img
+                    src={profilePic || defaultSrc}
+                    alt="profile-pic"
+                    className={classes.picture}
+                  />
+                </Box>
+                <Typography
+                  variant="h2"
+                  align="center"
+                  color="textPrimary"
+                  style={{ fontFamily: "Bree Serif, serif" }}
+                >
+                  {username}
+                </Typography>
+                <Link 
+                  href={github ?? ""} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography 
+                    align="center" 
+                    variant="subtitle1" 
+                    color="primary"
+                    sx={{
+                      marginTop: 1,
+                      fontWeight: 500
+                    }}
+                    >
+                      {github?.replace("https://", "")}
+                  </Typography>
+                </Link>
+                {!isLoggedUser && (
+                  <Box display="flex" alignItems="center" justifyContent="center">
+                    <FollowAuthorButton
+                      authorId={authorId!}
+                      isLocal={isLocal()}
+                      otherAuthorObject={otherAuthorObject}
+                      setIsUserFollowingAuthor={setIsUserFollowingAuthor}
+                      userObject={userObject}
+                    />
+                    {!isLoggedUser &&
+                      isUserFollowingAuthor &&
+                      isAuthorFollowingUser && (
+                        <Tooltip
+                          title={
+                            <>
+                              <Typography
+                                color="inherit"
+                                flexGrow={1}
+                                textAlign={"center"}
+                              >
+                                True Friend
+                              </Typography>
+                              <em>{"You follow each other"}</em>
+                            </>
+                          }
+                        >
+                          <FavoriteRoundedIcon
+                            sx={{
+                              borderRadius: 100,
+                              fontSize: "35px",
+                              marginTop: "auto",
+                              marginBottom: "0.5px",
+                              marginLeft: 1,
+                              padding: "4px",
+                              paddingTop: "6px",
+                              color: "#FAF8F1",
+                              bgcolor: "#103F5B",
+                            }}
+                            color="primary"
+                          />
+                        </Tooltip>
+                      )}
+                  </Box>
+                )}
+              </Grid>
+              <ProfileTabs
+                author={authorData!}
+                deletePost={deletePost}
+                isLocal={isLocal()}
+                fetchPosts={fetchPosts}
+                posts={posts}
+                isPostLoading={isPostLoading}
+              />
+            </>
+          )}
+        </Grid>
         <Grid item xs={3.6} style={{ paddingLeft: '4px' }}>
-  {authorData && authorData.github && (
-    <GitHubEventList
-      githubUrl={authorData.github}
-    />
-  )}
-</Grid>
+          {authorData && authorData.github && (
+            <GitHubEventList
+              githubUrl={authorData.github}
+            />
+          )}
+        </Grid>
         <div>
           <Modal
             open={open}

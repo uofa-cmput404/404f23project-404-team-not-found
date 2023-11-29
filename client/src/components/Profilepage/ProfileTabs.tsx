@@ -7,6 +7,7 @@ import PostsList from "../post/PostsList";
 import { getUserCredentials } from "../../utils/localStorageUtils";
 import { Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
+import Loading from "../ui/Loading";
 
 const CustomTab = styled(Tab)({
   width: "50%",
@@ -21,15 +22,18 @@ const ProfileTabs = ({
   isLocal,
   fetchPosts,
   posts,
+  isPostLoading
 }: {
   author: Author;
   deletePost: (posId: string) => void;
   isLocal: boolean;
   fetchPosts: () => void;
   posts: Post[];
+  isPostLoading: boolean;
 }) => {
   const [followers, setFollowers] = useState<Author[]>([]);
   const [tabValue, setTabValue] = React.useState<string>("posts");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchFollowers = async () => {
@@ -65,6 +69,7 @@ const ProfileTabs = ({
           (follower: Author) => follower !== null
         );
         setFollowers(filteredFollowers);
+        setIsLoading(false);
       } catch(error) {
         console.error("Unable to fetch followers: ", error);
       }
@@ -101,14 +106,23 @@ const ProfileTabs = ({
       </Tabs>
       <Grid item sx={{ width: "100%" }}>
         {tabValue === "posts" && (
-          <PostsList
-            posts={posts}
-            deletePost={deletePost}
-            onPostEdited={fetchPosts}
-          />
+          <>
+          {isPostLoading ? (
+            <Loading/>
+          ) : (
+            <PostsList
+              posts={posts}
+              deletePost={deletePost}
+              onPostEdited={fetchPosts}
+            />
+          )}
+          </>
         )}
-        {tabValue === "followers" &&
-          (followers.length > 0 ? (
+
+        {tabValue === "followers" && (
+          isLoading ? (
+            <Loading/>
+          ): (followers.length > 0 ? (
             <AuthorsList authors={followers} />
           ) : (
             <Typography
@@ -123,7 +137,9 @@ const ProfileTabs = ({
             >
               No followers...
             </Typography>
-          ))}
+          ))
+        )
+}
       </Grid>
     </Grid>
   );
