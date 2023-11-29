@@ -167,15 +167,18 @@ const ProfilePage = () => {
             password: codes[otherAuthorObject.host],
           },
         });
+        let publicPosts: Post[];
 
         // TODO: adapt for every team
         if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
-          const publicPosts = response.data["items"].filter((post: Post) =>
+          publicPosts = response.data["items"].filter((post: Post) =>
             post.visibility === ShareType.PUBLIC);
-          setPosts(publicPosts);
         } else {
-          setPosts(response.data);
+          publicPosts = response.data.filter((post: Post) =>
+            post.visibility === ShareType.PUBLIC);
         }
+
+        setPosts(publicPosts);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
