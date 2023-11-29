@@ -10,6 +10,7 @@ import {
   TextField,
   Grid,
   IconButton,
+  Link
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { Post } from "../../interfaces/interfaces";
@@ -395,11 +396,26 @@ const ProfilePage = () => {
                 >
                   {username}
                 </Typography>
-                <a href={github ?? ""} target="_blank" rel="noopener noreferrer">
-                  <Typography align="center" variant="body2" color="primary">
-                    {github}
+                <Link 
+                  href={github ?? ""} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography 
+                    align="center" 
+                    variant="subtitle1" 
+                    color="primary"
+                    sx={{
+                      marginTop: 1,
+                      fontWeight: 500
+                    }}
+                    >
+                      {github?.replace("https://", "")}
                   </Typography>
-                </a>
+                </Link>
                 {!isLoggedUser && (
                   <Box display="flex" alignItems="center" justifyContent="center">
                     <FollowAuthorButton
