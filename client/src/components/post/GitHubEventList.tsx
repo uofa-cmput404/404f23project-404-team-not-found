@@ -1,30 +1,29 @@
-import React from 'react';
-import { Post, Author, GitHubEvent } from "../../interfaces/interfaces";
+import { GitHubEvent } from "../../interfaces/interfaces";
 import {
-  Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link,
-  Grid, Button, IconButton, CardActionArea, ButtonBase
+  Avatar,
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  CardMedia,
+  Link,
+  Grid,
+  Button,
+  IconButton,
+  CardActionArea,
+  ButtonBase,
 } from "@mui/material";
 import { formatDateTime } from "../../utils/dateUtils";
-import { getAuthorId } from "../../utils/localStorageUtils";
-import { renderVisibility } from '../../utils/postUtils';
-import { MuiMarkdown } from 'mui-markdown';
-import PostCategories from "./PostCategories";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 
-import Tooltip from '@mui/material/Tooltip';
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useEffect } from "react";
 
-
-
-
+import axios from "axios";
 
 const APP_URI = process.env.REACT_APP_URI;
 
 const extractUsernameFromUrl = (url: string): string => {
   // Split the URL by '/' and get the last segment
-  const segments = url.split('/');
+  const segments = url.split("/");
   return segments[segments.length - 1];
 };
 
@@ -56,27 +55,27 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
               action: event.payload?.action,
               title: event.payload?.title,
               issue: {
-                title: event.payload?.issue?.title
-              }
-            }
+                title: event.payload?.issue?.title,
+              },
+            },
           }))
           .filter((event: any): event is GitHubEvent => {
-
             return (
-              event.type === 'PushEvent' ||
-              event.type === 'PullRequestEvent' ||
-              event.type === 'ForkEvent' ||
-              event.type === 'CreateEvent' ||
-              event.type === 'IssuesEvent'
+              event.type === "PushEvent" ||
+              event.type === "PullRequestEvent" ||
+              event.type === "ForkEvent" ||
+              event.type === "CreateEvent" ||
+              event.type === "IssuesEvent"
             );
           });
 
-        setGitHubEvents(filteredEvents.map((event: any) => ({
-          ...event,
-
-        })));
+        setGitHubEvents(
+          filteredEvents.map((event: any) => ({
+            ...event,
+          }))
+        );
       } catch (error) {
-        console.error('Error fetching GitHub events:', error);
+        console.error("Error fetching GitHub events:", error);
         setGitHubEvents([]);
       }
     };
@@ -86,45 +85,52 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
 
   const renderEventContent = (event: GitHubEvent) => {
     switch (event.type) {
-      case 'PushEvent':
+      case "PushEvent":
         console.log(event.payload.size);
         return (
           <>
             <Typography>
-
-              {event.actor.display_login} <strong> pushed </strong> {event.payload.size} commit/s to <strong>{event.repoName}</strong>
+              {event.actor.display_login} <strong> pushed </strong>{" "}
+              {event.payload.size} commit/s to <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
-      case 'PullRequestEvent':
+      case "PullRequestEvent":
         return (
           <>
             <Typography>
-              {event.actor.display_login} <strong>{event.payload.action}</strong> a Pull Request in <strong>{event.repoName}</strong>
+              {event.actor.display_login}{" "}
+              <strong>{event.payload.action}</strong> a Pull Request in{" "}
+              <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
-      case 'ForkEvent':
+      case "ForkEvent":
         return (
           <>
             <Typography>
-              {event.actor.display_login} <strong> forked </strong> a repository from <strong>{event.repoName}</strong>
+              {event.actor.display_login} <strong> forked </strong> a repository
+              from <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
-      case 'CreateEvent':
+      case "CreateEvent":
         return (
           <>
             <Typography>
-              {event.actor.display_login} <strong> created </strong> a repository at <strong>{event.repoName}</strong>
+              {event.actor.display_login} <strong> created </strong> a
+              repository at <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
-      case 'IssuesEvent':
+      case "IssuesEvent":
         return (
           <>
             <Typography>
-              {event.actor.display_login}  <strong>{event.payload.action}</strong>  "<strong> {event.payload?.issue?.title} </strong>" issue in <strong>{event.repoName}</strong>
+              {event.actor.display_login}{" "}
+              <strong>{event.payload.action}</strong> "
+              <strong> {event.payload?.issue?.title} </strong>" issue in{" "}
+              <strong>{event.repoName}</strong>
             </Typography>
           </>
         );
@@ -138,17 +144,22 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
       {githubEvents.length > 0 ? (
         githubEvents.map((event) => (
           <Grid item key={event.id} xs={12}>
-            <Card sx={{ boxShadow: 'none' }}>
+            <Card sx={{ boxShadow: "none" }}>
               <CardHeader
-                avatar={<Avatar src={event.actor.avatar_url} alt={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU'} />}
+                avatar={
+                  <Avatar
+                    src={event.actor.avatar_url}
+                    alt={
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU"
+                    }
+                  />
+                }
                 title={event.actor.display_login}
                 subheader={formatDateTime(event.created_at)}
                 sx={{ margin: 0 }}
               />
               <CardContent>
                 {/* <Typography variant="h6">{event.type}</Typography> */}
-
-
 
                 {renderEventContent(event)}
               </CardContent>
@@ -165,15 +176,3 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
 };
 
 export default GitHubEventsList;
-
-
-
-
-
-
-
-
-
-
-
-
