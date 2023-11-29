@@ -28,6 +28,8 @@ import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
 
+
+import GitHubEventList from "../post/GitHubEventList";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import FollowAuthorButton from "./FollowAuthorButton";
@@ -126,6 +128,7 @@ const ProfilePage = () => {
           github: response.data.github,
           profileImage: response.data.profileImage,
         });
+        
       }
     } catch (error) {
       console.error("Error fetching author", error);
@@ -135,6 +138,8 @@ const ProfilePage = () => {
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
+
+
 
   const fetchPosts = useCallback(async () => {
     const url = (isLocal()) ?
@@ -337,6 +342,7 @@ const ProfilePage = () => {
               paddingTop: 2,
               paddingBottom: 5,
               borderBottom: "1px solid #dbd9d9",
+              
             }}
           >
             <Box
@@ -435,7 +441,14 @@ const ProfilePage = () => {
             fetchPosts={fetchPosts}
             posts={posts}
           />
-        </Grid>
+        </Grid >
+        <Grid item xs={3.6} style={{ paddingLeft: '4px' }}>
+  {authorData && authorData.github && (
+    <GitHubEventList
+      githubUrl={authorData.github}
+    />
+  )}
+</Grid>
         <div>
           <Modal
             open={open}
