@@ -5,7 +5,7 @@ import { Grid } from "@mui/material";
 const Loading = () => {
   return (
     <Grid container justifyContent="center" marginTop="2rem">
-      <CircularProgress color="inherit" />
+      <CircularProgress sx={{color: "#c7c7c7"}} thickness={5}/>
     </Grid>
   );
 };

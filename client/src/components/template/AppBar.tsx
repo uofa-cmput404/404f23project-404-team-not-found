@@ -46,13 +46,17 @@ const HeadBar = () => {
         borderBottom: "1px solid #dbd9d9",
       }}
     >
-      <Link to="/home-page" style={{ textDecoration: "none" }}>
+      <Link to="/home-page" 
+        style={{ 
+          textDecoration: "none" ,
+          marginLeft: "calc(15vw - 16px)",
+        }}
+      >
         <Typography
           variant="h4"
           align="left"
           color="primary"
           style={{
-            marginLeft: 20,
             marginTop: 10,
             marginBottom: 10,
           }}
@@ -63,11 +67,13 @@ const HeadBar = () => {
 
       <Button
         size="small"
-        style={{
-          color: "black",
+        sx={{
+          color: "#787878",
           height: "70%",
           alignSelf: "center",
-          marginRight: "10px",
+          marginRight: 1,
+          borderRadius: 20,
+          paddingX: 2
         }}
         onClick={handleSignOut}
         endIcon={<LogoutIcon />}

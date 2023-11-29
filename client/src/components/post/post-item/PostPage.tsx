@@ -54,6 +54,7 @@ const PostPage = () => {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
+  const [isShareButtonDisabled, setIsShareButtonDisabled] = useState(false);
 
   const fetchPost = async (): Promise<string[]> => {
     const endpoint = `authors/${authorId}/posts/${postId}/`;
@@ -200,6 +201,8 @@ const PostPage = () => {
       comment: comment,
       contentType: contentType,
       author: userData,
+      id: `${post.id}/comments/${authorId}`,
+      published: new Date(),
     };
 
     const url = `${post.id}/comments/`;
@@ -219,7 +222,7 @@ const PostPage = () => {
           post.count = post.count + 1;
           await fetchComments(post.id, post.author.host);
           if (loggedUserId !== authorId) {
-            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
+            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
           }
         } else {
           toast.error(ToastMessages.NOUSERCREDS);
@@ -234,7 +237,7 @@ const PostPage = () => {
 
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.host);
-        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
+        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
       }
 
       handleClear();
@@ -248,6 +251,7 @@ const PostPage = () => {
     contentType: string,
     commentId: string,
     authorUrlId: string,
+    published: string,
   ) => {
     const data = {
       type: "comment",
@@ -255,6 +259,7 @@ const PostPage = () => {
       id: commentId,
       comment: comment,
       contentType: contentType,
+      published: published,
     };
 
     const url = `${authorUrlId}/inbox/`;
@@ -346,8 +351,30 @@ const PostPage = () => {
   const { followers } = useFollowers();
 
   const handleShare = (post: Post) => {
+    const shouldDisableShareButton =
+      post.visibility === 'PRIVATE' ||
+      (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
+  
+    if (shouldDisableShareButton) {
+      return; // Exit early if sharing is disabled
+    }
+  
+    setIsShareButtonDisabled(true);
     setIsShareModalOpen(true);
     setSharedPost(post);
+  };
+
+  const handleAuthorProfileClick = () => {
+    const authorId = getAuthorIdFromResponse(post!.author.id);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: post!.author,
+          userObject: userData
+        }
+      }
+    );
   };
 
   return (
@@ -369,9 +396,7 @@ const PostPage = () => {
           openMakePostModal={openMakePostModal}
         />
       </Grid>
-      {(isLoading || !post) ? (
-          <Loading />
-        ) : (
+
           <Grid item xs={4.8} justifyContent='center'
             sx={{
               minHeight: "calc(100vh - 60px)",
@@ -380,65 +405,110 @@ const PostPage = () => {
               borderRight: "1px solid #dbd9d9",
             }}
           >
-            <Card key={post.id}
-              style={{
-                margin: "auto",
-                width: "100%",
-                borderRadius: 0,
-                borderLeft: 0,
-                borderRight: 0,
-                borderTop: 0
-              }}
-              variant='outlined'>
-              <CardHeader
-                avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
-                action={
-                  (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
-                    <MoreMenu
-                      post={post}
-                      deletePost={deletePost}
-                      onPostEdited={fetchPost}
-                    />
+          {(isLoading || !post) ? (
+            <Loading />
+          ) : (
+            <>
+              <Card key={post.id}
+                style={{
+                  margin: "auto",
+                  width: "100%",
+                  borderRadius: 0,
+                  borderLeft: 0,
+                  borderRight: 0,
+                  borderTop: 0
+                }}
+                variant='outlined'>
+                <CardHeader
+                  avatar={
+                    <Avatar 
+                      src={post.author.profileImage} 
+                      alt={post.author.displayName}
+                      sx={{
+                        cursor: "pointer",
+                      }}
+                      onClick={event => { 
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleAuthorProfileClick() 
+                      }} 
+                      />
+                  }
+                  action={
+                    (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
+                      <MoreMenu
+                        post={post}
+                        deletePost={deletePost}
+                        onPostEdited={fetchPost}
+                      />
+                  )}
+                  title={
+                    <Grid container direction="row" alignItems="center">
+                      <Typography>
+                        {`${post.author.displayName}`}
+                      </Typography>
+                      <Chip
+                        label={
+                          <Typography sx={{fontSize: "1em", color: "text.secondary"}}>
+                            {`${isHostLocal(postHost) ? "Local" : "Remote"}`}
+                          </Typography>
+                        }
+                        size="small"
+                        variant="filled"
+                        sx={{ marginLeft: 0.5, height: 1 }}
+                      />
+                    </Grid>
+                  }
+                  subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
+                    `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
+                    `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
+                  }
+                  sx = {{margin:0}}
+                />
+                <CardContent
+                  sx={{
+                    paddingTop: 0,
+                    paddingLeft: 9,
+                    }}>
+                  <Typography variant="h6">{post.title}</Typography>
+                  <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
+                  {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+                  <div style={{paddingBottom: 0}}>
+                    <Link href={post.content} target="_blank" noWrap>
+                      <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
+                        {post.content}
+                      </Typography>
+                    </Link>
+                    <CardContentNoPadding>
+                      <div>
+                        <CardMedia
+                          component="img"
+                          style={{
+                            maxWidth: "100%",
+                            width: "auto",
+                            borderRadius: 12,
+                          }}
+                          image={post.content}
+                        />
+                      </div>
+                    </CardContentNoPadding>
+                  </div>
+                ):(
+                  post.contentType === "text/plain" && (
+                    <Typography variant="body1">{post.content}</Typography>)
                 )}
-                title={
-                  <Grid container direction="row">
-                    <Typography>
-                      {`${post.author.displayName}`}
-                    </Typography>
-                    <Chip
-                      label={
-                        <Typography sx={{fontSize: "1em", color: "text.secondary"}}>
-                          {`${isHostLocal(postHost) ? "Local" : "Remote"}`}
-                        </Typography>
-                      }
-                      size="small"
-                      variant="filled"
-                      sx={{ marginLeft: 0.5 }}
-                    />
-                  </Grid>
-                }
-                subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
-                  `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-                  `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
-                }
-                sx = {{margin:0}}
-              />
-              <CardContent
-                sx={{
-                  paddingTop: 0,
-                  paddingLeft: 9,
-                  }}>
-                <Typography variant="h6">{post.title}</Typography>
-                <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
-                {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
-                <div style={{paddingBottom: 0}}>
-                  <Link href={post.content} target="_blank" noWrap>
-                    <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
-                      {post.content}
-                    </Typography>
-                  </Link>
+                {post.contentType === "text/markdown" && (
+                    <CardContent sx={{ padding: 0}}>
+                      <div style={{ display: "flex", justifyContent: "flex-start" }}>
+
+                      {/* https://www.npmjs.com/package/mui-markdown */}
+                      <MuiMarkdown>{`${post.content}`}</MuiMarkdown>
+                    </div>
+                    </CardContent>
+                )}
+                {post.contentType.includes("base64") && (
                   <CardContentNoPadding>
-                    <div>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
                       <CardMedia
                         component="img"
                         style={{
@@ -446,141 +516,115 @@ const PostPage = () => {
                           width: "auto",
                           borderRadius: 12,
                         }}
-                        image={post.content}
+                        image={configureImageEncoding(post)}
                       />
                     </div>
                   </CardContentNoPadding>
-                </div>
-              ):(
-                post.contentType === "text/plain" && (
-                  <Typography variant="body1">{post.content}</Typography>)
-              )}
-              {post.contentType === "text/markdown" && (
-                  <CardContent sx={{ padding: 0}}>
-                    <div style={{ display: "flex", justifyContent: "flex-start" }}>
-
-                    {/* https://www.npmjs.com/package/mui-markdown */}
-                    <MuiMarkdown>{`${post.content}`}</MuiMarkdown>
-                  </div>
-                  </CardContent>
-              )}
-              {post.contentType.includes("base64") && (
-                <CardContentNoPadding>
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <CardMedia
-                      component="img"
-                      style={{
-                        maxWidth: "100%",
-                        width: "auto",
-                        borderRadius: 12,
+                )}
+                </CardContent>
+                <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
+                  <PostCategories categories={post.categories}/>
+                </CardContent>
+                <Grid
+                  sx={{
+                    borderTop: "1px solid #dbd9d9",
+                    paddingTop: 0.5,
+                    paddingBottom: 0.5,
+                    marginTop: 1,
+                    paddingLeft: 1
+                  }}>
+                <Grid container
+                  justifyContent="space-between"
+                  sx={{
+                    width: "100%"
+                  }}
+                >
+                  <Grid item xs={4}>
+                    <PostLikes post={post} />
+                  </Grid>
+                  <Grid item xs={4} container justifyContent="center">
+                    <Button
+                      size="small"
+                      disabled
+                      sx={{
+                        borderRadius: 100,
+                        minWidth: 0,
+                        "&.Mui-disabled": {
+                          background: "white",
+                          color: "text.secondary",
+                        },
                       }}
-                      image={configureImageEncoding(post)}
-                    />
-                  </div>
-                </CardContentNoPadding>
-              )}
-              </CardContent>
-              <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
-                <PostCategories categories={post.categories}/>
-              </CardContent>
-              <Grid
-                sx={{
-                  borderTop: "1px solid #dbd9d9",
-                  paddingTop: 0.5,
-                  paddingBottom: 0.5,
-                  marginTop: 1,
-                  paddingLeft: 1
-                }}>
-              <Grid container
-                justifyContent="space-between"
-                sx={{
-                  width: "100%"
-                }}
-              >
-                <Grid item xs={4}>
-                  <PostLikes post={post} />
-                </Grid>
-                <Grid item xs={4} container justifyContent="center">
-                  <Button
-                    size="small"
-                    disabled
-                    sx={{
-                      borderRadius: 100,
-                      minWidth: 0,
-                      "&.Mui-disabled": {
-                        background: "white",
-                        color: "text.secondary",
-                      },
-                    }}
-                  >
-                    <ChatBubbleOutlineIcon fontSize="small" />
-                    <Typography sx={{marginLeft: 1}}>
-                      {post.count}
-                    </Typography>
-                  </Button>
-                </Grid>
-                <Grid item xs={4} container justifyContent="flex-end">
-                  <Tooltip title="Share" placement="bottom-end">
-                  <IconButton
-                    size="small"
-                    sx={{ marginRight: 1 }}
-                    onClick={() => {
-                      handleShare(post);
-                    }}
-                  >
-                    <ShareIcon fontSize="medium" />
-                  </IconButton>
-                  </Tooltip>
+                    >
+                      <ChatBubbleOutlineIcon fontSize="small" />
+                      <Typography sx={{marginLeft: 1}}>
+                        {post.count}
+                      </Typography>
+                    </Button>
+                  </Grid>
+                  <Grid item xs={4} container justifyContent="flex-end">
+                    <Tooltip title="Share" placement="bottom-end">
+                    <IconButton
+                      size="small"
+                      sx={{ marginRight: 1 }}
+                      disabled={isShareButtonDisabled}
+                      onClick={() => {
+                        handleShare(post);
+                      }}
+                    >
+                      <ShareIcon fontSize="medium" />
+                    </IconButton>
+                    </Tooltip>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-            </Card>
-            <Grid container
-              sx={{
-                width: "100%",
-                borderBottom: "1px solid #dbd9d9",
-                paddingLeft: 2,
-                paddingRight: 3,
-                paddingBottom: 1.5,
-              }}
-            >
-              <TextField
-                variant="standard"
-                label={value ? " " : "Write a comment..."}
-                InputLabelProps={{ shrink: false }}
-                value={value}
-                onChange={(e) => {
-                  setValue(e.target.value);
-                  setComment(e.target.value);
+              </Card>
+              <Grid container
+                sx={{
+                  width: "100%",
+                  borderBottom: "1px solid #dbd9d9",
+                  paddingLeft: 2,
+                  paddingRight: 3,
+                  paddingBottom: 1.5,
                 }}
-                InputProps={{
-                  disableUnderline: true,
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        edge="end"
-                        color="primary"
-                        disabled={value === ""}
-                        onClick={() => {
-                        handleCommentSubmit(comment, "text/plain", post);
-                        }}
-                      >
-                        <SendIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-                fullWidth
-              />
-            </Grid>
-            <Grid>
-              <PostComments
-                comments={comments}
-                postId={postId!}
-              />
-            </Grid>
+              >
+                <TextField
+                  variant="standard"
+                  label={value ? " " : "Write a comment..."}
+                  InputLabelProps={{ shrink: false }}
+                  value={value}
+                  onChange={(e) => {
+                    setValue(e.target.value);
+                    setComment(e.target.value);
+                  }}
+                  InputProps={{
+                    disableUnderline: true,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          edge="end"
+                          color="primary"
+                          disabled={value === ""}
+                          onClick={() => {
+                          handleCommentSubmit(comment, "text/plain", post);
+                          }}
+                        >
+                          <SendIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid>
+                <PostComments
+                  comments={comments}
+                  postId={postId!}
+                />
+              </Grid>
+            </>
+          )}
           </Grid>
-      )}
     </Grid>
     {isMakePostModalOpen && (
       <MakePostModal

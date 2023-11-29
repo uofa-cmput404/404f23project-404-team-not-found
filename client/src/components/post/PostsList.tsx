@@ -23,7 +23,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SharePostModal from './SharePostModal';
-import { getUserCredentials } from '../../utils/localStorageUtils';
+import { getUserCredentials, getUserData } from '../../utils/localStorageUtils';
 
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
@@ -52,6 +52,21 @@ const PostsList = ({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
+  const [isSharingAllowed, setIsSharingAllowed] = useState(true);
+  const loggedUser = getUserData();
+
+  const handleAuthorProfileClick = (post: Post) => {
+    const authorId = getAuthorIdFromResponse(post.author.id);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: post.author,
+          userObject: loggedUser
+        }
+      }
+    );
+  };
 
   const useFollowers = () => {
     // this is only for the logged in user's followers
@@ -91,8 +106,16 @@ const PostsList = ({
 
 
   const handleShare = (post: Post) => {
-    setIsShareModalOpen(true);
-    setSharedPost(post);
+    const shouldDisableShareButton =
+      post.visibility === 'PRIVATE' ||
+      (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
+
+    if (shouldDisableShareButton) {
+      return ;
+    } else {
+      setIsShareModalOpen(true);
+      setSharedPost(post);
+    }
   };
 
   const openMakeCommentModal = (post: Post) => {
@@ -138,9 +161,19 @@ const PostsList = ({
             }} 
           >
             <CardHeader
-              avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
+              avatar={
+                <Avatar 
+                  src={post.author.profileImage} 
+                  alt={post.author.displayName} 
+                  onClick={event => { 
+                    event.stopPropagation();
+                    event.preventDefault();
+                    handleAuthorProfileClick(post) 
+                  }}
+                />
+              }
               title={
-                <Grid container direction="row">
+                <Grid container direction="row" alignItems="center">
                   <Typography>
                     {`${post.author.displayName}`}
                   </Typography>
@@ -152,7 +185,7 @@ const PostsList = ({
                     }
                     size="small"
                     variant="filled"
-                    sx={{ marginLeft: 0.5 }}
+                    sx={{ marginLeft: 0.5, height: 1 }}
                   />
                 </Grid>
               }

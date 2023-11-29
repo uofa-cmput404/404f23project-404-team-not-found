@@ -72,6 +72,28 @@ export interface Post {
   comments: string;
 }
 
+export interface GitHubEvent {
+  id: string;
+  type: string;
+  created_at: string;
+  repoUrl: string;
+  repoName: string;
+  actor: {
+    display_login: string;
+    avatar_url: string;
+  };
+  payload: {
+    size?: number;
+    action?: string;
+    title?: string;
+    issue? : {
+      title?: string;
+      
+    }
+  };
+}
+
+
 export interface Comment {
   id: string;
   author: Author;

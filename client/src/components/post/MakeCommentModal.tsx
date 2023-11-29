@@ -155,6 +155,8 @@ const MakeCommentModal = ({
       comment: comment,
       contentType: contentType,
       author: userData,
+      id: `${post.id}/comments/${authorId}`,
+      published: new Date(),
     };
 
     const url = `${post.id}/comments/`;
@@ -173,7 +175,7 @@ const MakeCommentModal = ({
           post.count = post.count + 1;
           await fetchComments();
           if (loggedUserId !== authorId) {
-            await sendCommentToInbox(comment, contentType, response.data["id"]);
+            await sendCommentToInbox(comment, contentType, response.data["id"], response.data["published"]);
           }
         } else {
           toast.error(ToastMessages.NOUSERCREDS);
@@ -188,7 +190,7 @@ const MakeCommentModal = ({
 
         post.count = post.count + 1;
         await fetchComments();
-        await sendCommentToInbox(comment, contentType, response.data["id"]);
+        await sendCommentToInbox(comment, contentType, response.data["id"], response.data["published"]);
       }
 
       handleClear();
@@ -200,7 +202,8 @@ const MakeCommentModal = ({
   const sendCommentToInbox = async (
     comment: string,
     contentType: string,
-    id: string
+    id: string,
+    published: string,
   ) => {
     const data = {
       type: "comment",
@@ -208,6 +211,7 @@ const MakeCommentModal = ({
       id: id,
       comment: comment,
       contentType: contentType,
+      published: published,
     };
 
     const url = `${post.author.id}/inbox/`;
