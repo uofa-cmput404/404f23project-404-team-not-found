@@ -26,7 +26,7 @@ import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
 import { remoteAuthorHosts } from "../../../lists/lists";
-import { ToastMessages, Username } from "../../../enums/enums";
+import { Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const CardContentNoPadding = styled(CardContent)(`
@@ -121,18 +121,33 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const response = await axios.get(url, {
-          auth: {
-            username: Username.NOTFOUND,
-            password: codes[host],
-          },
-          params: {
-            page: 1,
-            size: 10
-          }
-        });
+        let comments: any;
 
-        setComments(response.data["comments"]);
+        if (host === Hosts.CODEMONKEYS) {
+          const response = await axios.get(url, {
+            auth: {
+              username: Username.NOTFOUND,
+              password: codes[host],
+            },
+            params: {
+              page: 1,
+              size: 50
+            }
+          });
+
+          comments = response.data["comments"];
+        } else {
+          const response = await axios.get(url, {
+            auth: {
+              username: Username.NOTFOUND,
+              password: codes[host],
+            },
+          });
+
+          comments = response.data["comments"];
+        }
+
+        setComments(comments);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);

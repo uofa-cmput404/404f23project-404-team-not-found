@@ -25,7 +25,7 @@ import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils"
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
-import { ToastMessages, Username } from "../../enums/enums";
+import { Hosts, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 
 const style = {
@@ -113,18 +113,33 @@ const MakeCommentModal = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const response = await axios.get(url, {
-          auth: {
-            username: Username.NOTFOUND,
-            password: codes[post.author.host],
-          },
-          params: {
-            page: 1,
-            size: 10
-          }
-        });
+        let comments: any;
 
-        setPostComments(response.data["comments"]);
+        if (post.author.host === Hosts.CODEMONKEYS) {
+          const response = await axios.get(url, {
+            auth: {
+              username: Username.NOTFOUND,
+              password: codes[post.author.host],
+            },
+            params: {
+              page: 1,
+              size: 50
+            }
+          });
+
+          comments = response.data["comments"];
+        } else {
+          const response = await axios.get(url, {
+            auth: {
+              username: Username.NOTFOUND,
+              password: codes[post.author.host],
+            },
+          });
+
+          comments = response.data["comments"];
+        }
+
+        setPostComments(comments);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
