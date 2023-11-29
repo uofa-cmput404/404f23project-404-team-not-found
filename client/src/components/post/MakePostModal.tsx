@@ -259,7 +259,7 @@ const MakePostModal = ({
               }
             }
           }
-        } else if (visibility === ShareType.PRIVATE) {
+        } else if (visibility === ShareType.PRIVATE && authorFollowers.length > 0) {
           if (isUrlIdLocal(selectedFollower)) {
             await axios.post(`${selectedFollower}/inbox/`, postData, {
               auth: {
@@ -301,6 +301,9 @@ const MakePostModal = ({
             followerIds.map(async (followerId) => await fetchAuthorData(followerId))
           );
           setFollowersData(followersData);
+          if (followersData.length > 0) {
+            setSelectedFollower(followersData[0].id);
+          }
         } catch (error) {
           console.error("Error fetching followers data:", error);
         }
@@ -340,7 +343,7 @@ const MakePostModal = ({
             unlisted={unlisted}
             setUnlisted={setUnlisted}
           />
-          {showAdditionalMenu && visibility === ShareType.PRIVATE && (
+          {showAdditionalMenu && visibility === ShareType.PRIVATE && followersData.length > 0 && (
             <Box>
               <FormControl fullWidth>
                 <InputLabel id="follower-selection-label">Select a Follower to send to...</InputLabel>
