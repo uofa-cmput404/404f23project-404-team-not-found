@@ -51,8 +51,8 @@ const PostsList = ({
   const [postToComment, setPostToComment] = useState<Post>();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
-  const [isShareButtonDisabled, setIsShareButtonDisabled] = useState(false);
   const navigate = useNavigate();
+  const [isSharingAllowed, setIsSharingAllowed] = useState(true);
 
   const useFollowers = () => {
     // this is only for the logged in user's followers
@@ -95,14 +95,13 @@ const PostsList = ({
     const shouldDisableShareButton =
       post.visibility === 'PRIVATE' ||
       (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
-  
+
     if (shouldDisableShareButton) {
-      return; // Exit early if sharing is disabled
+      return ;
+    } else {
+      setIsShareModalOpen(true);
+      setSharedPost(post);
     }
-  
-    setIsShareButtonDisabled(true);
-    setIsShareModalOpen(true);
-    setSharedPost(post);
   };
 
   const openMakeCommentModal = (post: Post) => {
@@ -278,28 +277,21 @@ const PostsList = ({
                   </Button>
                   </Tooltip>
                 </Grid>
-                  <Grid item xs={4} container justifyContent="flex-end">
+                <Grid item xs={4} container justifyContent="flex-end">
                   <Tooltip title="Share" placement="bottom-end">
-                    <IconButton
-                      size="small"
-                      sx={{ marginRight: 1 }}
-                      onMouseDown={event => event.stopPropagation()}
-                      onClick={event => {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        handleShare(post);
-                      }}
-                      disabled={isShareButtonDisabled}
-                    >
-                      <ShareIcon fontSize="medium" />
-                    </IconButton>
+                  <IconButton
+                    size="small"
+                    sx={{ marginRight: 1 }}
+                    onMouseDown={event => event.stopPropagation()}
+                    onClick={event => {
+                      event.stopPropagation();
+                      event.preventDefault();
+                      handleShare(post);
+                    }}
+                  >
+                    <ShareIcon fontSize="medium" />
+                  </IconButton>
                   </Tooltip>
-                  <SharePostModal
-                    isModalOpen={isShareModalOpen}
-                    setIsModalOpen={setIsShareModalOpen}
-                    followers={followers}
-                    post={sharedPost}
-                  />
                 </Grid>
               </Grid>
             </CardContent>
@@ -344,6 +336,15 @@ const PostsList = ({
           setIsCModalOpen={setIsMakeCommentModalOpen}
         />
       }
+      {isShareModalOpen &&
+        <SharePostModal
+          isModalOpen={isShareModalOpen}
+          setIsModalOpen={setIsShareModalOpen}
+          followers={followers}
+          post={sharedPost!}
+        />
+      }
+
     </Grid>
   );
 };

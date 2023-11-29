@@ -15,7 +15,7 @@ interface SharePostModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   followers: Author[];
-  post: Post | null;
+  post: Post;
 }
 
 const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: SharePostModalProps) => {
@@ -26,8 +26,8 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
   };
 
   const copyLink = () => {
-    const authorID = post?.author?.id ? getAuthorIdFromResponse(post.author.id) : '';
-    const postID = post?.id ? getAuthorIdFromResponse(post.id) : '';
+    const authorID = getAuthorIdFromResponse(post.author.id);
+    const postID = getAuthorIdFromResponse(post.id);
     const url = window.location.href;
     const path = window.location.pathname;
     const uri = url.replace(path, '');
