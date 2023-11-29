@@ -358,8 +358,7 @@ const PostPage = () => {
     if (shouldDisableShareButton) {
       return; // Exit early if sharing is disabled
     }
-  
-    setIsShareButtonDisabled(true);
+
     setIsShareModalOpen(true);
     setSharedPost(post);
   };
