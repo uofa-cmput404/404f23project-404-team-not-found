@@ -94,7 +94,7 @@ const PostsList = ({
   const handleShare = (post: Post) => {
     const shouldDisableShareButton =
       post.visibility === 'PRIVATE' ||
-      (post.visibility === 'FRIENDS' && post.contentType === 'image/png;base64');
+      (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
   
     if (shouldDisableShareButton) {
       return; // Exit early if sharing is disabled
