@@ -13,6 +13,7 @@ def get_custom_authenticators(request):
     if referer and any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
         return [BasicAuthentication()]  # For local node referers
     else:
+        print("should be node")
         return [NodeAuthentication()]  # For remote addresses using Node model
 
 
@@ -24,4 +25,5 @@ def get_custom_permissions(request):
     if referer and any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
         return [IsAuthenticated()]  # For local node referers
     else:
+        print("should be node")
         return [NodeIsAuthenticated()]  # For remote addresses using Node model
