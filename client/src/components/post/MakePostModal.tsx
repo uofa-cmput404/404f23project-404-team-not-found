@@ -345,11 +345,14 @@ const MakePostModal = ({
           />
           {showAdditionalMenu && visibility === ShareType.PRIVATE && followersData.length > 0 && (
             <Box>
-              <FormControl fullWidth>
-                <InputLabel id="follower-selection-label">Select a Follower to send to...</InputLabel>
+              <FormControl fullWidth size="small">
+                <InputLabel id="follower-selection-label" sx={{marginLeft: 1}}>Select a Follower to send to...</InputLabel>
                 <Select
                   labelId="follower-selection-label"
                   id="follower-selection"
+                  sx={{
+                    marginX: 1
+                  }}
                   value={selectedFollower}
                   label="Select a Follower to send to..."
                   onChange={(event: SelectChangeEvent) => setSelectedFollower(event.target.value as string)}
