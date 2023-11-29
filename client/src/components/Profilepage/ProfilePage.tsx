@@ -162,7 +162,7 @@ const ProfilePage = () => {
           });
           if (authorId !== loggedUserId) {
             const publicPosts = response.data.filter((post: Post) =>
-              post.visibility === ShareType.PUBLIC);
+              post.visibility === ShareType.PUBLIC && post.unlisted === false);
             setPosts(publicPosts);
           } else {
             setPosts(response.data);

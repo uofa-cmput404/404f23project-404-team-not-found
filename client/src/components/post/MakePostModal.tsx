@@ -220,7 +220,7 @@ const MakePostModal = ({
         const authorFollowers = await fetchFollowers(loggedUserData.id ?? '');
         const postData = response.data;
 
-        if (visibility === ShareType.PUBLIC) {
+        if (visibility === ShareType.PUBLIC && !unlisted) {
           for (const followerId of authorFollowers) {
             if (isUrlIdLocal(followerId)) {
               await axios.post(`${followerId}/inbox/`, postData, {
