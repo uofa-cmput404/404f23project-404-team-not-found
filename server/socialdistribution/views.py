@@ -226,7 +226,7 @@ class PostsView(APIView):
 
         # we will be filtering out posts on the front end so we want to query everything on local
         # on remote, we should only show public posts
-        if any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
+        if referer and any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
             posts = Post.objects.filter(author__id=author_id).order_by("-published")
         else:
             posts = (Post.objects.filter(author__id=author_id,
