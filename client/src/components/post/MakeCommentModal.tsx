@@ -164,7 +164,7 @@ const MakeCommentModal = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const response = await axios.get(url, {
+        const response = await axios.post(url, data,{
           auth: {
             username: Username.NOTFOUND,
             password: codes[post.author.host],

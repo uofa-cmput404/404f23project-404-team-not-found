@@ -25,7 +25,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
-import { localAuthorHosts, remoteAuthorHosts } from "../../../lists/lists";
+import { remoteAuthorHosts } from "../../../lists/lists";
 import { ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
@@ -177,7 +177,7 @@ const PostPage = () => {
     setIsMakePostModalOpen(true);
   };
 
-  const handleSubmit = async (comment: string, contentType: string, post: Post) => {
+  const handleCommentSubmit = async (comment: string, contentType: string, post: Post) => {
     const data = {
       comment: comment,
       contentType: contentType,
@@ -207,7 +207,7 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const response = await axios.get(url, {
+        const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
             password: codes[post.author.host],
@@ -544,7 +544,7 @@ const PostPage = () => {
                         color="primary"
                         disabled={value === ""}
                         onClick={() => {
-                        handleSubmit(comment, "text/plain", post);
+                        handleCommentSubmit(comment, "text/plain", post);
                         }}
                       >
                         <SendIcon />
