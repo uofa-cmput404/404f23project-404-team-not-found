@@ -77,9 +77,12 @@ const PostPage = () => {
     } catch (error) {
     }
 
+    // TODO: remove after p2
+    const allRemoteHosts: string[] = [...remoteAuthorHosts, "http://localhost:8000/api/"];
+
     // if it's not a local post, then it must be a remote host
     // go through every remote host and see if it's their post
-    for (const remoteHost of remoteAuthorHosts) {
+    for (const remoteHost of allRemoteHosts) {
       const url = `${remoteHost}${endpoint}`
       try {
         const response = await axios.get(url, {
