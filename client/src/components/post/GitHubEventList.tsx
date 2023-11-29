@@ -5,21 +5,15 @@ import {
   CardContent,
   CardHeader,
   Typography,
-  CardMedia,
-  Link,
   Grid,
-  Button,
-  IconButton,
-  CardActionArea,
-  ButtonBase,
+  Paper,
 } from "@mui/material";
+
 import { formatDateTime } from "../../utils/dateUtils";
 
 import { useState, useEffect } from "react";
 
 import axios from "axios";
-
-const APP_URI = process.env.REACT_APP_URI;
 
 const extractUsernameFromUrl = (url: string): string | null => {
   try {
@@ -153,40 +147,69 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
   if (username !== null) {
     return (
       <Grid container spacing={2}>
-        {githubEvents.length > 0 ? (
-          githubEvents.map((event) => (
-            <Grid item key={event.id} xs={12}>
-              <Card sx={{ boxShadow: "none" }}>
-                <CardHeader
-                  avatar={
-                    <Avatar
-                      src={event.actor.avatar_url}
-                      alt={
-                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU"
-                      }
-                    />
-                  }
-                  title={event.actor.display_login}
-                  subheader={formatDateTime(event.created_at)}
-                  sx={{ margin: 0 }}
-                />
-                <CardContent>{renderEventContent(event)}</CardContent>
-              </Card>
-            </Grid>
-          ))
-        ) : (
-          <Typography variant="h6" align="center">
-            No GitHub events available...
-          </Typography>
-        )}
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src="https://static.vecteezy.com/system/resources/previews/016/833/880/non_2x/github-logo-git-hub-icon-with-text-on-white-background-free-vector.jpg"
+            style={{ width: "30%", maxWidth: "400px", borderRadius: "8px" }}
+          />
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Paper
+            sx={{
+              borderRadius: 4,
+              overflow: "auto",
+              maxHeight: 400,
+              width: "80%",
+              backgroundColor: (theme) => theme.palette.background.paper,
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {githubEvents.length > 0 ? (
+              githubEvents.map((event) => (
+                <Card
+                  key={event.id}
+                  sx={{ boxShadow: "none", borderBottom: "1px solid #e0e0e0" }}
+                >
+                  <CardHeader
+                    avatar={<Avatar src={event.actor.avatar_url} />}
+                    title={event.actor.display_login}
+                    subheader={formatDateTime(event.created_at)}
+                    sx={{ margin: 0 }}
+                  />
+                  <CardContent>{renderEventContent(event)}</CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography
+                variant="h6"
+                align="center"
+                sx={{ fontWeight: "bold" }}
+              >
+                GitHub activity unavailable please check username
+              </Typography>
+            )}
+          </Paper>
+        </Grid>
       </Grid>
     );
   } else {
-    return (
-      <Typography variant="h6" align="center">
-        Invalid GitHub URL...
-      </Typography>
-    );
+    return <Typography variant="h6" align="center"></Typography>;
   }
 };
 

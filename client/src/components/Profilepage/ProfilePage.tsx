@@ -27,7 +27,7 @@ import { Hosts, ImageLink, ShareType, ToastMessages, Username } from "../../enum
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
-import PostsList from "../post/PostsList";
+
 
 import GitHubEventList from "../post/GitHubEventList";
 import CloseIcon from "@mui/icons-material/Close";
