@@ -183,7 +183,7 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
             width: "25vw",
             backgroundColor: "white",
             position: "fixed",
-            right: "2.5vw",
+            left: "71.5vw",
             top: 60
           }}
         >
