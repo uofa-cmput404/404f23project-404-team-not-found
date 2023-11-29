@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, isUrlIdLocal } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, getCodeFromObjectId, isUrlIdLocal } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -69,7 +69,7 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${comment.author.id}/posts/${postId}/comments/${commentId}/likes/`
+      const url = `${comment.id}/likes/`
 
       try {
         if (isLocal) {
@@ -94,7 +94,7 @@ const CommentLikes = ({
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
-              password: codes[comment.author.host],
+              password: getCodeFromObjectId(comment.id),
             },
           });
           let dataLikes: any;

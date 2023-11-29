@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, Post } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
+import { getAuthorIdFromResponse, getCodeFromObjectId, isHostLocal } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -65,7 +65,7 @@ const PostLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${post.author.id}/posts/${postId}/likes/`
+      const url = `${post.id}/likes/`
 
       try {
         if (isLocal) {
@@ -90,13 +90,15 @@ const PostLikes = ({
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
-              password: codes[post.author.host],
+              password: getCodeFromObjectId(post.id),
             },
           });
           let dataLikes: any;
 
           if (post.author.host === Hosts.CODEMONKEYS) {
             dataLikes = response.data["items"];
+          } else {
+            dataLikes = response.data;
           }
 
           setPostLikes(dataLikes);
