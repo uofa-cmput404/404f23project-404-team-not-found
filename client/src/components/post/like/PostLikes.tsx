@@ -95,6 +95,7 @@ const PostLikes = ({
           });
           let dataLikes: any;
 
+          // TODO: adapt for every team
           if (post.author.host === Hosts.CODEMONKEYS) {
             dataLikes = response.data["items"];
           } else {

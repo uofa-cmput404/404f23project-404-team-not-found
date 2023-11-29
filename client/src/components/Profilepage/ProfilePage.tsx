@@ -180,6 +180,8 @@ const ProfilePage = () => {
         });
         let publicPosts: Post[];
 
+        let publicPosts: Post[];
+
         // TODO: adapt for every team
         if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
           publicPosts = response.data["items"].filter((post: Post) =>
