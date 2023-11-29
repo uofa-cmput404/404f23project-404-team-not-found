@@ -195,8 +195,8 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
               marginBottom: 1
             }}
             >
-            <GitHubIcon fontSize="medium"/>
-            <Typography variant="h6">
+            <GitHubIcon fontSize="medium" color="primary"/>
+            <Typography variant="h6" color="primary">
               Github
             </Typography>
           </Grid>
