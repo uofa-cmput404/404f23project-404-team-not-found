@@ -52,6 +52,7 @@ const PostsList = ({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
   const navigate = useNavigate();
+  const [isSharingAllowed, setIsSharingAllowed] = useState(true);
 
   const useFollowers = () => {
     // this is only for the logged in user's followers
@@ -91,8 +92,16 @@ const PostsList = ({
 
 
   const handleShare = (post: Post) => {
-    setIsShareModalOpen(true);
-    setSharedPost(post);
+    const shouldDisableShareButton =
+      post.visibility === 'PRIVATE' ||
+      (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
+
+    if (shouldDisableShareButton) {
+      return ;
+    } else {
+      setIsShareModalOpen(true);
+      setSharedPost(post);
+    }
   };
 
   const openMakeCommentModal = (post: Post) => {

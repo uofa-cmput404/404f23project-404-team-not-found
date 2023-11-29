@@ -54,6 +54,7 @@ const PostPage = () => {
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
+  const [isShareButtonDisabled, setIsShareButtonDisabled] = useState(false);
 
   const fetchPost = async (): Promise<string[]> => {
     const endpoint = `authors/${authorId}/posts/${postId}/`;
@@ -343,6 +344,15 @@ const PostPage = () => {
   const { followers } = useFollowers();
 
   const handleShare = (post: Post) => {
+    const shouldDisableShareButton =
+      post.visibility === 'PRIVATE' ||
+      (post.visibility === 'FRIENDS' && post.contentType.includes("base64"));
+  
+    if (shouldDisableShareButton) {
+      return; // Exit early if sharing is disabled
+    }
+  
+    setIsShareButtonDisabled(true);
     setIsShareModalOpen(true);
     setSharedPost(post);
   };
@@ -521,6 +531,7 @@ const PostPage = () => {
                   <IconButton
                     size="small"
                     sx={{ marginRight: 1 }}
+                    disabled={isShareButtonDisabled}
                     onClick={() => {
                       handleShare(post);
                     }}
