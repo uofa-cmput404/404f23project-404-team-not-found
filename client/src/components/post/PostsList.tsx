@@ -42,6 +42,7 @@ const PostsList = ({
   const [postToComment, setPostToComment] = useState<Post>();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
+  const [isShareButtonDisabled, setIsShareButtonDisabled] = useState(false);
   const navigate = useNavigate();
 
   const useFollowers = () => {
@@ -81,6 +82,15 @@ const PostsList = ({
 
 
   const handleShare = (post: Post) => {
+    const shouldDisableShareButton =
+      post.visibility === 'PRIVATE' ||
+      (post.visibility === 'FRIENDS' && post.contentType === 'image/png;base64');
+  
+    if (shouldDisableShareButton) {
+      return; // Exit early if sharing is disabled
+    }
+  
+    setIsShareButtonDisabled(true);
     setIsShareModalOpen(true);
     setSharedPost(post);
   };
@@ -241,10 +251,8 @@ const PostsList = ({
                   </Button>
                   </Tooltip>
                 </Grid>
-                <Grid item xs={4} container justifyContent="flex-end">
-                {post.visibility !== 'PRIVATE' &&
-                  !(post.visibility === 'FRIENDS' && post.contentType === 'image/png;base64') && (
-                    <Tooltip title="Share" placement="bottom-end">
+                  <Grid item xs={4} container justifyContent="flex-end">
+                  <Tooltip title="Share" placement="bottom-end">
                     <IconButton
                       size="small"
                       sx={{ marginRight: 1 }}
@@ -254,12 +262,11 @@ const PostsList = ({
                         event.preventDefault();
                         handleShare(post);
                       }}
+                      disabled={isShareButtonDisabled}
                     >
                       <ShareIcon fontSize="medium" />
                     </IconButton>
-                    </Tooltip>
-                  )}
-
+                  </Tooltip>
                   <SharePostModal
                     isModalOpen={isShareModalOpen}
                     setIsModalOpen={setIsShareModalOpen}
