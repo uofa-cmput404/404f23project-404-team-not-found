@@ -21,10 +21,21 @@ import axios from "axios";
 
 const APP_URI = process.env.REACT_APP_URI;
 
-const extractUsernameFromUrl = (url: string): string => {
-  // Split the URL by '/' and get the last segment
-  const segments = url.split("/");
-  return segments[segments.length - 1];
+const extractUsernameFromUrl = (url: string): string | null => {
+  try {
+    const urlObject = new URL(url);
+
+    if (
+      urlObject.hostname === "github.com" &&
+      urlObject.pathname.split("/").length >= 2
+    ) {
+      return urlObject.pathname.split("/")[1];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    return null;
+  }
 };
 
 const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
@@ -139,40 +150,44 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
     }
   };
 
-  return (
-    <Grid container spacing={2}>
-      {githubEvents.length > 0 ? (
-        githubEvents.map((event) => (
-          <Grid item key={event.id} xs={12}>
-            <Card sx={{ boxShadow: "none" }}>
-              <CardHeader
-                avatar={
-                  <Avatar
-                    src={event.actor.avatar_url}
-                    alt={
-                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU"
-                    }
-                  />
-                }
-                title={event.actor.display_login}
-                subheader={formatDateTime(event.created_at)}
-                sx={{ margin: 0 }}
-              />
-              <CardContent>
-                {/* <Typography variant="h6">{event.type}</Typography> */}
-
-                {renderEventContent(event)}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))
-      ) : (
-        <Typography variant="h6" align="center">
-          No GitHub events available...
-        </Typography>
-      )}
-    </Grid>
-  );
+  if (username !== null) {
+    return (
+      <Grid container spacing={2}>
+        {githubEvents.length > 0 ? (
+          githubEvents.map((event) => (
+            <Grid item key={event.id} xs={12}>
+              <Card sx={{ boxShadow: "none" }}>
+                <CardHeader
+                  avatar={
+                    <Avatar
+                      src={event.actor.avatar_url}
+                      alt={
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrprp_DOK2iC4a7I9bFJ01YUn_Cri-SdLTaQ&usqp=CAU"
+                      }
+                    />
+                  }
+                  title={event.actor.display_login}
+                  subheader={formatDateTime(event.created_at)}
+                  sx={{ margin: 0 }}
+                />
+                <CardContent>{renderEventContent(event)}</CardContent>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <Typography variant="h6" align="center">
+            No GitHub events available...
+          </Typography>
+        )}
+      </Grid>
+    );
+  } else {
+    return (
+      <Typography variant="h6" align="center">
+        Invalid GitHub URL...
+      </Typography>
+    );
+  }
 };
 
 export default GitHubEventsList;
