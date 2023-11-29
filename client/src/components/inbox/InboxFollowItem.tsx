@@ -16,6 +16,7 @@ import {
   getUserData,
 } from "../../utils/localStorageUtils";
 import { toast } from "react-toastify";
+import { ToastMessages } from "../../enums/enums";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -45,6 +46,8 @@ const InboxFollowItem = ({
 
   const handleAcceptFollow = async () => {
     // actor is the one who wants to follow and object is the author actor wants to follow
+    // that means actor is another user and object is the logged-in user
+    // also don't need to do anything here since we should be calling our followers endpoint to accept
     const data = {
       actor: followItem.actor,
       object: followItem.object,
@@ -62,6 +65,8 @@ const InboxFollowItem = ({
           },
         });
         setFollowAccepted(true);
+      } else {
+        toast.error(ToastMessages.NOUSERCREDS);
       }
     } catch (error) {
       toast.error("Failed to accept follow");
@@ -69,6 +74,7 @@ const InboxFollowItem = ({
   };
 
   const handleDenyFollow = async () => {
+    // this is our own custom endpoint, only for logged-in user
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
     const url = `${APP_URI}authors/${loggedUserId}/follows/${authorId}/`;
 
@@ -83,6 +89,8 @@ const InboxFollowItem = ({
           },
         });
         removeFollowItem(followItem.actor.id, followItem.object.id);
+      } else {
+        toast.error(ToastMessages.NOUSERCREDS);
       }
     } catch (error) {
       toast.error("Failed to decline follow request");

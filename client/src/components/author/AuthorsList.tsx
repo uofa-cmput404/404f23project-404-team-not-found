@@ -1,10 +1,9 @@
 import { Avatar, Button, Card, CardHeader, Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
 import { getUserData } from "../../utils/localStorageUtils";
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
 import { useNavigate } from "react-router-dom";
 import { authorsListSubheader } from "../../objects/objects";
-import { localAuthorHosts } from "../../lists/lists";
 
 const AuthorsList = ({
   authors,
@@ -15,7 +14,7 @@ const AuthorsList = ({
   const loggedUser = getUserData();
 
   const getSubheader = (host: string) => {
-    if (localAuthorHosts.includes(host)) {
+    if (isHostLocal(host)) {
       return "Local";
     } else if (Object.keys(authorsListSubheader).includes(host)) {
       return authorsListSubheader[host];

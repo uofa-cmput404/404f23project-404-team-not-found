@@ -23,7 +23,7 @@ import {
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from "@mui/icons-material/Edit";
-import { Hosts, ImageLink, Username } from "../../enums/enums";
+import { Hosts, ImageLink, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
@@ -34,7 +34,7 @@ import FollowAuthorButton from "./FollowAuthorButton";
 import Tooltip from "@mui/material/Tooltip";
 import ProfileTabs from "./ProfileTabs";
 import { codes } from "../../objects/objects";
-import { localAuthorHosts } from "../../lists/lists";
+import { isHostLocal } from "../../utils/responseUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -103,7 +103,7 @@ const ProfilePage = () => {
   const isLocal = () => {
     return (isLoggedUser ||
       !otherAuthorObject ||
-      localAuthorHosts.includes(otherAuthorObject.host));
+      isHostLocal(otherAuthorObject.host));
   }
 
   const fetchAuthor = useCallback(async () => {
@@ -150,7 +150,15 @@ const ProfilePage = () => {
               password: userCredentials.password,
             },
           });
-          setPosts(response.data);
+          if (authorId !== loggedUserId) {
+            const publicPosts = response.data.filter((post: Post) =>
+              post.visibility === ShareType.PUBLIC);
+            setPosts(publicPosts);
+          } else {
+            setPosts(response.data);
+          }
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
         const response = await axios.get(url, {
@@ -160,8 +168,13 @@ const ProfilePage = () => {
           },
         });
 
+        // TODO: adapt for every team
         if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
-          setPosts(response.data["items"]);
+          const publicPosts = response.data["items"].filter((post: Post) =>
+            post.visibility === ShareType.PUBLIC);
+          setPosts(publicPosts);
+        } else {
+          setPosts(response.data);
         }
       }
     } catch (error) {

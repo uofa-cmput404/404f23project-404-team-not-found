@@ -1,13 +1,15 @@
-import { CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
-  CardMedia, ButtonBase, Link, Tooltip, IconButton, Button, TextField, InputAdornment } from "@mui/material";
+import {
+  CssBaseline, Grid, Card, Avatar, CardContent, Typography, CardHeader,
+  CardMedia, Link, Tooltip, IconButton, Button, TextField, InputAdornment, Chip
+} from "@mui/material";
 import HeadBar from "../../template/AppBar";
 import LeftNavBar from "../../template/LeftNavBar";
 import MakePostModal from "../MakePostModal";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
-import { getAuthorIdFromResponse } from "../../../utils/responseUtils";
+import { configureImageEncoding, getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author } from "../../../interfaces/interfaces";
@@ -23,6 +25,9 @@ import SendIcon from "@mui/icons-material/Send";
 import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
+import { remoteAuthorHosts } from "../../../lists/lists";
+import { ToastMessages, Username } from "../../../enums/enums";
+import { codes } from "../../../objects/objects";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -36,51 +41,97 @@ const APP_URI = process.env.REACT_APP_URI;
 const PostPage = () => {
   const location = useLocation();
   const [post, setPost] = useState<Post>();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [postHost, setPostHost] = useState<string>("");
   const [isMakePostModalOpen, setIsMakePostModalOpen] = useState(false);
   const { authorId, postId } = useParams();
   const [comments, setComments] = useState<Comment[]>([]);
   const [value, setValue] = useState("");
-  const userData = getUserData();
   const [comment, setComment] = useState("");
   const navigate = useNavigate();
+  const userData = getUserData();
+  const loggedUserId = getAuthorId();
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedPost, setSharedPost] = useState<Post | null>(null);
 
-  const fetchPost = async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/`;
+  const fetchPost = async (): Promise<string[]> => {
+    const endpoint = `authors/${authorId}/posts/${postId}/`;
+    const localUrl = `${APP_URI}${endpoint}`;
 
+    // check if this post is a local post
     try {
       const userCredentials = getUserCredentials();
 
       if (userCredentials.username && userCredentials.password) {
-        const response = await axios.get(url, {
+        const response = await axios.get(localUrl, {
           auth: {
             username: userCredentials.username,
             password: userCredentials.password,
           },
         });
         setPost(response.data);
+        setPostHost(response.data.author.host);
+        return [response.data.id!, response.data.author.host];
       }
     } catch (error) {
-      console.error("Error fetching post:", error);
     }
-  };
 
-  const fetchComments = async () => {
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
-
-    try {
-      const userCredentials = getUserCredentials();
-
-      if (userCredentials.username && userCredentials.password) {
+    // if it's not a local post, then it must be a remote host
+    // go through every remote host and see if it's their post
+    for (const remoteHost of remoteAuthorHosts) {
+      const url = `${remoteHost}${endpoint}`
+      try {
         const response = await axios.get(url, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[remoteHost],
           },
         });
+        setPost(response.data);
+        setPostHost(remoteHost);
+        return [response.data.id, remoteHost];
+      } catch (error) {
+      }
+    }
+
+    // if it reaches here, postId and authorId cannot be found
+    console.error("Unable to fetch post");
+    return [];
+  };
+
+  const fetchComments = async (postUrlId: string, host: string) => {
+    const isPostLocal = isHostLocal(host);
+    const url = `${postUrlId}/comments/`
+
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+
+          setComments(response.data["comments"]);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
+        const response = await axios.get(url, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[host],
+          },
+          params: {
+            page: 1,
+            size: 10
+          }
+        });
+
         setComments(response.data["comments"]);
       }
     } catch (error) {
@@ -89,79 +140,125 @@ const PostPage = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    // If location.state exists, used the passed post object
-    // otherwise, fetch the post object
-    if (location.state?.postObject) {
-      setPost(location.state.postObject);
-    } else {
-      fetchPost();
-    }
-    fetchComments();
-    setIsLoading(false);
+    const initialize = async () => {
+      setIsLoading(true);
+      let isHostFound = false;
+
+      // If location.state exists, used the passed post object
+      // otherwise, fetch the post object
+      if (location.state?.post) {
+        setPost(location.state.post);
+        setPostHost(location.state.post.author.host);
+        await fetchComments(location.state.post.id, location.state.post.author.host);
+        isHostFound = true;
+      } else {
+        try {
+          const results = await fetchPost();
+          if (results.length > 0) {
+            await fetchComments(results[0], results[1]);
+            isHostFound = true;
+          }
+        } catch (error) {
+          toast.error("Unable to load post.");
+        }
+      }
+
+      if (isHostFound) {
+        setIsLoading(false);
+      } else if (!location.state?.post) {
+        toast.error("Unable to load post.");
+      }
+    };
+
+  initialize();
   }, []);
 
   const openMakePostModal = () => {
     setIsMakePostModalOpen(true);
   };
 
-  const handleSubmit = async (comment: string, contentType: string, post: Post) => {
+  const handleCommentSubmit = async (comment: string, contentType: string, post: Post) => {
     const data = {
       comment: comment,
       contentType: contentType,
       author: userData,
     };
 
-    const url = `${APP_URI}authors/${authorId}/posts/${postId}/comments/`;
+    const url = `${post.id}/comments/`;
+    const isPostLocal = isHostLocal(postHost);
 
-    const userCredentials = getUserCredentials();
+    try {
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
 
-    if (userCredentials.username && userCredentials.password) {
-      axios
-        .post(url, data, {
-          auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
-          },
-        })
-        .then((response: any) => {
-          fetchComments();
-          handleClear();
           post.count = post.count + 1;
-          fetchComments();
-          if (getAuthorId() !== authorId) {
-            sendCommentToInbox(comment, contentType, response.data["id"]);
+          await fetchComments(post.id, post.author.host);
+          if (loggedUserId !== authorId) {
+            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
           }
-        })
-        .catch((error) => {
-          toast.error("Error posting comment", error);
+        } else {
+          toast.error(ToastMessages.NOUSERCREDS);
+        }
+      } else {
+        const response = await axios.post(url, data, {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
         });
+
+        post.count = post.count + 1;
+        await fetchComments(post.id, post.author.host);
+        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
+      }
+
+      handleClear();
+    } catch (error) {
+      toast.error("Error posting comment");
     }
   };
 
   const sendCommentToInbox = async (
     comment: string,
     contentType: string,
-    id: string
+    commentId: string,
+    authorUrlId: string,
   ) => {
     const data = {
       type: "comment",
       author: userData,
-      id: id,
+      id: commentId,
       comment: comment,
       contentType: contentType,
     };
 
-    const url = `${APP_URI}authors/${authorId}/inbox/`;
+    const url = `${authorUrlId}/inbox/`;
+    const isPostLocal = isHostLocal(postHost);
 
     try {
-      const userCredentials = getUserCredentials();
+      if (isPostLocal) {
+        const userCredentials = getUserCredentials();
 
-      if (userCredentials.username && userCredentials.password) {
+        if (userCredentials.username && userCredentials.password) {
+          await axios.post(url, data, {
+            auth: {
+              username: userCredentials.username,
+              password: userCredentials.password,
+            },
+          });
+        }
+      } else {
         await axios.post(url, data, {
           auth: {
-            username: userCredentials.username,
-            password: userCredentials.password,
+            username: Username.NOTFOUND,
+            password: codes[postHost],
           },
         });
       }
@@ -175,6 +272,7 @@ const PostPage = () => {
   };
 
   const deletePost = async (postId: string) => {
+    // no need to update, this can only be done by the logged in (local) user
     try {
       const userCredentials = getUserCredentials();
 
@@ -284,9 +382,26 @@ const PostPage = () => {
                       onPostEdited={fetchPost}
                     />
                 )}
-                title={post.author.displayName}
-                subheader={post.updatedAt === null ? `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-                `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
+                title={
+                  <Grid container direction="row">
+                    <Typography>
+                      {`${post.author.displayName}`}
+                    </Typography>
+                    <Chip
+                      label={
+                        <Typography sx={{fontSize: "1em", color: "text.secondary"}}>
+                          {`${isHostLocal(postHost) ? "Local" : "Remote"}`}
+                        </Typography>
+                      }
+                      size="small"
+                      variant="filled"
+                      sx={{ marginLeft: 0.5 }}
+                    />
+                  </Grid>
+                }
+                subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
+                  `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
+                  `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
                 }
                 sx = {{margin:0}}
               />
@@ -341,7 +456,7 @@ const PostPage = () => {
                         width: "auto",
                         borderRadius: 12,
                       }}
-                      image={post.content}
+                      image={configureImageEncoding(post)}
                     />
                   </div>
                 </CardContentNoPadding>
@@ -350,7 +465,7 @@ const PostPage = () => {
               <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
                 <PostCategories categories={post.categories}/>
               </CardContent>
-              <Grid 
+              <Grid
                 sx={{
                   borderTop: "1px solid #dbd9d9",
                   paddingTop: 0.5,
@@ -402,7 +517,7 @@ const PostPage = () => {
               </Grid>
             </Grid>
             </Card>
-            <Grid container 
+            <Grid container
               sx={{
                 width: "100%",
                 borderBottom: "1px solid #dbd9d9",
@@ -429,7 +544,7 @@ const PostPage = () => {
                         color="primary"
                         disabled={value === ""}
                         onClick={() => {
-                        handleSubmit(comment, "text/plain", post);
+                        handleCommentSubmit(comment, "text/plain", post);
                         }}
                       >
                         <SendIcon />
@@ -443,7 +558,6 @@ const PostPage = () => {
             <Grid>
               <PostComments
                 comments={comments}
-                postAuthorId={authorId!}
                 postId={postId!}
               />
             </Grid>
