@@ -46,13 +46,17 @@ const HeadBar = () => {
         borderBottom: "1px solid #dbd9d9",
       }}
     >
-      <Link to="/home-page" style={{ textDecoration: "none" }}>
+      <Link to="/home-page" 
+        style={{ 
+          textDecoration: "none" ,
+          marginLeft: "calc(15vw - 16px)",
+        }}
+      >
         <Typography
           variant="h4"
           align="left"
           color="primary"
           style={{
-            marginLeft: "calc(15vw - 16px)",
             marginTop: 10,
             marginBottom: 10,
           }}
