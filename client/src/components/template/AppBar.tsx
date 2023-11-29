@@ -52,7 +52,7 @@ const HeadBar = () => {
           align="left"
           color="primary"
           style={{
-            marginLeft: 20,
+            marginLeft: "calc(15vw - 16px)",
             marginTop: 10,
             marginBottom: 10,
           }}
@@ -63,11 +63,13 @@ const HeadBar = () => {
 
       <Button
         size="small"
-        style={{
-          color: "black",
+        sx={{
+          color: "#787878",
           height: "70%",
           alignSelf: "center",
-          marginRight: "10px",
+          marginRight: 1,
+          borderRadius: 20,
+          paddingX: 2
         }}
         onClick={handleSignOut}
         endIcon={<LogoutIcon />}
