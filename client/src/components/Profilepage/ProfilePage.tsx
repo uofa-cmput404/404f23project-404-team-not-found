@@ -88,6 +88,7 @@ const ProfilePage = () => {
     github: "",
     profileImage: "",
   });
+  const [isPostLoading, setIsPostLoading] = useState(true);
 
   const location = useLocation();
   const { otherAuthorObject, userObject } = location.state || {};
@@ -187,6 +188,8 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
+    } finally {
+      setIsPostLoading(false);
     }
 
   }, [authorId]);
@@ -440,6 +443,7 @@ const ProfilePage = () => {
             isLocal={isLocal()}
             fetchPosts={fetchPosts}
             posts={posts}
+            isPostLoading={isPostLoading}
           />
         </Grid >
         <Grid item xs={3.6} style={{ paddingLeft: '4px' }}>
