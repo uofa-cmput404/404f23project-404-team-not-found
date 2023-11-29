@@ -198,6 +198,8 @@ const PostPage = () => {
       comment: comment,
       contentType: contentType,
       author: userData,
+      id: `${post.id}/comments/${authorId}`,
+      published: new Date(),
     };
 
     const url = `${post.id}/comments/`;
@@ -217,7 +219,7 @@ const PostPage = () => {
           post.count = post.count + 1;
           await fetchComments(post.id, post.author.host);
           if (loggedUserId !== authorId) {
-            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
+            await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
           }
         } else {
           toast.error(ToastMessages.NOUSERCREDS);
@@ -232,7 +234,7 @@ const PostPage = () => {
 
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.host);
-        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id);
+        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
       }
 
       handleClear();
@@ -246,6 +248,7 @@ const PostPage = () => {
     contentType: string,
     commentId: string,
     authorUrlId: string,
+    published: string,
   ) => {
     const data = {
       type: "comment",
@@ -253,6 +256,7 @@ const PostPage = () => {
       id: commentId,
       comment: comment,
       contentType: contentType,
+      published: published,
     };
 
     const url = `${authorUrlId}/inbox/`;
