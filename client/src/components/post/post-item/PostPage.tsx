@@ -361,6 +361,19 @@ const PostPage = () => {
     setSharedPost(post);
   };
 
+  const handleAuthorProfileClick = () => {
+    const authorId = getAuthorIdFromResponse(post!.author.id);
+    navigate(
+      `/authors/${authorId}`,
+      {
+        state: {
+          otherAuthorObject: post!.author,
+          userObject: userData
+        }
+      }
+    );
+  };
+
   return (
     <>
     <CssBaseline/>
@@ -404,7 +417,20 @@ const PostPage = () => {
                 }}
                 variant='outlined'>
                 <CardHeader
-                  avatar={<Avatar src={post.author.profileImage} alt={post.author.displayName} />}
+                  avatar={
+                    <Avatar 
+                      src={post.author.profileImage} 
+                      alt={post.author.displayName}
+                      sx={{
+                        cursor: "pointer",
+                      }}
+                      onClick={event => { 
+                        event.stopPropagation();
+                        event.preventDefault();
+                        handleAuthorProfileClick() 
+                      }} 
+                      />
+                  }
                   action={
                     (getAuthorIdFromResponse(post.author.id) === getAuthorId() && post.visibility === 'PUBLIC') && (
                       <MoreMenu
@@ -414,7 +440,7 @@ const PostPage = () => {
                       />
                   )}
                   title={
-                    <Grid container direction="row">
+                    <Grid container direction="row" alignItems="center">
                       <Typography>
                         {`${post.author.displayName}`}
                       </Typography>
@@ -426,7 +452,7 @@ const PostPage = () => {
                         }
                         size="small"
                         variant="filled"
-                        sx={{ marginLeft: 0.5 }}
+                        sx={{ marginLeft: 0.5, height: 1 }}
                       />
                     </Grid>
                   }
