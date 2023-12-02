@@ -20,7 +20,7 @@ urlpatterns = [
 
     # additional API endpoints
     path(f"{SERVICE}authors/<uuid:author_id>/follows/<uuid:requester_id>/", FollowView.as_view(), name="follow"),
-    # adding this because of Triet
+    # adding this because one of the teams doesn't use uuid, so we have to receive str
     path(f"{SERVICE}authors/<uuid:author_id>/followers/<str:follower_id>/", FollowerView.as_view(), name="follower_id"),
 
     # login and signup endpoints

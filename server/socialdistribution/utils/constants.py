@@ -13,3 +13,5 @@ URL_MAXLEN = 2048
 LOCAL_REFERERS = [
     "https://distributed-network-37d054f03cf4.herokuapp.com/",
 ]
+
+TRIET = "https://fakebook-frontend-f922a5dc4574.herokuapp.com/"
