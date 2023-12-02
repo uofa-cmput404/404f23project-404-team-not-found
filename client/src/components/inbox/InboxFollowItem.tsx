@@ -53,7 +53,6 @@ const InboxFollowItem = ({
       object: followItem.object,
     };
     const authorId = getAuthorIdFromResponse(followItem.actor.id);
-    console.log("Author ID", authorId)
     const url = `${APP_URI}authors/${loggedUserId}/followers/${authorId}/`;
 
     try {
@@ -71,7 +70,6 @@ const InboxFollowItem = ({
       }
     } catch (error) {
       toast.error("Failed to accept follow");
-      console.error(error);
     }
   };
 

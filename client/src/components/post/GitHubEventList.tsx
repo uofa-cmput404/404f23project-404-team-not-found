@@ -105,7 +105,6 @@ const GitHubEventsList = ({ githubUrl }: { githubUrl: string }) => {
   const renderEventContent = (event: GitHubEvent) => {
     switch (event.type) {
       case "PushEvent":
-        console.log(event.payload.size);
         return (
           <>
             <Typography>
