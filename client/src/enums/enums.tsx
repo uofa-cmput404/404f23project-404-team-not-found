@@ -34,5 +34,6 @@ export enum Username {
 export enum Hosts {
   CODEMONKEYS = "https://chimp-chat-1e0cca1cc8ce.herokuapp.com/",
   NOTFOUND = "https://distributed-network-37d054f03cf4.herokuapp.com/",
+  TRIET = "https://social-distribution-backend-f20f02be801f.herokuapp.com/service",
   WEBWIZARDS = "https://webwizards-backend-952a98ea6ec2.herokuapp.com/service/",
 }
