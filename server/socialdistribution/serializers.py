@@ -12,6 +12,7 @@ from socialdistribution.utils.serializers_utils import (
     customize_like_representation
 )
 from socialdistribution.utils.general_utils import is_image, is_text
+from socialdistribution.utils.constants import TRIET
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -25,7 +26,12 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = ("type", "id", "displayName", "github", "host", "profileImage", "url")
 
     def get_host_url(self, obj):
-        return f"{self.context['request'].build_absolute_uri('/')}"
+        referer = self.context["request"].META.get("HTTP_REFERER")
+
+        if referer and referer.startswith(TRIET):
+            return f"{self.context['request'].build_absolute_uri('/')}api/"
+        else:
+            return f"{self.context['request'].build_absolute_uri('/')}"
 
     def get_id_url(self, obj):
         return build_default_author_uri(obj=obj, request=self.context["request"], source="author")
