@@ -14,3 +14,5 @@ LOCAL_REFERERS = [
     "https://distributed-network-37d054f03cf4.herokuapp.com/",
     "http://127.0.0.1:8000/"
 ]
+
+TRIET = "https://fakebook-frontend-f922a5dc4574.herokuapp.com/"
