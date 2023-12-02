@@ -20,13 +20,14 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
-import { Post, Comment } from "../../interfaces/interfaces";
+import { Post, Comment, CommentPostRequest } from "../../interfaces/interfaces";
 import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
-import { Hosts, ToastMessages, Username } from "../../enums/enums";
+import { ContentType, Hosts, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
+import { v4 as uuidv4 } from "uuid";
 
 const style = {
   display: "flex",
@@ -151,12 +152,10 @@ const MakeCommentModal = ({
   };
 
   const handleSubmit = async (comment: string, contentType: string) => {
-    const data = {
+    let data: CommentPostRequest = {
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       author: userData,
-      id: `${post.id}/comments/${authorId}`,
-      published: new Date(),
     };
 
     const url = `${post.id}/comments/`;
@@ -181,6 +180,14 @@ const MakeCommentModal = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
+        if (post.author.host === Hosts.CODEMONKEYS) {
+          data = {
+            ...data,
+            id: `${post.id}/comments/${uuidv4()}`,
+            published: new Date().toString(),
+          };
+        }
+
         const response = await axios.post(url, data,{
           auth: {
             username: Username.NOTFOUND,

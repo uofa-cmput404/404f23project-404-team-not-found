@@ -12,7 +12,7 @@ import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/loc
 import { configureImageEncoding, getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
-import { Post, Comment, Author } from "../../../interfaces/interfaces";
+import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
 import axios from "axios";
 import PostComments from "../comment/PostComments";
 import Loading from "../../ui/Loading";
@@ -26,8 +26,9 @@ import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
 import { remoteAuthorHosts } from "../../../lists/lists";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
+import { v4 as uuidv4 } from "uuid";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -194,12 +195,10 @@ const PostPage = () => {
   };
 
   const handleCommentSubmit = async (comment: string, contentType: string, post: Post) => {
-    const data = {
+    let data: CommentPostRequest = {
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       author: userData,
-      id: `${post.id}/comments/${authorId}`,
-      published: new Date(),
     };
 
     const url = `${post.id}/comments/`;
@@ -225,6 +224,14 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
+        if (post.author.host === Hosts.CODEMONKEYS) {
+          data = {
+            ...data,
+            id: `${post.id}/comments/${uuidv4()}`,
+            published: new Date().toString(),
+          };
+        }
+
         const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
