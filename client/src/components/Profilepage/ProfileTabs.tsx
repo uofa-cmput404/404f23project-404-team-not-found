@@ -5,7 +5,7 @@ import { Author, Post } from "../../interfaces/interfaces";
 import AuthorsList from "../author/AuthorsList";
 import PostsList from "../post/PostsList";
 import { getUserCredentials } from "../../utils/localStorageUtils";
-import { Username } from "../../enums/enums";
+import { Hosts, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 import Loading from "../ui/Loading";
 
@@ -37,13 +37,13 @@ const ProfileTabs = ({
 
   useEffect(() => {
     const fetchFollowers = async () => {
-      const url = `${author.id}/followers/`;
-      const userCredentials = getUserCredentials();
-
       try {
         let followers: any;
 
         if (isLocal) {
+          const userCredentials = getUserCredentials();
+          const url = `${author.id}/followers/`;
+
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
               auth: {
@@ -55,14 +55,23 @@ const ProfileTabs = ({
             followers = response.data["items"];
           }
         } else {
+          const url = author.host === Hosts.WEBWIZARDS ?
+            `${author.id}/followers` :
+            `${author.id}/followers/`;
+
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
               password: codes[author.host],
             },
-          });
+          })
 
-          followers = response.data["items"];
+          if (!("items" in response.data) && author.host === Hosts.WEBWIZARDS) {
+            // edge case, if author has no followers, webwizards returns {}
+            followers = []
+          } else {
+            followers = response.data["items"];
+          }
         }
 
         const filteredFollowers = followers.filter(

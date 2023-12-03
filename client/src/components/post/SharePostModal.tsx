@@ -8,7 +8,7 @@ import { getUserCredentials } from "../../utils/localStorageUtils";
 import LinkIcon from '@mui/icons-material/Link';
 import { getAuthorIdFromResponse } from "../../utils/responseUtils";
 import { isHostLocal } from "../../utils/responseUtils";
-import { ToastMessages, Username } from "../../enums/enums";
+import { Hosts, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 
 interface SharePostModalProps {
@@ -55,7 +55,11 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
-          await axios.post(`${follower.id}/inbox/`, post, {
+          const url = follower.id.includes(Hosts.WEBWIZARDS) ?
+            `${follower.id}/inbox` :
+            `${follower.id}/inbox/`;
+
+          await axios.post(url, post, {
             auth: {
               username: Username.NOTFOUND,
               password: codes[follower.host],

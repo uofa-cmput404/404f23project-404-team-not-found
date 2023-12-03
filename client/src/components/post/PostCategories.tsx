@@ -6,6 +6,9 @@ const PostCategories = ({
 }: {
   categories: string[];
 }) => {
+  // webwizards returns [""] even though there's no categories added on their website,
+  // this is to filter it out so that there's no "empty" string category on our UI
+  categories = categories.filter((category: string): boolean => category !== "");
 
 return (
   <div>

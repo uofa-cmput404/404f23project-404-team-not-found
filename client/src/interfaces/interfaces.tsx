@@ -60,6 +60,7 @@ export interface Post {
   categories: string[];
   content: string;
   contentType: ContentType;
+  content_type?: ContentType;
   description: string;
   title: string;
   source: string;
@@ -100,4 +101,12 @@ export interface Comment {
   comment: string;
   contentType: ContentType;
   published: string;
+}
+
+export interface CommentPostRequest {
+  id?: string;
+  author: Author;
+  comment: string;
+  contentType: ContentType;
+  published?: string;
 }
