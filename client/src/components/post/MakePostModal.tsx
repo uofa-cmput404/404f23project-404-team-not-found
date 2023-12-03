@@ -24,7 +24,7 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ShareType, ToastMessages, Username } from "../../enums/enums";
+import { Hosts, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getCodeFromObjectId, isUrlIdLocal } from "../../utils/responseUtils";
@@ -122,6 +122,7 @@ const MakePostModal = ({
     try {
       if (isAuthorLocal) {
         const userCredentials = getUserCredentials();
+        const followersUrl = `${authorUrlId}/followers/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get<{ items: Author[] }>(followersUrl, {
@@ -137,6 +138,10 @@ const MakePostModal = ({
           });
         }
       } else {
+        const followersUrl = authorUrlId.includes(Hosts.WEBWIZARDS) ?
+          `${authorUrlId}/followers` :
+          `${authorUrlId}/followers/`;
+
         const response = await axios.get<{ items: Author[] }>(followersUrl, {
           auth: {
             username: Username.NOTFOUND,
@@ -230,7 +235,11 @@ const MakePostModal = ({
                 },
               });
             } else {
-              await axios.post(`${followerId}/inbox/`, postData, {
+              const url = followerId.includes(Hosts.WEBWIZARDS) ?
+                `${followerId}/inbox` :
+                `${followerId}/inbox/`;
+
+              await axios.post(url, postData, {
                 auth: {
                   username: Username.NOTFOUND,
                   password: getCodeFromObjectId(followerId),
@@ -250,7 +259,11 @@ const MakePostModal = ({
                   },
                 });
               } else {
-                await axios.post(`${followerId}/inbox/`, postData, {
+                const url = followerId.includes(Hosts.WEBWIZARDS) ?
+                  `${followerId}/inbox` :
+                  `${followerId}/inbox/`;
+
+                await axios.post(url, postData, {
                   auth: {
                     username: Username.NOTFOUND,
                     password: getCodeFromObjectId(followerId),
@@ -268,7 +281,11 @@ const MakePostModal = ({
               },
             });
           } else {
-            await axios.post(`${selectedFollower}/inbox/`, postData, {
+            const url = selectedFollower.includes(Hosts.WEBWIZARDS) ?
+            `${selectedFollower}/inbox` :
+            `${selectedFollower}/inbox/`;
+
+            await axios.post(url, postData, {
               auth: {
                 username: Username.NOTFOUND,
                 password: getCodeFromObjectId(selectedFollower),

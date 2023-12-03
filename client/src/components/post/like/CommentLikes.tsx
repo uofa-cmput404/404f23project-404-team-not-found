@@ -34,11 +34,11 @@ const CommentLikes = ({
       "summary": `${userData.displayName} Likes your post`
     }
 
-    const url = `${comment.author.id}/inbox/`
-
     try {
       if (isLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${comment.author.id}/inbox/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -52,6 +52,10 @@ const CommentLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
+        const url = comment.author.host === Hosts.WEBWIZARDS ?
+          `${comment.author.id}/inbox` :
+          `${comment.author.id}/inbox/`;
+
         const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
@@ -69,11 +73,12 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${comment.id}/likes/`
 
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
+          const url = `${comment.id}/likes/`;
+
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
               auth: {
@@ -91,6 +96,10 @@ const CommentLikes = ({
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
+          // TODO: currently not working as comment.id is not well-formed from webwizards,
+          // should automatically work when they fix it, but should double check
+          const url = `${comment.id}/likes/`;
+
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
@@ -100,7 +109,7 @@ const CommentLikes = ({
           let dataLikes: any;
 
           // TODO: adapt for every team
-          if (comment.author.host === Hosts.CODEMONKEYS) {
+          if ("items" in response.data) {
             dataLikes = response.data["items"];
           } else {
             dataLikes = response.data;

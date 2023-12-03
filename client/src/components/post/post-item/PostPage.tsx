@@ -9,7 +9,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
-import { configureImageEncoding, getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
+import {
+  configureImageEncoding,
+  getAuthorIdFromResponse,
+  isHostLocal, isPostImage, isPostMarkdown,
+  isPostPlainText
+} from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
@@ -58,12 +63,12 @@ const PostPage = () => {
   const [isShareButtonDisabled, setIsShareButtonDisabled] = useState(false);
 
   const fetchPost = async (): Promise<string[]> => {
-    const endpoint = `authors/${authorId}/posts/${postId}/`;
-    const localUrl = `${APP_URI}${endpoint}`;
+    const endpoint = `authors/${authorId}/posts/${postId}`;
 
     // check if this post is a local post
     try {
       const userCredentials = getUserCredentials();
+      const localUrl = `${APP_URI}${endpoint}/`;
 
       if (userCredentials.username && userCredentials.password) {
         const response = await axios.get(localUrl, {
@@ -82,7 +87,10 @@ const PostPage = () => {
     // if it's not a local post, then it must be a remote host
     // go through every remote host and see if it's their post
     for (const remoteHost of remoteAuthorHosts) {
-      const url = `${remoteHost}${endpoint}`
+      const url = remoteHost === Hosts.WEBWIZARDS ?
+        `${remoteHost}${endpoint}` :
+        `${remoteHost}${endpoint}/`;
+
       try {
         const response = await axios.get(url, {
           auth: {
@@ -146,7 +154,12 @@ const PostPage = () => {
             },
           });
 
-          comments = response.data["comments"];
+          if (!("comments" in response.data) && host === Hosts.WEBWIZARDS) {
+            // edge case where if a post has no comments, web wizards only return {}
+            comments = [];
+          } else {
+            comments = response.data["comments"];
+          }
         }
 
         setComments(comments);
@@ -265,13 +278,12 @@ const PostPage = () => {
       contentType: contentType,
       published: published,
     };
-
-    const url = `${authorUrlId}/inbox/`;
     const isPostLocal = isHostLocal(postHost);
 
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${authorUrlId}/inbox/`;
 
         if (userCredentials.username && userCredentials.password) {
           await axios.post(url, data, {
@@ -282,6 +294,10 @@ const PostPage = () => {
           });
         }
       } else {
+        const url = postHost === Hosts.WEBWIZARDS ?
+          `${authorUrlId}/inbox` :
+          `${authorUrlId}/inbox/`;
+
         await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
@@ -323,6 +339,7 @@ const PostPage = () => {
     const [followers, setFollowers] = useState<Author[]>([]);
   
     useEffect(() => {
+      // used only for local authors, this is getting all the followers of the logged in user
       const fetchFollowers = async (): Promise<void> => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
@@ -475,7 +492,7 @@ const PostPage = () => {
                     }}>
                   <Typography variant="h6">{post.title}</Typography>
                   <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
-                  {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+                  {isPostPlainText(post) && post.content?.slice(0, 4) === "http" ? (
                   <div style={{paddingBottom: 0}}>
                     <Link href={post.content} target="_blank" noWrap>
                       <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
@@ -497,10 +514,10 @@ const PostPage = () => {
                     </CardContentNoPadding>
                   </div>
                 ):(
-                  post.contentType === "text/plain" && (
+                  isPostPlainText(post) && (
                     <Typography variant="body1">{post.content}</Typography>)
                 )}
-                {post.contentType === "text/markdown" && (
+                {isPostMarkdown(post) && (
                     <CardContent sx={{ padding: 0}}>
                       <div style={{ display: "flex", justifyContent: "flex-start" }}>
 
@@ -509,7 +526,7 @@ const PostPage = () => {
                     </div>
                     </CardContent>
                 )}
-                {post.contentType.includes("base64") && (
+                {isPostImage(post) && (
                   <CardContentNoPadding>
                     <div style={{ display: "flex", justifyContent: "center" }}>
                       <CardMedia

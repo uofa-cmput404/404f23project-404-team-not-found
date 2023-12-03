@@ -46,14 +46,11 @@ const FollowAuthorButton = ({
       object: otherAuthorObject,
     };
 
-    const url = isLocal ?
-      `${APP_URI}authors/${authorId}/inbox/` :
-      `${otherAuthorObject.id}/inbox/`;
-
     try {
-      const userCredentials = getUserCredentials();
-
       if (isLocal) {
+        const userCredentials = getUserCredentials();
+        const url = `${APP_URI}authors/${authorId}/inbox/`;
+
         if (userCredentials.username && userCredentials.password) {
           await axios.post(url, data, {
             auth: {
@@ -63,6 +60,10 @@ const FollowAuthorButton = ({
           });
         }
       } else {
+        const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+          `${otherAuthorObject.id}/inbox` :
+          `${otherAuthorObject.id}/inbox/`;
+
         await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
@@ -79,32 +80,19 @@ const FollowAuthorButton = ({
   };
 
   useEffect(() => {
+    // only used in local check since a lot of teams don't have inbox for remote use
     const fetchFollowRequestExists = async () => {
-      const url = isLocal ?
-      `${APP_URI}authors/${authorId}/inbox/` :
-      `${otherAuthorObject.id}/inbox/`;
-
       try {
         const userCredentials = getUserCredentials();
-        let response: any;
+        const url = `${APP_URI}authors/${authorId}/inbox/`;
 
-        if (isLocal) {
-          if (userCredentials.username && userCredentials.password) {
-            response = await axios.get(url, {
-              auth: {
-                username: userCredentials.username,
-                password: userCredentials.password,
-              },
-            });
-          }
-        } else {
-          response = await axios.get(url, {
+        if (userCredentials.username && userCredentials.password) {
+          const response = await axios.get(url, {
             auth: {
-              username: Username.NOTFOUND,
-              password: codes[otherAuthorObject.host],
+              username: userCredentials.username,
+              password: userCredentials.password,
             },
           });
-        }
 
           const items = response!.data.items;
           const followRequestExists: boolean = items.some(
@@ -113,26 +101,27 @@ const FollowAuthorButton = ({
               item.actor &&
               item.actor.id === userObject.id
           );
-          setIsRequested(followRequestExists);
+        setIsRequested(followRequestExists);
+        }
       } catch (error) {
         console.error("Error fetching if user already requested: ", error);
       }
     };
 
-    fetchFollowRequestExists();
+    if (isLocal) {
+      fetchFollowRequestExists();
+    }
   }, []);
 
   useEffect(() => {
     const fetchIsUserFollowingAuthor = async () => {
-      const url = isLocal ?
-        `${APP_URI}authors/${authorId}/followers/${loggedUserId}/` :
-        `${otherAuthorObject.id}/followers/${loggedUserId}/`;
-
       try {
-        const userCredentials = getUserCredentials();
         let isFollower = false;
 
         if (isLocal) {
+          const userCredentials = getUserCredentials();
+          const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
               auth: {
@@ -144,6 +133,10 @@ const FollowAuthorButton = ({
             isFollower = response.data.is_follower;
           }
         } else {
+          const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+            `${otherAuthorObject.id}/followers/${loggedUserId}` :
+            `${otherAuthorObject.id}/followers/${loggedUserId}/`;
+
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
@@ -154,6 +147,8 @@ const FollowAuthorButton = ({
           // TODO: adapt for every team
           if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
             isFollower = response.status === 200;
+          } else if (otherAuthorObject.host === Hosts.WEBWIZARDS) {
+            isFollower = response.data === "Yes";
           } else {
             isFollower = response.data.is_follower;
           }
@@ -180,14 +175,11 @@ const FollowAuthorButton = ({
   }, [isRequested]);
 
   const unfollowAuthor = async () => {
-    const url = isLocal ?
-      `${APP_URI}authors/${authorId}/followers/${loggedUserId}/` :
-      `${otherAuthorObject.id}/followers/${loggedUserId}/`;
-
     try {
-      const userCredentials = getUserCredentials();
-
       if (isLocal) {
+        const userCredentials = getUserCredentials();
+        const url = `${APP_URI}authors/${authorId}/followers/${loggedUserId}/`;
+
         if (userCredentials.username && userCredentials.password) {
           await axios.delete(url, {
             auth: {
@@ -197,6 +189,10 @@ const FollowAuthorButton = ({
           });
         }
       } else {
+        const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+          `${otherAuthorObject.id}/followers/${loggedUserId}` :
+          `${otherAuthorObject.id}/followers/${loggedUserId}/`;
+
         await axios.delete(url, {
           auth: {
             username: Username.NOTFOUND,
