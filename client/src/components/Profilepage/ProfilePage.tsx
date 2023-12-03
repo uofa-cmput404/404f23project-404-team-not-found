@@ -181,7 +181,7 @@ const ProfilePage = () => {
         let publicPosts: Post[];
 
         // TODO: adapt for every team
-        if (otherAuthorObject.host === Hosts.CODEMONKEYS) {
+        if ("items" in response.data) {
           publicPosts = response.data["items"].filter((post: Post) =>
             post.visibility === ShareType.PUBLIC);
         } else {
@@ -257,7 +257,7 @@ const ProfilePage = () => {
     };
 
     fetchIsAuthorFollowingUser();
-  }, [isAuthorFollowingUser]);
+  }, [authorId, isAuthorFollowingUser]);
 
   const handleOpen = () => {
     setOpen(true);
