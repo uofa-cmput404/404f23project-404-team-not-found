@@ -9,7 +9,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
-import { configureImageEncoding, getAuthorIdFromResponse, isHostLocal } from "../../../utils/responseUtils";
+import {
+  configureImageEncoding,
+  getAuthorIdFromResponse,
+  isHostLocal, isPostImage, isPostMarkdown,
+  isPostPlainText
+} from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
@@ -475,7 +480,7 @@ const PostPage = () => {
                     }}>
                   <Typography variant="h6">{post.title}</Typography>
                   <Typography variant="body1" marginBottom={1}>{post.description}</Typography>
-                  {post.contentType === "text/plain" && post.content?.slice(0, 4) === "http" ? (
+                  {isPostPlainText(post) && post.content?.slice(0, 4) === "http" ? (
                   <div style={{paddingBottom: 0}}>
                     <Link href={post.content} target="_blank" noWrap>
                       <Typography noWrap sx={{marginTop:1, marginBottom:0.5}}>
@@ -497,10 +502,10 @@ const PostPage = () => {
                     </CardContentNoPadding>
                   </div>
                 ):(
-                  post.contentType === "text/plain" && (
+                  isPostPlainText(post) && (
                     <Typography variant="body1">{post.content}</Typography>)
                 )}
-                {post.contentType === "text/markdown" && (
+                {isPostMarkdown(post) && (
                     <CardContent sx={{ padding: 0}}>
                       <div style={{ display: "flex", justifyContent: "flex-start" }}>
 
@@ -509,7 +514,7 @@ const PostPage = () => {
                     </div>
                     </CardContent>
                 )}
-                {post.contentType.includes("base64") && (
+                {isPostImage(post) && (
                   <CardContentNoPadding>
                     <div style={{ display: "flex", justifyContent: "center" }}>
                       <CardMedia
