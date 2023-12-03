@@ -137,7 +137,12 @@ const MakeCommentModal = ({
             },
           });
 
-          comments = response.data["comments"];
+          if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
+            // edge case where if a post has no comments, web wizards only return {}
+            comments = [];
+          } else {
+            comments = response.data["comments"];
+          }
         }
 
         setPostComments(comments);
@@ -221,11 +226,10 @@ const MakeCommentModal = ({
       published: published,
     };
 
-    const url = `${post.author.id}/inbox/`;
-
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.author.id}/inbox/`;
 
         if (userCredentials.username && userCredentials.password) {
           await axios.post(url, data, {
@@ -236,6 +240,10 @@ const MakeCommentModal = ({
           });
         }
       } else {
+        const url = post.author.host === Hosts.WEBWIZARDS ?
+          `${post.author.id}/inbox` :
+          `${post.author.id}/inbox/`;
+
         await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,

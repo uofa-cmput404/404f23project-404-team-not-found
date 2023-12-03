@@ -30,11 +30,12 @@ const PostLikes = ({
       "context": "https://www.w3.org/ns/activitystreams",
       "summary": `${userData.displayName} Likes your post`
     }
-    const url = `${post.author.id}/inbox/`
 
     try {
       if (isLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.author.id}/inbox/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -48,6 +49,10 @@ const PostLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
+        const url = post.author.host === Hosts.WEBWIZARDS ?
+          `${post.author.id}/inbox` :
+          `${post.author.id}/inbox/`;
+
         const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
@@ -65,11 +70,11 @@ const PostLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const url = `${post.id}/likes/`
-
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
+          const url = `${post.id}/likes/`;
+
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
               auth: {
@@ -87,6 +92,10 @@ const PostLikes = ({
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
+          const url = post.author.host === Hosts.WEBWIZARDS ?
+            `${post.id}/likes` :
+            `${post.id}/likes/`;
+
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
@@ -95,7 +104,7 @@ const PostLikes = ({
           });
           let dataLikes: any;
 
-          if (post.author.host === Hosts.CODEMONKEYS) {
+          if ("items" in response.data) {
             dataLikes = response.data["items"];
           } else {
             dataLikes = response.data;
