@@ -230,7 +230,8 @@ class PostsView(APIView):
             posts = Post.objects.filter(author__id=author_id).order_by("-published")
         else:
             posts = (Post.objects.filter(author__id=author_id,
-                                         visibility=Post.Visibility.PUBLIC)
+                                         visibility=Post.Visibility.PUBLIC,
+                                         unlisted=False)
                      .order_by("-published"))
 
         paginator = self.pagination_class()
