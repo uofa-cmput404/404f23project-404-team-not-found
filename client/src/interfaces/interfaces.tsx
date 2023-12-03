@@ -101,3 +101,11 @@ export interface Comment {
   contentType: ContentType;
   published: string;
 }
+
+export interface CommentPostRequest {
+  id?: string;
+  author: Author;
+  comment: string;
+  contentType: ContentType;
+  published?: string;
+}
