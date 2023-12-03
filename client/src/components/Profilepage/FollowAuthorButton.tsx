@@ -64,7 +64,6 @@ const FollowAuthorButton = ({
           `${otherAuthorObject.id}/inbox` :
           `${otherAuthorObject.id}/inbox/`;
 
-        console.log(codes[otherAuthorObject.host])
         await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
