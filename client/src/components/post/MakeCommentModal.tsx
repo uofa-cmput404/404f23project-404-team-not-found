@@ -19,7 +19,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { Post, Comment, CommentPostRequest } from "../../interfaces/interfaces";
 import { getAuthorIdFromResponse, isApiPathNoSlash, isHostLocal } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
@@ -114,40 +114,45 @@ const MakeCommentModal = ({
         }
       } else {
         let comments: any;
-        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+        let url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
           `${post.id}/comments` :
           `${post.id}/comments/`;
+        let config: AxiosRequestConfig = {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
+        };
 
         if (post.author.host === Hosts.CODEMONKEYS) {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[post.author.host],
-            },
+          // code monkeys require page & size query params
+          config = {
+            ...config,
             params: {
               page: 1,
               size: 50
             }
-          });
-
-          comments = response.data["comments"];
-        } else {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[post.author.host],
+          }
+        } else if (post.author.host === Hosts.TRIET) {
+          // Triet needs a query parameter when we're fetching comments
+          config = {
+            ...config,
+            headers: {
+              "x-client-id": userData.id,
             },
-          });
-
-          if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
-            // edge case where if a post has no comments, web wizards only return {}
-            comments = [];
-          } else {
-            comments = response.data["comments"];
           }
         }
 
-        setPostComments(comments);
+        const response = await axios.get(url, config);
+
+        if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
+          // edge case where if a post has no comments, web wizards only return {}
+          comments = [];
+        } else {
+          comments = response.data["comments"];
+        }
+
+      setPostComments(comments);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);

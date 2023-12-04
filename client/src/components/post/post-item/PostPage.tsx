@@ -18,7 +18,7 @@ import {
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import PostComments from "../comment/PostComments";
 import Loading from "../../ui/Loading";
 import PostCategories from "../PostCategories";
@@ -133,31 +133,36 @@ const PostPage = () => {
         }
       } else {
         let comments: any;
-        const url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
+        let url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
         `${postUrlId}/comments` :
         `${postUrlId}/comments/`;
-
+                let config: AxiosRequestConfig = {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[host],
+          },
+        };
 
         if (host === Hosts.CODEMONKEYS) {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[host],
-            },
+          // code monkeys require page & size query params
+          config = {
+            ...config,
             params: {
               page: 1,
               size: 50
             }
-          });
-
-          comments = response.data["comments"];
-        } else {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[host],
+          }
+        } else if (host === Hosts.TRIET) {
+          // Triet needs a query parameter when we're fetching comments
+          config = {
+            ...config,
+            headers: {
+              "x-client-id": userData.id,
             },
-          });
+          }
+        }
+
+        const response = await axios.get(url, config);
 
           if (!("comments" in response.data) && host === Hosts.WEBWIZARDS) {
             // edge case where if a post has no comments, web wizards only return {}
@@ -165,7 +170,6 @@ const PostPage = () => {
           } else {
             comments = response.data["comments"];
           }
-        }
 
         setComments(comments);
       }
@@ -451,7 +455,7 @@ const PostPage = () => {
                 <CardHeader
                   avatar={
                     <Avatar 
-                      src={post.author.profileImage} 
+                      src={post.author.profileImage}
                       alt={post.author.displayName}
                       sx={{
                         cursor: "pointer",
