@@ -5,9 +5,10 @@ import { Author, Post } from "../../interfaces/interfaces";
 import AuthorsList from "../author/AuthorsList";
 import PostsList from "../post/PostsList";
 import { getUserCredentials } from "../../utils/localStorageUtils";
-import { Hosts, Username } from "../../enums/enums";
+import { ApiPaths, Hosts, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 import Loading from "../ui/Loading";
+import { isApiPathNoSlash } from "../../utils/responseUtils";
 
 const CustomTab = styled(Tab)({
   width: "50%",
@@ -55,7 +56,7 @@ const ProfileTabs = ({
             followers = response.data["items"];
           }
         } else {
-          const url = author.host === Hosts.WEBWIZARDS ?
+          const url = isApiPathNoSlash(author.host, ApiPaths.FOLLOWERS) ?
             `${author.id}/followers` :
             `${author.id}/followers/`;
 

@@ -24,10 +24,10 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { Hosts, ShareType, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { getCodeFromObjectId, isUrlIdLocal } from "../../utils/responseUtils";
+import { getCodeFromObjectId, isApiPathNoSlash, isUrlIdLocal } from "../../utils/responseUtils";
 
 const style = {
   display: "flex",
@@ -138,7 +138,7 @@ const MakePostModal = ({
           });
         }
       } else {
-        const followersUrl = authorUrlId.includes(Hosts.WEBWIZARDS) ?
+        const followersUrl = isApiPathNoSlash(authorUrlId, ApiPaths.FOLLOWERS) ?
           `${authorUrlId}/followers` :
           `${authorUrlId}/followers/`;
 
@@ -235,7 +235,7 @@ const MakePostModal = ({
                 },
               });
             } else {
-              const url = followerId.includes(Hosts.WEBWIZARDS) ?
+              const url = isApiPathNoSlash(followerId, ApiPaths.INBOX) ?
                 `${followerId}/inbox` :
                 `${followerId}/inbox/`;
 
@@ -259,7 +259,7 @@ const MakePostModal = ({
                   },
                 });
               } else {
-                const url = followerId.includes(Hosts.WEBWIZARDS) ?
+                const url = isApiPathNoSlash(followerId, ApiPaths.INBOX) ?
                   `${followerId}/inbox` :
                   `${followerId}/inbox/`;
 
@@ -281,7 +281,7 @@ const MakePostModal = ({
               },
             });
           } else {
-            const url = selectedFollower.includes(Hosts.WEBWIZARDS) ?
+            const url = isApiPathNoSlash(selectedFollower, ApiPaths.INBOX) ?
             `${selectedFollower}/inbox` :
             `${selectedFollower}/inbox/`;
 

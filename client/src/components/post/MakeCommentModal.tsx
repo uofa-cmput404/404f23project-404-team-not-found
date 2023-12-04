@@ -21,11 +21,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
 import { Post, Comment, CommentPostRequest } from "../../interfaces/interfaces";
-import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isApiPathNoSlash, isHostLocal } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
-import { ContentType, Hosts, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
 
@@ -240,7 +240,7 @@ const MakeCommentModal = ({
           });
         }
       } else {
-        const url = post.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
 

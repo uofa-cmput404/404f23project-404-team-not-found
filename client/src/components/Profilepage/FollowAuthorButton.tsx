@@ -8,7 +8,7 @@ import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { getAuthorId, getUserCredentials } from "../../utils/localStorageUtils";
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import UnfollowAuthorModal from "./UnfollowAuthorModal";
-import { Hosts, Username } from "../../enums/enums";
+import { ApiPaths, Hosts, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 
 const APP_URI = process.env.REACT_APP_URI;
@@ -60,7 +60,7 @@ const FollowAuthorButton = ({
           });
         }
       } else {
-        const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(otherAuthorObject.host, ApiPaths.INBOX) ?
           `${otherAuthorObject.id}/inbox` :
           `${otherAuthorObject.id}/inbox/`;
 
@@ -133,7 +133,7 @@ const FollowAuthorButton = ({
             isFollower = response.data.is_follower;
           }
         } else {
-          const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+          let url = isApiPathNoSlash(otherAuthorObject.host, ApiPaths.FOLLOWER) ?
             `${otherAuthorObject.id}/followers/${loggedUserId}` :
             `${otherAuthorObject.id}/followers/${loggedUserId}/`;
 
@@ -189,7 +189,7 @@ const FollowAuthorButton = ({
           });
         }
       } else {
-        const url = otherAuthorObject.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(otherAuthorObject.host, ApiPaths.FOLLOWER) ?
           `${otherAuthorObject.id}/followers/${loggedUserId}` :
           `${otherAuthorObject.id}/followers/${loggedUserId}/`;
 

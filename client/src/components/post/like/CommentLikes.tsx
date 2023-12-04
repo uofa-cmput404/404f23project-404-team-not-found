@@ -3,13 +3,18 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, getCodeFromObjectId, isUrlIdLocal } from "../../../utils/responseUtils";
+import {
+  getAuthorIdFromResponse,
+  getCodeFromObjectId,
+  isApiPathNoSlash,
+  isUrlIdLocal
+} from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const CommentLikes = ({
@@ -52,7 +57,7 @@ const CommentLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = comment.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(comment.author.host, ApiPaths.INBOX) ?
           `${comment.author.id}/inbox` :
           `${comment.author.id}/inbox/`;
 

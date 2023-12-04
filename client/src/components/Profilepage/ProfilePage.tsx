@@ -24,12 +24,10 @@ import {
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from "@mui/icons-material/Edit";
-import { Hosts, ImageLink, ShareType, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ImageLink, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
-
-
 import GitHubEventList from "../post/GitHubEventList";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
@@ -37,7 +35,7 @@ import FollowAuthorButton from "./FollowAuthorButton";
 import Tooltip from "@mui/material/Tooltip";
 import ProfileTabs from "./ProfileTabs";
 import { codes } from "../../objects/objects";
-import { isHostLocal } from "../../utils/responseUtils";
+import { isApiPathNoSlash, isHostLocal } from "../../utils/responseUtils";
 import Loading from "../ui/Loading";
 
 const APP_URI = process.env.REACT_APP_URI;

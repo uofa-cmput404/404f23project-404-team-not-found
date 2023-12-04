@@ -11,7 +11,7 @@ import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
 import {
   configureImageEncoding,
-  getAuthorIdFromResponse,
+  getAuthorIdFromResponse, isApiPathNoSlash,
   isHostLocal, isPostImage, isPostMarkdown,
   isPostPlainText
 } from "../../../utils/responseUtils";
@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
 import { remoteAuthorHosts } from "../../../lists/lists";
-import { ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
 
@@ -87,7 +87,7 @@ const PostPage = () => {
     // if it's not a local post, then it must be a remote host
     // go through every remote host and see if it's their post
     for (const remoteHost of remoteAuthorHosts) {
-      const url = remoteHost === Hosts.WEBWIZARDS ?
+      const url = isApiPathNoSlash(remoteHost, ApiPaths.POST) ?
         `${remoteHost}${endpoint}` :
         `${remoteHost}${endpoint}/`;
 
@@ -294,7 +294,7 @@ const PostPage = () => {
           });
         }
       } else {
-        const url = postHost === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(postHost, ApiPaths.INBOX) ?
           `${authorUrlId}/inbox` :
           `${authorUrlId}/inbox/`;
 
