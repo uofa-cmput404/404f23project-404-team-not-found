@@ -1,4 +1,4 @@
-import { localAuthorHosts } from "../lists/lists";
+import { localAuthorHosts, webWizardsNoSlashApiPath } from "../lists/lists";
 import { ContentType, Hosts } from "../enums/enums";
 import { Post } from "../interfaces/interfaces";
 import { codes } from "../objects/objects";
@@ -26,6 +26,11 @@ export function getCodeFromObjectId(objectIdUrl: string): string {
   return "";
 }
 
+export function isApiPathNoSlash(url: string, path: string): boolean {
+  return url.includes(Hosts.TRIET) ||
+    (url.includes(Hosts.WEBWIZARDS) && webWizardsNoSlashApiPath.includes(path))
+}
+
 export function isHostLocal(host: string): boolean {
   return localAuthorHosts.includes(host);
 }
@@ -40,7 +45,7 @@ export function isPostImage(post: Post): boolean {
   } else if (post.contentType === undefined) {
     return false;
   } else {
-      return post.contentType.includes("base64");
+      return post.contentType.includes("base64") || post.content.includes("base64");
   }
 }
 

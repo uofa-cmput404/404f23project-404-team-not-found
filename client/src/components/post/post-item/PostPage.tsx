@@ -11,14 +11,14 @@ import MuiMarkdown from "mui-markdown";
 import { getAuthorId, getUserCredentials, getUserData } from "../../../utils/localStorageUtils";
 import {
   configureImageEncoding,
-  getAuthorIdFromResponse,
+  getAuthorIdFromResponse, isApiPathNoSlash,
   isHostLocal, isPostImage, isPostMarkdown,
   isPostPlainText
 } from "../../../utils/responseUtils";
 import { formatDateTime } from "../../../utils/dateUtils";
 import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import PostComments from "../comment/PostComments";
 import Loading from "../../ui/Loading";
 import PostCategories from "../PostCategories";
@@ -31,7 +31,7 @@ import { toast } from "react-toastify";
 import MoreMenu from "../edit/MoreMenu";
 import SharePostModal from "../SharePostModal";
 import { remoteAuthorHosts } from "../../../lists/lists";
-import { ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
 
@@ -87,7 +87,7 @@ const PostPage = () => {
     // if it's not a local post, then it must be a remote host
     // go through every remote host and see if it's their post
     for (const remoteHost of remoteAuthorHosts) {
-      const url = remoteHost === Hosts.WEBWIZARDS ?
+      const url = isApiPathNoSlash(remoteHost, ApiPaths.POST) ?
         `${remoteHost}${endpoint}` :
         `${remoteHost}${endpoint}/`;
 
@@ -112,11 +112,12 @@ const PostPage = () => {
 
   const fetchComments = async (postUrlId: string, host: string) => {
     const isPostLocal = isHostLocal(host);
-    const url = `${postUrlId}/comments/`
 
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${postUrlId}/comments/`;
+
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get(url, {
@@ -132,27 +133,36 @@ const PostPage = () => {
         }
       } else {
         let comments: any;
+        let url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
+        `${postUrlId}/comments` :
+        `${postUrlId}/comments/`;
+                let config: AxiosRequestConfig = {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[host],
+          },
+        };
 
         if (host === Hosts.CODEMONKEYS) {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[host],
-            },
+          // code monkeys require page & size query params
+          config = {
+            ...config,
             params: {
               page: 1,
               size: 50
             }
-          });
-
-          comments = response.data["comments"];
-        } else {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[host],
+          }
+        } else if (host === Hosts.TRIET) {
+          // Triet needs a query parameter when we're fetching comments
+          config = {
+            ...config,
+            headers: {
+              "x-client-id": userData.id,
             },
-          });
+          }
+        }
+
+        const response = await axios.get(url, config);
 
           if (!("comments" in response.data) && host === Hosts.WEBWIZARDS) {
             // edge case where if a post has no comments, web wizards only return {}
@@ -160,7 +170,6 @@ const PostPage = () => {
           } else {
             comments = response.data["comments"];
           }
-        }
 
         setComments(comments);
       }
@@ -214,12 +223,13 @@ const PostPage = () => {
       author: userData,
     };
 
-    const url = `${post.id}/comments/`;
     const isPostLocal = isHostLocal(postHost);
 
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -244,6 +254,9 @@ const PostPage = () => {
             published: new Date().toString(),
           };
         }
+        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
 
         const response = await axios.post(url, data, {
           auth: {
@@ -294,7 +307,7 @@ const PostPage = () => {
           });
         }
       } else {
-        const url = postHost === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(postHost, ApiPaths.INBOX) ?
           `${authorUrlId}/inbox` :
           `${authorUrlId}/inbox/`;
 
@@ -339,7 +352,7 @@ const PostPage = () => {
     const [followers, setFollowers] = useState<Author[]>([]);
   
     useEffect(() => {
-      // used only for local authors, this is getting all the followers of the logged in user
+      // used only for local authors, this is getting all the followers of the logged-in user
       const fetchFollowers = async (): Promise<void> => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
@@ -442,7 +455,7 @@ const PostPage = () => {
                 <CardHeader
                   avatar={
                     <Avatar 
-                      src={post.author.profileImage} 
+                      src={post.author.profileImage}
                       alt={post.author.displayName}
                       sx={{
                         cursor: "pointer",
@@ -542,9 +555,11 @@ const PostPage = () => {
                   </CardContentNoPadding>
                 )}
                 </CardContent>
-                <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
-                  <PostCategories categories={post.categories}/>
-                </CardContent>
+                {post.categories !== undefined && (
+                  <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
+                    <PostCategories categories={post.categories}/>
+                  </CardContent>
+                )}
                 <Grid
                   sx={{
                     borderTop: "1px solid #dbd9d9",

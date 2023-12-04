@@ -252,9 +252,11 @@ const PostsList = ({
               </CardContentNoPadding>
             )}
             </CardContent>
-            <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
-              <PostCategories categories={post.categories}/>
-            </CardContent>
+            {post.categories !== undefined && (
+              <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
+                <PostCategories categories={post.categories}/>
+              </CardContent>
+            )}
             <CardContent sx={{paddingTop: 0.5, paddingLeft: 7.5}}>
               <Grid container
                 justifyContent="space-between"

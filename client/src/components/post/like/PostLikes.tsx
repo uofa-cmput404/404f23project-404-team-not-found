@@ -3,12 +3,17 @@ import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, Post } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, getCodeFromObjectId, isHostLocal } from "../../../utils/responseUtils";
+import {
+  getAuthorIdFromResponse,
+  getCodeFromObjectId,
+  isApiPathNoSlash,
+  isHostLocal
+} from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const PostLikes = ({
@@ -49,7 +54,7 @@ const PostLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = post.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
 
@@ -92,7 +97,7 @@ const PostLikes = ({
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
-          const url = post.author.host === Hosts.WEBWIZARDS ?
+          const url = isApiPathNoSlash(post.id, ApiPaths.POSTLIKES) ?
             `${post.id}/likes` :
             `${post.id}/likes/`;
 

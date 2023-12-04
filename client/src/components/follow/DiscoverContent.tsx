@@ -4,10 +4,10 @@ import { Grid, Typography } from "@mui/material";
 import { Author } from "../../interfaces/interfaces";
 import { getUserCredentials, getUserData } from "../../utils/localStorageUtils";
 import AuthorsList from "../author/AuthorsList";
-import {remoteAuthorHosts} from "../../lists/lists";
-import {codes} from "../../objects/objects";
-import {Username} from "../../enums/enums";
+import { remoteAuthorHosts } from "../../lists/lists";
+import { Hosts, Username } from "../../enums/enums";
 import Loading from "../ui/Loading";
+import { getCodeFromObjectId } from "../../utils/responseUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -18,16 +18,15 @@ const DiscoverContent = () => {
 
   useEffect(() => {
     const fetchAuthors = async () => {
-      const remoteAuthorsUrls = remoteAuthorHosts.map(url => `${url}authors/`);
+      const remoteAuthorsUrls = remoteAuthorHosts.map(url =>
+        url === Hosts.TRIET ? `${url}/authors` : `${url}authors/`
+      );
 
       const fetchAuthorsPromises = remoteAuthorsUrls.map(url => {
-        const baseUrl = url.split("authors/")[0];
-        const code = codes[baseUrl];
-
         return axios.get(url, {
           auth: {
             username: Username.NOTFOUND,
-            password: code,
+            password: getCodeFromObjectId(url),
           },
         });
       });
