@@ -17,3 +17,14 @@ export const webWizardsNoSlashApiPath: string[] = [
   ApiPaths.POSTLIKES,
   ApiPaths.POST,
 ]
+
+export const trietNoSlashApiPath: string[] = [
+  ApiPaths.COMMENT,
+  ApiPaths.COMMENTS,
+  ApiPaths.FOLLOWER,
+  ApiPaths.FOLLOWERS,
+  ApiPaths.IMAGE,
+  ApiPaths.POST,
+  ApiPaths.COMMENTLIKES,
+  ApiPaths.POSTLIKES,
+]

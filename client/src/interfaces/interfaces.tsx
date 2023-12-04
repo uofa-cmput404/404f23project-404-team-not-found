@@ -48,7 +48,17 @@ export interface Follower {
 }
 
 export interface Like {
+  type: string;
   context: string;
+  summary: string;
+  author: Author;
+  object: string;
+}
+
+export interface LikePostRequest {
+  type: string;
+  context?: string;
+  "@context"?: string;
   summary: string;
   author: Author;
   object: string;

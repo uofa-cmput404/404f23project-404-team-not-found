@@ -1,4 +1,4 @@
-import { localAuthorHosts, webWizardsNoSlashApiPath } from "../lists/lists";
+import { localAuthorHosts, trietNoSlashApiPath, webWizardsNoSlashApiPath } from "../lists/lists";
 import { ContentType, Hosts } from "../enums/enums";
 import { Post } from "../interfaces/interfaces";
 import { codes } from "../objects/objects";
@@ -27,7 +27,7 @@ export function getCodeFromObjectId(objectIdUrl: string): string {
 }
 
 export function isApiPathNoSlash(url: string, path: string): boolean {
-  return url.includes(Hosts.TRIET) ||
+  return (url.includes(Hosts.TRIET) && trietNoSlashApiPath.includes(path)) ||
     (url.includes(Hosts.WEBWIZARDS) && webWizardsNoSlashApiPath.includes(path))
 }
 
