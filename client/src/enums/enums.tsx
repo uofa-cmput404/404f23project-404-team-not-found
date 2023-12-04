@@ -6,6 +6,10 @@ export enum ContentType {
     PNG = "image/png;base64",
 }
 
+export enum Links {
+  LIKECONTEXT = "https://www.w3.org/ns/activitystreams",
+}
+
 export enum ImageLink {
     DEFAULT_PROFILE_PIC = "https://i.imgur.com/DKrKvCI.jpg"
 }
@@ -27,6 +31,7 @@ export enum ShareType {
 export enum ToastMessages {
   NOUSERCREDS = "Unable to make a post. Please sign out and log back in.",
 }
+
 export enum Username {
   NOTFOUND = "node-404-team-not-found",
 }
