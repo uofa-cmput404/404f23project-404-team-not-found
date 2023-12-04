@@ -6,9 +6,9 @@ import { useState } from "react";
 import axios from "axios";
 import { getUserCredentials } from "../../utils/localStorageUtils";
 import LinkIcon from '@mui/icons-material/Link';
-import { getAuthorIdFromResponse } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isApiPathNoSlash } from "../../utils/responseUtils";
 import { isHostLocal } from "../../utils/responseUtils";
-import { Hosts, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 
 interface SharePostModalProps {
@@ -55,7 +55,7 @@ const SharePostModal = ({ isModalOpen, setIsModalOpen, followers, post }: ShareP
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
-          const url = follower.id.includes(Hosts.WEBWIZARDS) ?
+          const url = isApiPathNoSlash(follower.id, ApiPaths.INBOX) ?
             `${follower.id}/inbox` :
             `${follower.id}/inbox/`;
 
