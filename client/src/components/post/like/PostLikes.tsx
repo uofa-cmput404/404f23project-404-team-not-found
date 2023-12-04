@@ -2,7 +2,7 @@ import { getUserCredentials, getUserData } from "../../../utils/localStorageUtil
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
-import { Like, Post } from "../../../interfaces/interfaces";
+import { Like, LikePostRequest, Post } from "../../../interfaces/interfaces";
 import {
   getAuthorIdFromResponse,
   getCodeFromObjectId,
@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
-import { ApiPaths, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const PostLikes = ({
@@ -28,11 +28,10 @@ const PostLikes = ({
   const userData = getUserData();
 
   const handleLike = async () => {
-    const data = {
+    let data: LikePostRequest = {
       "type": "Like",
       "author": userData,
       "object": post.id,
-      "context": "https://www.w3.org/ns/activitystreams",
       "summary": `${userData.displayName} Likes your post`
     }
 
@@ -57,6 +56,18 @@ const PostLikes = ({
         const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
+
+        if (post.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "@context": Links.LIKECONTEXT,
+          }
+        } else {
+          data = {
+            ...data,
+            "context": Links.LIKECONTEXT,
+          }
+        }
 
         const response = await axios.post(url, data, {
           auth: {
