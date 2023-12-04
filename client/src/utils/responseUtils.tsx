@@ -45,7 +45,7 @@ export function isPostImage(post: Post): boolean {
   } else if (post.contentType === undefined) {
     return false;
   } else {
-      return post.contentType.includes("base64");
+      return post.contentType.includes("base64") || post.content.includes("base64");
   }
 }
 

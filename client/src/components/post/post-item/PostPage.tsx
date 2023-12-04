@@ -112,11 +112,12 @@ const PostPage = () => {
 
   const fetchComments = async (postUrlId: string, host: string) => {
     const isPostLocal = isHostLocal(host);
-    const url = `${postUrlId}/comments/`
 
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${postUrlId}/comments/`;
+
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get(url, {
@@ -132,6 +133,10 @@ const PostPage = () => {
         }
       } else {
         let comments: any;
+        const url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
+        `${postUrlId}/comments` :
+        `${postUrlId}/comments/`;
+
 
         if (host === Hosts.CODEMONKEYS) {
           const response = await axios.get(url, {
@@ -214,12 +219,13 @@ const PostPage = () => {
       author: userData,
     };
 
-    const url = `${post.id}/comments/`;
     const isPostLocal = isHostLocal(postHost);
 
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -244,6 +250,9 @@ const PostPage = () => {
             published: new Date().toString(),
           };
         }
+        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
 
         const response = await axios.post(url, data, {
           auth: {
@@ -339,7 +348,7 @@ const PostPage = () => {
     const [followers, setFollowers] = useState<Author[]>([]);
   
     useEffect(() => {
-      // used only for local authors, this is getting all the followers of the logged in user
+      // used only for local authors, this is getting all the followers of the logged-in user
       const fetchFollowers = async (): Promise<void> => {
         const AUTHOR_ID = getAuthorId();
         const url = `${APP_URI}authors/${AUTHOR_ID}/followers/`;
@@ -542,9 +551,11 @@ const PostPage = () => {
                   </CardContentNoPadding>
                 )}
                 </CardContent>
-                <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
-                  <PostCategories categories={post.categories}/>
-                </CardContent>
+                {post.categories !== undefined && (
+                  <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
+                    <PostCategories categories={post.categories}/>
+                  </CardContent>
+                )}
                 <Grid
                   sx={{
                     borderTop: "1px solid #dbd9d9",

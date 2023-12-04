@@ -103,7 +103,9 @@ const CommentLikes = ({
         } else {
           // TODO: currently not working as comment.id is not well-formed from webwizards,
           // should automatically work when they fix it, but should double check
-          const url = `${comment.id}/likes/`;
+          const url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
+            `${comment.id}/likes`:
+            `${comment.id}/likes/`;
 
           const response = await axios.get(url, {
             auth: {

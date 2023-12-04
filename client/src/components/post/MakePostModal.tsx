@@ -85,11 +85,11 @@ const MakePostModal = ({
 
   const fetchAuthorData = async (authorUrlId: string): Promise<Author> => {
     const isAuthorLocal = isUrlIdLocal(authorUrlId);
-    const authorUrl = `${authorUrlId}/`;
   
     try {
       if (isAuthorLocal) {
         const userCredentials = getUserCredentials();
+        const authorUrl = `${authorUrlId}/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get<Author>(authorUrl, {
@@ -101,6 +101,10 @@ const MakePostModal = ({
           return response.data;
         }
       } else {
+        const authorUrl = isApiPathNoSlash(authorUrlId, ApiPaths.AUTHOR) ?
+          `${authorUrlId}` :
+          `${authorUrlId}/`;
+
         const response = await axios.get<Author>(authorUrl, {
           auth: {
             username: Username.NOTFOUND,
@@ -208,10 +212,10 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
       const userCredentials = getUserCredentials();
+      const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
       if (userCredentials.username && userCredentials.password) {
         const response = await axios.post(url, data, {

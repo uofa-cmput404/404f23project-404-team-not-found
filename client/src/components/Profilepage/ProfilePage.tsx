@@ -143,15 +143,10 @@ const ProfilePage = () => {
     setIsMakePostModalOpen(true);
   };
 
-
-
   const fetchPosts = useCallback(async () => {
-    const url = (isLocal()) ?
-      `${APP_URI}authors/${authorId}/posts/` :
-      `${otherAuthorObject.id}/posts/`;
-
     try {
       if (isLocal()) {
+        const url = `${APP_URI}authors/${authorId}/posts/`;
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get(url, {
             auth: {
@@ -161,7 +156,7 @@ const ProfilePage = () => {
           });
           if (authorId !== loggedUserId) {
             const publicPosts = response.data.filter((post: Post) =>
-              post.visibility === ShareType.PUBLIC && post.unlisted === false);
+              post.visibility === ShareType.PUBLIC && !post.unlisted);
             setPosts(publicPosts);
           } else {
             setPosts(response.data);
@@ -170,6 +165,10 @@ const ProfilePage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
+        const url = isApiPathNoSlash(otherAuthorObject.host, ApiPaths.POSTS) ?
+          `${otherAuthorObject.id}/posts` :
+          `${otherAuthorObject.id}/posts/`;
+
         const response = await axios.get(url, {
           auth: {
             username: Username.NOTFOUND,

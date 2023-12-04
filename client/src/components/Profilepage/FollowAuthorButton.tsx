@@ -10,6 +10,7 @@ import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
 import UnfollowAuthorModal from "./UnfollowAuthorModal";
 import { ApiPaths, Hosts, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
+import { isApiPathNoSlash } from "../../utils/responseUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -137,6 +138,11 @@ const FollowAuthorButton = ({
             `${otherAuthorObject.id}/followers/${loggedUserId}` :
             `${otherAuthorObject.id}/followers/${loggedUserId}/`;
 
+          if (otherAuthorObject.host === Hosts.TRIET) {
+            // Triet needs a foreign_host_name query param for this request
+            url = `${url}?foreign_host_name=${Hosts.NOTFOUNDAPINOSLASH}`;
+          }
+
           const response = await axios.get(url, {
             auth: {
               username: Username.NOTFOUND,
@@ -149,6 +155,8 @@ const FollowAuthorButton = ({
             isFollower = response.status === 200;
           } else if (otherAuthorObject.host === Hosts.WEBWIZARDS) {
             isFollower = response.data === "Yes";
+          } else if (otherAuthorObject.host === Hosts.TRIET) {
+            isFollower = response.data;
           } else {
             isFollower = response.data.is_follower;
           }

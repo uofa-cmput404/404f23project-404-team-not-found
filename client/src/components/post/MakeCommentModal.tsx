@@ -95,11 +95,10 @@ const MakeCommentModal = ({
   };
 
   const fetchComments = useCallback(async () => {
-    const url = `${post.id}/comments/`;
-
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get(url, {
@@ -115,6 +114,9 @@ const MakeCommentModal = ({
         }
       } else {
         let comments: any;
+        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
 
         if (post.author.host === Hosts.CODEMONKEYS) {
           const response = await axios.get(url, {
@@ -163,11 +165,11 @@ const MakeCommentModal = ({
       author: userData,
     };
 
-    const url = `${post.id}/comments/`;
-
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -192,6 +194,9 @@ const MakeCommentModal = ({
             published: new Date().toString(),
           };
         }
+        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
 
         const response = await axios.post(url, data,{
           auth: {
