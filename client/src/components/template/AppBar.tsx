@@ -2,8 +2,9 @@ import { useContext } from "react";
 
 import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
+import { Button, Paper } from "@mui/material";
 import { toast } from "react-toastify";
+import Image from 'mui-image';
 
 import {
   removeToken,
@@ -31,6 +32,7 @@ const HeadBar = () => {
       "You have successfuly logged out! Please log in again to use our service!"
     );
   };
+  
 
   return (
     <AppBar
@@ -52,17 +54,7 @@ const HeadBar = () => {
           marginLeft: "calc(15vw - 16px)",
         }}
       >
-        <Typography
-          variant="h4"
-          align="left"
-          color="primary"
-          style={{
-            marginTop: 10,
-            marginBottom: 10,
-          }}
-        >
-          distributed
-        </Typography>
+            <Image src="https://i.postimg.cc/NFTYysSP/logof.png" width={160}/>
       </Link>
 
       <Button
