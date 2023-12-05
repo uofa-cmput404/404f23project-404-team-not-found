@@ -34,7 +34,8 @@ const PostComments = ({
           <CardHeader
             avatar={<Avatar src={comment.author.profileImage}/>}
             title={`${comment.author.displayName}`}
-            subheader={`${formatDateTime(comment.published)}`}
+            subheader={(comment.published === undefined || comment.published === null) ?
+              "" : `${formatDateTime(comment.published)}`}
           />
           <CardContent sx={{paddingTop:0, paddingBottom: 0}}>
             {comment.contentType === "text/plain" && (

@@ -15,8 +15,6 @@ import {
   isHostLocal, isPostImage, isPostMarkdown,
   isPostPlainText
 } from "../../../utils/responseUtils";
-import { formatDateTime } from "../../../utils/dateUtils";
-import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
 import axios, { AxiosRequestConfig } from "axios";
 import PostComments from "../comment/PostComments";
@@ -34,6 +32,7 @@ import { remoteAuthorHosts } from "../../../lists/lists";
 import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
+import { getFormattedPostSubheader } from "../../../utils/formattingUtils";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -495,10 +494,7 @@ const PostPage = () => {
                       />
                     </Grid>
                   }
-                  subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
-                    `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-                    `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
-                  }
+                  subheader={getFormattedPostSubheader(post)}
                   sx = {{margin:0}}
                 />
                 <CardContent
