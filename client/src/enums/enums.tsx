@@ -33,6 +33,8 @@ export enum Username {
 
 export enum Hosts {
   CODEMONKEYS = "https://chimp-chat-1e0cca1cc8ce.herokuapp.com/",
+  NETNINJAS = "https://netninjas-backend-181348e5439b.herokuapp.com/",
+  NETNINJASAPI = "https://netninjas-backend-181348e5439b.herokuapp.com/api/",
   NOTFOUND = "https://distributed-network-37d054f03cf4.herokuapp.com/",
   NOTFOUNDAPINOSLASH = "https://distributed-network-37d054f03cf4.herokuapp.com/api",
   TRIET = "https://social-distribution-backend-f20f02be801f.herokuapp.com/service",

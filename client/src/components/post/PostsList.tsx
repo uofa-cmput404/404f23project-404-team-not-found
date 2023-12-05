@@ -252,7 +252,7 @@ const PostsList = ({
               </CardContentNoPadding>
             )}
             </CardContent>
-            {post.categories !== undefined && (
+            {post.categories !== undefined && post.categories !== null && (
               <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
                 <PostCategories categories={post.categories}/>
               </CardContent>

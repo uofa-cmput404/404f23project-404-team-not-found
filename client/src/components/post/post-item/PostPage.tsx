@@ -136,7 +136,8 @@ const PostPage = () => {
         let url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
         `${postUrlId}/comments` :
         `${postUrlId}/comments/`;
-                let config: AxiosRequestConfig = {
+
+        let config: AxiosRequestConfig = {
           auth: {
             username: Username.NOTFOUND,
             password: codes[host],
@@ -164,8 +165,10 @@ const PostPage = () => {
 
         const response = await axios.get(url, config);
 
-          if (!("comments" in response.data) && host === Hosts.WEBWIZARDS) {
+          if (!("comments" in response.data) &&
+            (host === Hosts.WEBWIZARDS || host === Hosts.NETNINJAS)) {
             // edge case where if a post has no comments, web wizards only return {}
+            // net ninjas only return []
             comments = [];
           } else {
             comments = response.data["comments"];
@@ -555,7 +558,7 @@ const PostPage = () => {
                   </CardContentNoPadding>
                 )}
                 </CardContent>
-                {post.categories !== undefined && (
+                {post.categories !== undefined && post.categories !== null && (
                   <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
                     <PostCategories categories={post.categories}/>
                   </CardContent>
