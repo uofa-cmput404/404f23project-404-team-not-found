@@ -441,7 +441,8 @@ class InboxView(APIView):
 
     def create_comment_inbox_item(self, author_object, data, request):
         parsed_url = urlparse(data["id"])
-        comment_id = parsed_url.path.split("/")[-1]
+        path_segments = parsed_url.path.split("/")
+        comment_id = path_segments[path_segments.index("comments") + 1]
         comment_object = get_object_or_404(Comment, id=comment_id)
         serializer = CommentSerializer(
             instance=comment_object, data=data, context={"request": request}
@@ -474,7 +475,7 @@ class InboxView(APIView):
 
         if "comments" in data["object"]:
             post_id = path_segments[path_segments.index("posts") + 1]
-            comment_id = path_segments[-1]
+            comment_id = path_segments[path_segments.index("comments") + 1]
             post_object = get_object_or_404(Post, id=post_id)
             comment_object = get_object_or_404(Comment, id=comment_id)
         else:  # default, it's a like on a post
@@ -498,7 +499,8 @@ class InboxView(APIView):
     def create_post_inbox_item(self, author_object, data, request):
         try:
             parsed_url = urlparse(data["id"])
-            post_id = parsed_url.path.split("/")[-1]
+            path_segments = parsed_url.path.split("/")
+            post_id = path_segments[path_segments.index("posts") + 1]
             post_object = Post.objects.get(id=post_id)
             serializer = PostSerializer(
                 instance=post_object, data=data, context={"request": request}
