@@ -145,7 +145,8 @@ const MakeCommentModal = ({
 
         const response = await axios.get(url, config);
 
-        if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
+        if (!("comments" in response.data) &&
+          (post.author.host === Hosts.WEBWIZARDS || post.author.host === Hosts.NETNINJAS)) {
           // edge case where if a post has no comments, web wizards only return {}
           comments = [];
         } else {

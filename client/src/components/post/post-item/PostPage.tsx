@@ -15,8 +15,6 @@ import {
   isHostLocal, isPostImage, isPostMarkdown,
   isPostPlainText
 } from "../../../utils/responseUtils";
-import { formatDateTime } from "../../../utils/dateUtils";
-import { renderVisibility } from "../../../utils/postUtils";
 import { Post, Comment, Author, CommentPostRequest } from "../../../interfaces/interfaces";
 import axios, { AxiosRequestConfig } from "axios";
 import PostComments from "../comment/PostComments";
@@ -34,6 +32,7 @@ import { remoteAuthorHosts } from "../../../lists/lists";
 import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
+import { getFormattedPostSubheader } from "../../../utils/formattingUtils";
 
 const CardContentNoPadding = styled(CardContent)(`
   padding: 0;
@@ -136,7 +135,8 @@ const PostPage = () => {
         let url = isApiPathNoSlash(postUrlId, ApiPaths.COMMENTS) ?
         `${postUrlId}/comments` :
         `${postUrlId}/comments/`;
-                let config: AxiosRequestConfig = {
+
+        let config: AxiosRequestConfig = {
           auth: {
             username: Username.NOTFOUND,
             password: codes[host],
@@ -164,8 +164,10 @@ const PostPage = () => {
 
         const response = await axios.get(url, config);
 
-          if (!("comments" in response.data) && host === Hosts.WEBWIZARDS) {
+          if (!("comments" in response.data) &&
+            (host === Hosts.WEBWIZARDS || host === Hosts.NETNINJAS)) {
             // edge case where if a post has no comments, web wizards only return {}
+            // net ninjas only return []
             comments = [];
           } else {
             comments = response.data["comments"];
@@ -492,10 +494,7 @@ const PostPage = () => {
                       />
                     </Grid>
                   }
-                  subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
-                    `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-                    `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
-                  }
+                  subheader={getFormattedPostSubheader(post)}
                   sx = {{margin:0}}
                 />
                 <CardContent
@@ -555,7 +554,7 @@ const PostPage = () => {
                   </CardContentNoPadding>
                 )}
                 </CardContent>
-                {post.categories !== undefined && (
+                {post.categories !== undefined && post.categories !== null && (
                   <CardContent sx={{paddingBottom: 0, paddingTop: 0}}>
                     <PostCategories categories={post.categories}/>
                   </CardContent>
