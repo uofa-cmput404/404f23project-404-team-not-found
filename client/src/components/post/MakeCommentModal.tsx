@@ -147,13 +147,13 @@ const MakeCommentModal = ({
 
         if (!("comments" in response.data) &&
           (post.author.host === Hosts.WEBWIZARDS || post.author.host === Hosts.NETNINJAS)) {
-          // edge case where if a post has no comments, web wizards only return {}
+          // edge case where if a post has no comments, web wizards and net ninjas only return {}
           comments = [];
         } else {
           comments = response.data["comments"];
         }
 
-      setPostComments(comments);
+        setPostComments(comments);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
