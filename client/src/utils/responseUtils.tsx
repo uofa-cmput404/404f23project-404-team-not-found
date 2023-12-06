@@ -45,7 +45,7 @@ export function isObjectFromTriet(objectUrlId: string): boolean {
 
 export function isPostImage(post: Post): boolean {
   if (post.author.host === Hosts.WEBWIZARDS) {
-    return post.content_type!.includes("base64");
+    return post.content_type?.includes("base64") || post.contentType?.includes("base64");
   } else if (post.contentType === undefined) {
     return false;
   } else {
