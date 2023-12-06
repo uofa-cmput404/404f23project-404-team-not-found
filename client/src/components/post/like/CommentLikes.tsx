@@ -6,7 +6,7 @@ import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
   getAuthorIdFromResponse,
   getCodeFromObjectId,
-  isApiPathNoSlash,
+  isApiPathNoSlash, isHostLocal,
   isUrlIdLocal
 } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
@@ -26,8 +26,7 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const isLocal = isUrlIdLocal(comment.id);
-  const commentId = getAuthorIdFromResponse(comment.id);
+  const isLocal = isHostLocal(comment.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
