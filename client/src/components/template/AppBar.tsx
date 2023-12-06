@@ -54,7 +54,11 @@ const HeadBar = () => {
           marginLeft: "calc(15vw - 16px)",
         }}
       >
-            <Image src="https://i.postimg.cc/wjZxRjXw/Frame-1.png" width={160}/>
+            <Image src="https://i.postimg.cc/wjZxRjXw/Frame-1.png" width={160}
+              style={{
+                marginBottom: 10
+              }}
+            />
       </Link>
 
       <Button
