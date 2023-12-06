@@ -23,7 +23,6 @@ const PostLikes = ({
 }) => {
   const [postLikes, setPostLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const postId = getAuthorIdFromResponse(post.id);
   const isLocal = isHostLocal(post.author.host);
   const userData = getUserData();
 
