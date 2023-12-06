@@ -228,12 +228,12 @@ const MakeCommentModal = ({
     id: string,
     published: string,
   ) => {
-    const data = {
+    let data: Comment = {
       type: "comment",
       author: userData,
       id: id,
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       published: published,
     };
 
@@ -254,6 +254,13 @@ const MakeCommentModal = ({
         const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
+
+        if (post.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "id": `${data.id}/`,
+          }
+        }
 
         await axios.post(url, data, {
           auth: {
