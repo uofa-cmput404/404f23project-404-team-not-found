@@ -64,6 +64,7 @@ const CommentLikes = ({
           data = {
             ...data,
             "@context": Links.LIKECONTEXT,
+            "object": `${data.object}/`,
           }
         } else {
           data = {

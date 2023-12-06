@@ -285,12 +285,12 @@ const PostPage = () => {
     authorUrlId: string,
     published: string,
   ) => {
-    const data = {
+    let data: Comment = {
       type: "comment",
       author: userData,
       id: commentId,
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       published: published,
     };
     const isPostLocal = isHostLocal(postHost);
@@ -312,6 +312,13 @@ const PostPage = () => {
         const url = isApiPathNoSlash(postHost, ApiPaths.INBOX) ?
           `${authorUrlId}/inbox` :
           `${authorUrlId}/inbox/`;
+
+        if (postHost === Hosts.TRIET) {
+          data = {
+            ...data,
+            "id": `${data.id}/`,
+          }
+        }
 
         await axios.post(url, data, {
           auth: {
