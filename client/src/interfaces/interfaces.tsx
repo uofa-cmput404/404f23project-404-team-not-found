@@ -106,6 +106,7 @@ export interface GitHubEvent {
 
 
 export interface Comment {
+  type?: string;
   id: string;
   author: Author;
   comment: string;

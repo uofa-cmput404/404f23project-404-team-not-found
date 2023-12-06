@@ -40,10 +40,19 @@ const FollowAuthorButton = ({
 
   const sendFollowToInbox = async () => {
     // actor is the one who wants to follow and object is the author whom actor wants to follow
-    const data = {
+    let actor: Author = {...userObject};
+
+    if (otherAuthorObject.host === Hosts.TRIET) {
+      actor = {
+        ...userObject,
+        id: `${actor.id}/`
+      }
+    }
+
+    let data = {
       type: "Follow",
-      summary: `${userObject.displayName} wants to follow ${otherAuthorObject.displayName}`,
-      actor: userObject,
+      summary: `${actor.displayName} wants to follow ${otherAuthorObject.displayName}`,
+      actor: actor,
       object: otherAuthorObject,
     };
 

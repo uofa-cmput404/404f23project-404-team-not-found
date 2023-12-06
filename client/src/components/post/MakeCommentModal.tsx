@@ -145,7 +145,8 @@ const MakeCommentModal = ({
 
         const response = await axios.get(url, config);
 
-        if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
+        if (!("comments" in response.data) &&
+          (post.author.host === Hosts.WEBWIZARDS || post.author.host === Hosts.NETNINJAS)) {
           // edge case where if a post has no comments, web wizards only return {}
           comments = [];
         } else {
@@ -227,12 +228,12 @@ const MakeCommentModal = ({
     id: string,
     published: string,
   ) => {
-    const data = {
+    let data: Comment = {
       type: "comment",
       author: userData,
       id: id,
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       published: published,
     };
 
@@ -253,6 +254,13 @@ const MakeCommentModal = ({
         const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
+
+        if (post.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "id": `${data.id}/`,
+          }
+        }
 
         await axios.post(url, data, {
           auth: {

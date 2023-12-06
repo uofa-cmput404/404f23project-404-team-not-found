@@ -18,9 +18,15 @@ const DiscoverContent = () => {
 
   useEffect(() => {
     const fetchAuthors = async () => {
-      const remoteAuthorsUrls = remoteAuthorHosts.map(url =>
-        url === Hosts.TRIET ? `${url}/authors` : `${url}authors/`
-      );
+      const remoteAuthorsUrls = remoteAuthorHosts.map(url => {
+        if (url === Hosts.TRIET) {
+          return `${url}/authors`;
+        } else if (url === Hosts.NETNINJAS) {
+          return `${Hosts.NETNINJASAPI}authors/`;
+        } else {
+          return `${url}authors/`;
+        }
+      });
 
       const fetchAuthorsPromises = remoteAuthorsUrls.map(url => {
         return axios.get(url, {

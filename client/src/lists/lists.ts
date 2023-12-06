@@ -6,6 +6,7 @@ export const localAuthorHosts: string[] = [
 
 export const remoteAuthorHosts: string[] = [
   Hosts.CODEMONKEYS,
+  Hosts.NETNINJAS,
   Hosts.TRIET,
   Hosts.WEBWIZARDS,
 ];

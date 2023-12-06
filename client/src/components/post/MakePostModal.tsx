@@ -24,7 +24,7 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { ApiPaths, ShareType, ToastMessages, Username } from "../../enums/enums";
+import {ApiPaths, Hosts, ShareType, ToastMessages, Username} from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { getCodeFromObjectId, isApiPathNoSlash, isUrlIdLocal } from "../../utils/responseUtils";
