@@ -164,7 +164,6 @@ class FollowerView(APIView):
     def put(self, request, author_id, follower_id):
         """
         Add FOLLOWER_ID as a follower of AUTHOR_ID
-        TODO: must be authenticated
         """
         author_object = get_object_or_404(Author, id=author_id)
         is_follower = Follower.objects.filter(
@@ -222,9 +221,10 @@ class PostsView(APIView):
         """
         get the recent posts from author AUTHOR_ID
         """
+        get_object_or_404(Author, id=author_id)
         referer = request.META.get("HTTP_REFERER")
 
-        # we will be filtering out posts on the front end so we want to query everything on local
+        # we will be filtering out posts on the front end, so we want to query everything on local
         # on remote, we should only show public posts
         if referer and any(referer.startswith(base_url) for base_url in LOCAL_REFERERS):
             posts = Post.objects.filter(author__id=author_id).order_by("-published")
@@ -294,7 +294,6 @@ class PostView(APIView):
     def post(self, request, author_id, post_id):
         """
         update the post whose id is POST_ID (must be authenticated)
-        TODO: update this when authentication is implemented
         """
         post_object = get_object_or_404(Post, id=post_id, author__id=author_id)
         # takes care of updating categories
@@ -613,7 +612,6 @@ class CommentsView(APIView):
     def get_permissions(self):
         return get_custom_permissions(self.request)
 
-    # TODO: Pagination
     def get(self, request, author_id, post_id):
         post_object = get_object_or_404(Post, id=post_id)
         comments = Comment.objects.order_by("-published").filter(post=post_object)
