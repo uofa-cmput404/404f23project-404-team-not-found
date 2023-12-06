@@ -24,10 +24,10 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import {ApiPaths, Hosts, ShareType, ToastMessages, Username} from "../../enums/enums";
+import { ApiPaths, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { getCodeFromObjectId, isApiPathNoSlash, isUrlIdLocal } from "../../utils/responseUtils";
+import { getCodeFromObjectId, isApiPathNoSlash, isObjectFromTriet, isUrlIdLocal } from "../../utils/responseUtils";
 
 const style = {
   display: "flex",
@@ -227,7 +227,7 @@ const MakePostModal = ({
 
         // this will contain a list of the followers' author url ids: "apiurl/authors/uuid"
         const authorFollowers = await fetchFollowers(loggedUserData.id ?? '');
-        const postData = response.data;
+        let postData = response.data;
 
         if (visibility === ShareType.PUBLIC && !unlisted) {
           for (const followerId of authorFollowers) {
@@ -242,6 +242,14 @@ const MakePostModal = ({
               const url = isApiPathNoSlash(followerId, ApiPaths.INBOX) ?
                 `${followerId}/inbox` :
                 `${followerId}/inbox/`;
+
+              if (isObjectFromTriet(followerId)) {
+                // triet requires / at the end for ids
+                postData = {
+                  ...postData,
+                  "id": `${postData.id}/`
+                }
+              }
 
               await axios.post(url, postData, {
                 auth: {
@@ -267,6 +275,14 @@ const MakePostModal = ({
                   `${followerId}/inbox` :
                   `${followerId}/inbox/`;
 
+                if (isObjectFromTriet(followerId)) {
+                  // triet requires / at the end for ids
+                  postData = {
+                    ...postData,
+                    "id": `${postData.id}/`
+                  }
+                }
+
                 await axios.post(url, postData, {
                   auth: {
                     username: Username.NOTFOUND,
@@ -288,6 +304,14 @@ const MakePostModal = ({
             const url = isApiPathNoSlash(selectedFollower, ApiPaths.INBOX) ?
             `${selectedFollower}/inbox` :
             `${selectedFollower}/inbox/`;
+
+            if (isObjectFromTriet(selectedFollower)) {
+              // triet requires / at the end for ids
+              postData = {
+                ...postData,
+                "id": `${postData.id}/`
+              }
+            }
 
             await axios.post(url, postData, {
               auth: {

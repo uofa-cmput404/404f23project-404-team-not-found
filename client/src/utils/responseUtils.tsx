@@ -39,6 +39,10 @@ export function isHostCodeMonkeys(host: string): boolean {
   return host === Hosts.CODEMONKEYS;
 }
 
+export function isObjectFromTriet(objectUrlId: string): boolean {
+  return objectUrlId.includes(Hosts.TRIET);
+}
+
 export function isPostImage(post: Post): boolean {
   if (post.author.host === Hosts.WEBWIZARDS) {
     return post.content_type!.includes("base64");
