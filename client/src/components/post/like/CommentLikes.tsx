@@ -127,8 +127,8 @@ const CommentLikes = ({
           let dataLikes: any;
 
           if (!("items" in response.data) &&
-            (comment.author.host === Hosts.WEBWIZARDS || comment.author.host === Hosts.NETNINJAS)) {
-            // edge case where if a post has no likes, web wizards and net ninjas only return 0
+            (comment.author.host === Hosts.WEBWIZARDS)) {
+            // edge case where if a post has no likes, web wizards return {}
             dataLikes = []
           } else if ("items" in response.data) {
             dataLikes = response.data["items"];
