@@ -1,23 +1,11 @@
 import { AppBar, Box, CssBaseline, Typography, Link } from "@mui/material";
+import NotFoundHeadBar from "./template/NotFoundAppBar";
 
 const NotFound = () => {
   return (
     <>
       <CssBaseline />
-      <AppBar position="fixed" style={{ color: "#FFFFFF", height: 60 }}>
-        <Typography
-          variant="h4"
-          align="left"
-          style={{
-            marginLeft: 20,
-            color: "white",
-            marginTop: 10,
-            marginBottom: 10,
-          }}
-        >
-          socialdistribution
-        </Typography>
-      </AppBar>
+      <NotFoundHeadBar />
       <Box
         sx={{
           display: "flex",
