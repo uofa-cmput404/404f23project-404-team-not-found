@@ -1,8 +1,7 @@
 import { useContext } from "react";
-
 import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
-import { Button } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import { toast } from "react-toastify";
 
 import {
@@ -46,25 +45,25 @@ const HeadBar = () => {
         borderBottom: "1px solid #dbd9d9",
       }}
     >
-      <Link to="/home-page" 
-        style={{ 
-          textDecoration: "none" ,
+      <Link
+        to="/home-page"
+        style={{
+          textDecoration: "none",
           marginLeft: "calc(15vw - 16px)",
         }}
       >
-        <Typography
-          variant="h4"
-          align="left"
-          color="primary"
-          style={{
-            marginTop: 10,
-            marginBottom: 10,
+        <Box
+          component="img"
+          sx={{
+            height: 55,
+            width: "auto",
+            maxHeight: 55,
+            maxWidth: "auto",
           }}
-        >
-          distributed
-        </Typography>
+          alt="App Logo"
+          src="https://i.postimg.cc/Kvg7sSNK/logo-distributed.jpg"
+        />
       </Link>
-
       <Button
         size="small"
         sx={{
@@ -73,7 +72,7 @@ const HeadBar = () => {
           alignSelf: "center",
           marginRight: 1,
           borderRadius: 20,
-          paddingX: 2
+          paddingX: 2,
         }}
         onClick={handleSignOut}
         endIcon={<LogoutIcon />}
