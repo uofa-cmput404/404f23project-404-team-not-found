@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Image from "mui-image";
 import { Link } from "react-router-dom";
@@ -24,12 +25,16 @@ const NotFoundHeadBar = () => {
           marginLeft: "calc(15vw - 16px)",
         }}
       >
-        <Image
-          src="https://i.postimg.cc/wjZxRjXw/Frame-1.png"
-          width={160}
-          style={{
-            marginBottom: 10,
+        <Box
+          component="img"
+          sx={{
+            height: 55,
+            width: "auto",
+            maxHeight: 55,
+            maxWidth: "auto",
           }}
+          alt="App Logo"
+          src="https://i.postimg.cc/Kvg7sSNK/logo-distributed.jpg"
         />
       </Link>
     </AppBar>
