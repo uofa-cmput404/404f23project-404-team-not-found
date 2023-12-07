@@ -48,7 +48,17 @@ export interface Follower {
 }
 
 export interface Like {
+  type: string;
   context: string;
+  summary: string;
+  author: Author;
+  object: string;
+}
+
+export interface LikePostRequest {
+  type: string;
+  context?: string;
+  "@context"?: string;
   summary: string;
   author: Author;
   object: string;
@@ -96,6 +106,7 @@ export interface GitHubEvent {
 
 
 export interface Comment {
+  type?: string;
   id: string;
   author: Author;
   comment: string;

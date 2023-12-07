@@ -2,14 +2,19 @@ import { getUserCredentials, getUserData } from "../../../utils/localStorageUtil
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
-import { Like } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, getCodeFromObjectId, isUrlIdLocal } from "../../../utils/responseUtils";
+import { Like, LikePostRequest } from "../../../interfaces/interfaces";
+import {
+  getAuthorIdFromResponse,
+  getCodeFromObjectId,
+  isApiPathNoSlash, isHostLocal,
+  isUrlIdLocal
+} from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const CommentLikes = ({
@@ -21,16 +26,14 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const isLocal = isUrlIdLocal(comment.id);
-  const commentId = getAuthorIdFromResponse(comment.id);
+  const isLocal = isHostLocal(comment.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
-    const data = {
+    let data: LikePostRequest = {
       "type": "Like",
       "author": userData,
       "object": comment.id,
-      "context": "https://www.w3.org/ns/activitystreams",
       "summary": `${userData.displayName} Likes your post`
     }
 
@@ -52,9 +55,22 @@ const CommentLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = comment.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(comment.author.host, ApiPaths.INBOX) ?
           `${comment.author.id}/inbox` :
           `${comment.author.id}/inbox/`;
+
+        if (comment.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "@context": Links.LIKECONTEXT,
+            "object": `${data.object}/`,
+          }
+        } else {
+          data = {
+            ...data,
+            "context": Links.LIKECONTEXT,
+          }
+        }
 
         const response = await axios.post(url, data, {
           auth: {
@@ -98,7 +114,9 @@ const CommentLikes = ({
         } else {
           // TODO: currently not working as comment.id is not well-formed from webwizards,
           // should automatically work when they fix it, but should double check
-          const url = `${comment.id}/likes/`;
+          const url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
+            `${comment.id}/likes`:
+            `${comment.id}/likes/`;
 
           const response = await axios.get(url, {
             auth: {
@@ -108,8 +126,11 @@ const CommentLikes = ({
           });
           let dataLikes: any;
 
-          // TODO: adapt for every team
-          if ("items" in response.data) {
+          if (!("items" in response.data) &&
+            (comment.author.host === Hosts.WEBWIZARDS)) {
+            // edge case where if a post has no likes, web wizards return {}
+            dataLikes = []
+          } else if ("items" in response.data) {
             dataLikes = response.data["items"];
           } else {
             dataLikes = response.data;

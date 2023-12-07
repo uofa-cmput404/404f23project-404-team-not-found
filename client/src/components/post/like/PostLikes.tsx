@@ -2,13 +2,18 @@ import { getUserCredentials, getUserData } from "../../../utils/localStorageUtil
 import React, { useEffect, useState } from "react";
 import { Button, Typography } from "@mui/material";
 import axios from "axios";
-import { Like, Post } from "../../../interfaces/interfaces";
-import { getAuthorIdFromResponse, getCodeFromObjectId, isHostLocal } from "../../../utils/responseUtils";
+import { Like, LikePostRequest, Post } from "../../../interfaces/interfaces";
+import {
+  getAuthorIdFromResponse,
+  getCodeFromObjectId,
+  isApiPathNoSlash,
+  isHostLocal
+} from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Tooltip from "@mui/material/Tooltip";
-import { Hosts, ToastMessages, Username } from "../../../enums/enums";
+import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
 
 const PostLikes = ({
@@ -18,16 +23,14 @@ const PostLikes = ({
 }) => {
   const [postLikes, setPostLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  const postId = getAuthorIdFromResponse(post.id);
   const isLocal = isHostLocal(post.author.host);
   const userData = getUserData();
 
   const handleLike = async () => {
-    const data = {
+    let data: LikePostRequest = {
       "type": "Like",
       "author": userData,
       "object": post.id,
-      "context": "https://www.w3.org/ns/activitystreams",
       "summary": `${userData.displayName} Likes your post`
     }
 
@@ -49,9 +52,22 @@ const PostLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = post.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
+
+        if (post.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "@context": Links.LIKECONTEXT,
+            "object": `${data.object}/`,
+          }
+        } else {
+          data = {
+            ...data,
+            "context": Links.LIKECONTEXT,
+          }
+        }
 
         const response = await axios.post(url, data, {
           auth: {
@@ -92,7 +108,7 @@ const PostLikes = ({
             toast.error(ToastMessages.NOUSERCREDS);
           }
         } else {
-          const url = post.author.host === Hosts.WEBWIZARDS ?
+          const url = isApiPathNoSlash(post.id, ApiPaths.POSTLIKES) ?
             `${post.id}/likes` :
             `${post.id}/likes/`;
 
@@ -104,7 +120,11 @@ const PostLikes = ({
           });
           let dataLikes: any;
 
-          if ("items" in response.data) {
+          if (!("items" in response.data) &&
+            (post.author.host === Hosts.WEBWIZARDS)) {
+            // edge case where if a post has no likes, web wizards only return {}
+            dataLikes = []
+          } else if ("items" in response.data) {
             dataLikes = response.data["items"];
           } else {
             dataLikes = response.data;

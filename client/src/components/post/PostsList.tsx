@@ -4,9 +4,7 @@ import {
   Avatar, Card, CardContent, CardHeader, Typography, CardMedia, Link,
   Grid, Button, IconButton, CardActionArea, ButtonBase, Chip
 } from "@mui/material";
-import { formatDateTime } from "../../utils/dateUtils";
 import { getAuthorId } from "../../utils/localStorageUtils";
-import { renderVisibility }from '../../utils/postUtils';
 import { MuiMarkdown } from 'mui-markdown';
 import PostCategories from "./PostCategories";
 import {
@@ -27,6 +25,7 @@ import { getUserCredentials, getUserData } from '../../utils/localStorageUtils';
 import MoreMenu from './edit/MoreMenu';
 import styled from '@emotion/styled';
 import PostLikes from "./like/PostLikes";
+import { getFormattedPostSubheader } from "../../utils/formattingUtils";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -188,10 +187,7 @@ const PostsList = ({
                   />
                 </Grid>
               }
-              subheader={(post.updatedAt === undefined || post.updatedAt === null) ?
-                `${formatDateTime(post.published)} • ${renderVisibility(post)}` :
-                `${formatDateTime(post.published)} • ${renderVisibility(post)} • Edited`
-              }
+              subheader={getFormattedPostSubheader(post)}
               sx = {{margin:0}}
             />
             <CardContent
@@ -252,9 +248,11 @@ const PostsList = ({
               </CardContentNoPadding>
             )}
             </CardContent>
-            <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
-              <PostCategories categories={post.categories}/>
-            </CardContent>
+            {post.categories !== undefined && post.categories !== null && (
+              <CardContent sx={{paddingLeft: 8.5, paddingTop: 1, paddingBottom: 0}}>
+                <PostCategories categories={post.categories}/>
+              </CardContent>
+            )}
             <CardContent sx={{paddingTop: 0.5, paddingLeft: 7.5}}>
               <Grid container
                 justifyContent="space-between"

@@ -24,10 +24,10 @@ import TextPostView from "./TextPostView";
 import ImagePostView from "./ImagePostView";
 import PostCategoriesField from "./PostCategoriesField";
 
-import { Hosts, ShareType, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { toast } from "react-toastify";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import { getCodeFromObjectId, isUrlIdLocal } from "../../utils/responseUtils";
+import { getCodeFromObjectId, isApiPathNoSlash, isObjectFromTriet, isUrlIdLocal } from "../../utils/responseUtils";
 
 const style = {
   display: "flex",
@@ -85,11 +85,11 @@ const MakePostModal = ({
 
   const fetchAuthorData = async (authorUrlId: string): Promise<Author> => {
     const isAuthorLocal = isUrlIdLocal(authorUrlId);
-    const authorUrl = `${authorUrlId}/`;
   
     try {
       if (isAuthorLocal) {
         const userCredentials = getUserCredentials();
+        const authorUrl = `${authorUrlId}/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get<Author>(authorUrl, {
@@ -101,6 +101,10 @@ const MakePostModal = ({
           return response.data;
         }
       } else {
+        const authorUrl = isApiPathNoSlash(authorUrlId, ApiPaths.AUTHOR) ?
+          `${authorUrlId}` :
+          `${authorUrlId}/`;
+
         const response = await axios.get<Author>(authorUrl, {
           auth: {
             username: Username.NOTFOUND,
@@ -138,7 +142,7 @@ const MakePostModal = ({
           });
         }
       } else {
-        const followersUrl = authorUrlId.includes(Hosts.WEBWIZARDS) ?
+        const followersUrl = isApiPathNoSlash(authorUrlId, ApiPaths.FOLLOWERS) ?
           `${authorUrlId}/followers` :
           `${authorUrlId}/followers/`;
 
@@ -208,10 +212,10 @@ const MakePostModal = ({
       unlisted: unlisted,
     };
     const AUTHOR_ID = getAuthorId();
-    const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
     try {
       const userCredentials = getUserCredentials();
+      const url = `${APP_URI}authors/${AUTHOR_ID}/posts/`;
 
       if (userCredentials.username && userCredentials.password) {
         const response = await axios.post(url, data, {
@@ -223,7 +227,7 @@ const MakePostModal = ({
 
         // this will contain a list of the followers' author url ids: "apiurl/authors/uuid"
         const authorFollowers = await fetchFollowers(loggedUserData.id ?? '');
-        const postData = response.data;
+        let postData = response.data;
 
         if (visibility === ShareType.PUBLIC && !unlisted) {
           for (const followerId of authorFollowers) {
@@ -235,9 +239,17 @@ const MakePostModal = ({
                 },
               });
             } else {
-              const url = followerId.includes(Hosts.WEBWIZARDS) ?
+              const url = isApiPathNoSlash(followerId, ApiPaths.INBOX) ?
                 `${followerId}/inbox` :
                 `${followerId}/inbox/`;
+
+              if (isObjectFromTriet(followerId)) {
+                // triet requires / at the end for ids
+                postData = {
+                  ...postData,
+                  "id": `${postData.id}/`
+                }
+              }
 
               await axios.post(url, postData, {
                 auth: {
@@ -259,9 +271,17 @@ const MakePostModal = ({
                   },
                 });
               } else {
-                const url = followerId.includes(Hosts.WEBWIZARDS) ?
+                const url = isApiPathNoSlash(followerId, ApiPaths.INBOX) ?
                   `${followerId}/inbox` :
                   `${followerId}/inbox/`;
+
+                if (isObjectFromTriet(followerId)) {
+                  // triet requires / at the end for ids
+                  postData = {
+                    ...postData,
+                    "id": `${postData.id}/`
+                  }
+                }
 
                 await axios.post(url, postData, {
                   auth: {
@@ -281,9 +301,17 @@ const MakePostModal = ({
               },
             });
           } else {
-            const url = selectedFollower.includes(Hosts.WEBWIZARDS) ?
+            const url = isApiPathNoSlash(selectedFollower, ApiPaths.INBOX) ?
             `${selectedFollower}/inbox` :
             `${selectedFollower}/inbox/`;
+
+            if (isObjectFromTriet(selectedFollower)) {
+              // triet requires / at the end for ids
+              postData = {
+                ...postData,
+                "id": `${postData.id}/`
+              }
+            }
 
             await axios.post(url, postData, {
               auth: {

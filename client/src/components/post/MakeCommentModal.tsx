@@ -19,13 +19,13 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { Post, Comment, CommentPostRequest } from "../../interfaces/interfaces";
-import { getAuthorIdFromResponse, isHostLocal } from "../../utils/responseUtils";
+import { getAuthorIdFromResponse, isApiPathNoSlash, isHostLocal } from "../../utils/responseUtils";
 import PostComments from "./comment/PostComments";
 import { makeStyles } from "@mui/styles";
 import { toast } from "react-toastify";
-import { ContentType, Hosts, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, ContentType, Hosts, ToastMessages, Username } from "../../enums/enums";
 import { codes } from "../../objects/objects";
 import { v4 as uuidv4 } from "uuid";
 
@@ -95,11 +95,10 @@ const MakeCommentModal = ({
   };
 
   const fetchComments = useCallback(async () => {
-    const url = `${post.id}/comments/`;
-
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.get(url, {
@@ -115,34 +114,43 @@ const MakeCommentModal = ({
         }
       } else {
         let comments: any;
+        let url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
+        let config: AxiosRequestConfig = {
+          auth: {
+            username: Username.NOTFOUND,
+            password: codes[post.author.host],
+          },
+        };
 
         if (post.author.host === Hosts.CODEMONKEYS) {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[post.author.host],
-            },
+          // code monkeys require page & size query params
+          config = {
+            ...config,
             params: {
               page: 1,
               size: 50
             }
-          });
-
-          comments = response.data["comments"];
-        } else {
-          const response = await axios.get(url, {
-            auth: {
-              username: Username.NOTFOUND,
-              password: codes[post.author.host],
-            },
-          });
-
-          if (!("comments" in response.data) && post.author.host === Hosts.WEBWIZARDS) {
-            // edge case where if a post has no comments, web wizards only return {}
-            comments = [];
-          } else {
-            comments = response.data["comments"];
           }
+        } else if (post.author.host === Hosts.TRIET) {
+          // Triet needs a query parameter when we're fetching comments
+          config = {
+            ...config,
+            headers: {
+              "x-client-id": userData.id,
+            },
+          }
+        }
+
+        const response = await axios.get(url, config);
+
+        if (!("comments" in response.data) &&
+          (post.author.host === Hosts.WEBWIZARDS || post.author.host === Hosts.NETNINJAS)) {
+          // edge case where if a post has no comments, web wizards and net ninjas only return {}
+          comments = [];
+        } else {
+          comments = response.data["comments"];
         }
 
         setPostComments(comments);
@@ -163,11 +171,11 @@ const MakeCommentModal = ({
       author: userData,
     };
 
-    const url = `${post.id}/comments/`;
-
     try {
       if (isPostLocal) {
         const userCredentials = getUserCredentials();
+        const url = `${post.id}/comments/`;
+
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
             auth: {
@@ -192,6 +200,9 @@ const MakeCommentModal = ({
             published: new Date().toString(),
           };
         }
+        const url = isApiPathNoSlash(post.id, ApiPaths.COMMENTS) ?
+          `${post.id}/comments` :
+          `${post.id}/comments/`;
 
         const response = await axios.post(url, data,{
           auth: {
@@ -217,12 +228,12 @@ const MakeCommentModal = ({
     id: string,
     published: string,
   ) => {
-    const data = {
+    let data: Comment = {
       type: "comment",
       author: userData,
       id: id,
       comment: comment,
-      contentType: contentType,
+      contentType: contentType as ContentType,
       published: published,
     };
 
@@ -240,9 +251,16 @@ const MakeCommentModal = ({
           });
         }
       } else {
-        const url = post.author.host === Hosts.WEBWIZARDS ?
+        const url = isApiPathNoSlash(post.author.host, ApiPaths.INBOX) ?
           `${post.author.id}/inbox` :
           `${post.author.id}/inbox/`;
+
+        if (post.author.host === Hosts.TRIET) {
+          data = {
+            ...data,
+            "id": `${data.id}/`,
+          }
+        }
 
         await axios.post(url, data, {
           auth: {
