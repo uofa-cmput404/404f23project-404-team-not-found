@@ -1,6 +1,6 @@
+import { Box } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import { Link } from "react-router-dom";
-import Typography from "@mui/material/Typography";
 
 const NotFoundHeadBar = () => {
   return (
@@ -24,17 +24,17 @@ const NotFoundHeadBar = () => {
           marginLeft: "calc(15vw - 16px)",
         }}
       >
-        <Typography
-          variant="h4"
-          align="left"
-          color="primary"
-          style={{
-            marginTop: 10,
-            marginBottom: 10,
+        <Box
+          component="img"
+          sx={{
+            height: 55,
+            width: "auto",
+            maxHeight: 55,
+            maxWidth: "auto",
           }}
-        >
-          distributed
-        </Typography>
+          alt="App Logo"
+          src="https://i.postimg.cc/Kvg7sSNK/logo-distributed.jpg"
+        />
       </Link>
     </AppBar>
   );
