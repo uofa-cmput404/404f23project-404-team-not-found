@@ -1,10 +1,8 @@
 import { useContext } from "react";
-
 import AppBar from "@mui/material/AppBar";
 import Typography from "@mui/material/Typography";
 import { Box, Button, Paper } from "@mui/material";
 import { toast } from "react-toastify";
-import Image from "mui-image";
 
 import {
   removeToken,

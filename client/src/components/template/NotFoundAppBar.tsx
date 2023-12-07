@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
-import Image from "mui-image";
 import { Link } from "react-router-dom";
 
 const NotFoundHeadBar = () => {
