@@ -4,10 +4,9 @@ import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
-  getAuthorIdFromResponse,
   getCodeFromObjectId,
-  isApiPathNoSlash, isHostLocal,
-  isUrlIdLocal
+  isApiPathNoSlash,
+  isHostLocal,
 } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -16,6 +15,9 @@ import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
 import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
+import { extractEndpointSegmentFromCommentId } from "../../../utils/requestUtils";
+
+const APP_URI = process.env.REACT_APP_URI;
 
 const CommentLikes = ({
   comment,
@@ -26,6 +28,8 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
+  // have to check the author of the comment instead of the comment.id
+  // since a local author can comment in a remote post, and vice-versa
   const isLocal = isHostLocal(comment.author.host);
   const userData = getUserData();
 
@@ -89,11 +93,13 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
+      const endpoint = extractEndpointSegmentFromCommentId(comment.id);
+
 
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
-          const url = `${comment.id}/likes/`;
+          const url = `${APP_URI}authors/${endpoint}/likes`;
 
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
@@ -114,9 +120,10 @@ const CommentLikes = ({
         } else {
           // TODO: currently not working as comment.id is not well-formed from webwizards,
           // should automatically work when they fix it, but should double check
-          const url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
-            `${comment.id}/likes`:
-            `${comment.id}/likes/`;
+          let url = `${comment.author.host}authors/${endpoint}`
+          url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
+            `${url}/likes`:
+            `${url}/likes/`;
 
           const response = await axios.get(url, {
             auth: {
