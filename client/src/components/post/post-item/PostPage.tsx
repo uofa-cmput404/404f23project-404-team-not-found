@@ -249,7 +249,7 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        if (post.author.host === Hosts.CODEMONKEYS) {
+        if (post.author.host === Hosts.CODEMONKEYS || post.author.host === Hosts.TRIET) {
           data = {
             ...data,
             id: `${post.id}/comments/${uuidv4()}`,
@@ -269,7 +269,9 @@ const PostPage = () => {
 
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.host);
-        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
+        if (post.author.host !== Hosts.WEBWIZARDS) {
+          await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
+        }
       }
 
       handleClear();
@@ -316,6 +318,10 @@ const PostPage = () => {
         if (postHost === Hosts.TRIET) {
           data = {
             ...data,
+            "author": {
+              ...data.author,
+              "id": `${data.author.id}/`,
+            },
             "id": `${data.id}/`,
           }
         }

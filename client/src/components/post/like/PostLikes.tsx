@@ -59,6 +59,10 @@ const PostLikes = ({
         if (post.author.host === Hosts.TRIET) {
           data = {
             ...data,
+            "author": {
+              ...data.author,
+              "id": `${data.author.id}/`,
+            },
             "@context": Links.LIKECONTEXT,
             "object": `${data.object}/`,
           }

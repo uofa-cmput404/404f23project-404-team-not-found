@@ -4,9 +4,10 @@ import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
+  getAuthorUrlFromIdUrl,
   getCodeFromObjectId,
-  isApiPathNoSlash,
-  isHostLocal,
+  isApiPathNoSlash, isObjectFromTriet,
+  isUrlIdLocal,
 } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -15,9 +16,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
 import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
-import { extractEndpointSegmentFromCommentId } from "../../../utils/requestUtils";
-
-const APP_URI = process.env.REACT_APP_URI;
 
 const CommentLikes = ({
   comment,
@@ -28,9 +26,7 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  // have to check the author of the comment instead of the comment.id
-  // since a local author can comment in a remote post, and vice-versa
-  const isLocal = isHostLocal(comment.author.host);
+  const isLocal = isUrlIdLocal(comment.id);
   const userData = getUserData();
 
   const handleLike = async () => {
@@ -40,11 +36,12 @@ const CommentLikes = ({
       "object": comment.id,
       "summary": `${userData.displayName} Likes your post`
     }
+    const authorUrl = getAuthorUrlFromIdUrl(comment.id);
 
     try {
       if (isLocal) {
         const userCredentials = getUserCredentials();
-        const url = `${comment.author.id}/inbox/`;
+        const url = `${authorUrl}/inbox/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
@@ -59,13 +56,17 @@ const CommentLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = isApiPathNoSlash(comment.author.host, ApiPaths.INBOX) ?
-          `${comment.author.id}/inbox` :
-          `${comment.author.id}/inbox/`;
+        const url = isApiPathNoSlash(authorUrl, ApiPaths.INBOX) ?
+          `${authorUrl}/inbox` :
+          `${authorUrl}/inbox/`;
 
-        if (comment.author.host === Hosts.TRIET) {
+        if (isObjectFromTriet(authorUrl)) {
           data = {
             ...data,
+            "author": {
+              ...data.author,
+              "id": `${data.author.id}/`,
+            },
             "@context": Links.LIKECONTEXT,
             "object": `${data.object}/`,
           }
@@ -79,7 +80,7 @@ const CommentLikes = ({
         const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
-            password: codes[comment.author.host],
+            password: getCodeFromObjectId(authorUrl),
           },
         });
 
@@ -93,13 +94,10 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const endpoint = extractEndpointSegmentFromCommentId(comment.id);
-
-
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
-          const url = `${APP_URI}authors/${endpoint}/likes/`;
+          const url = `${comment.id}/likes/`;
 
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
@@ -120,10 +118,9 @@ const CommentLikes = ({
         } else {
           // TODO: currently not working as comment.id is not well-formed from webwizards,
           // should automatically work when they fix it, but should double check
-          let url = `${comment.author.host}authors/${endpoint}`
-          url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
-            `${url}/likes`:
-            `${url}/likes/`;
+          const url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
+            `${comment.id}/likes`:
+            `${comment.id}/likes/`;
 
           const response = await axios.get(url, {
             auth: {

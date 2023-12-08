@@ -193,7 +193,7 @@ const MakeCommentModal = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        if (post.author.host === Hosts.CODEMONKEYS) {
+        if (post.author.host === Hosts.CODEMONKEYS || post.author.host === Hosts.TRIET) {
           data = {
             ...data,
             id: `${post.id}/comments/${uuidv4()}`,
@@ -213,7 +213,11 @@ const MakeCommentModal = ({
 
         post.count = post.count + 1;
         await fetchComments();
-        await sendCommentToInbox(comment, contentType, response.data["id"], response.data["published"]);
+        // from their API, it seems like creating a comment already sends it to their inbox
+        // we don't need to do this, and they don't allow sending type=comment to their inbox (based from their API)
+        if (post.author.host !== Hosts.WEBWIZARDS) {
+            await sendCommentToInbox(comment, contentType, response.data["id"], response.data["published"]);
+        }
       }
 
       handleClear();
@@ -258,6 +262,10 @@ const MakeCommentModal = ({
         if (post.author.host === Hosts.TRIET) {
           data = {
             ...data,
+            "author": {
+              ...data.author,
+              "id": `${data.author.id}/`,
+            },
             "id": `${data.id}/`,
           }
         }

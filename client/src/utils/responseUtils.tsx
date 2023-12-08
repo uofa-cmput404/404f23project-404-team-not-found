@@ -5,15 +5,25 @@ import { codes } from "../objects/objects";
 
 export function configureImageEncoding(post: Post): string {
   // different context for image base64, so we have to adapt the encoding to show images
-  if (isHostCodeMonkeys(post.author.host)) {
+  if (post.author.host === Hosts.CODEMONKEYS ||
+    post.author.host === Hosts.WEBWIZARDS) {
     return `data:${post.contentType},${post.content}`;
   } else {
     return post.content;
   }
 }
 
+// TODO: this should be named getIdFromIdUrl
 export function getAuthorIdFromResponse(author_id_url: string): string {
 	return author_id_url.split("/").pop() as string
+}
+
+export function getAuthorUrlFromIdUrl(url: string): string {
+  const parts: string[] = url.split("/");
+  const authorsIndex = parts.indexOf("authors");
+  const extractedParts = parts.slice(0, authorsIndex + 2);
+
+  return extractedParts.join("/");
 }
 
 export function getCodeFromObjectId(objectIdUrl: string): string {
@@ -33,10 +43,6 @@ export function isApiPathNoSlash(url: string, path: string): boolean {
 
 export function isHostLocal(host: string): boolean {
   return localAuthorHosts.includes(host);
-}
-
-export function isHostCodeMonkeys(host: string): boolean {
-  return host === Hosts.CODEMONKEYS;
 }
 
 export function isObjectFromTriet(objectUrlId: string): boolean {
