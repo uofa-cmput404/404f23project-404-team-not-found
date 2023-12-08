@@ -250,7 +250,7 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        if (post.author.host === Hosts.CODEMONKEYS) {
+        if (post.author.host === Hosts.CODEMONKEYS || post.author.host === Hosts.TRIET) {
           data = {
             ...data,
             id: `${post.id}/comments/${uuidv4()}`,
