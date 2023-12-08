@@ -72,6 +72,7 @@ export interface Post {
   contentType: ContentType;
   content_type?: ContentType;
   description: string;
+  has_image?: boolean;
   title: string;
   source: string;
   origin: string;
