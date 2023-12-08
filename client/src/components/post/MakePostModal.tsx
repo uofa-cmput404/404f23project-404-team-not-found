@@ -247,6 +247,10 @@ const MakePostModal = ({
                 // triet requires / at the end for ids
                 postData = {
                   ...postData,
+                  "author": {
+                    ...postData.author,
+                    "id": `${postData.author.id}/`,
+                  },
                   "id": `${postData.id}/`
                 }
               }
@@ -279,6 +283,10 @@ const MakePostModal = ({
                   // triet requires / at the end for ids
                   postData = {
                     ...postData,
+                    "author": {
+                      ...postData.author,
+                      "id": `${postData.author.id}/`,
+                    },
                     "id": `${postData.id}/`
                   }
                 }
@@ -309,6 +317,10 @@ const MakePostModal = ({
               // triet requires / at the end for ids
               postData = {
                 ...postData,
+                "author": {
+                  ...postData.author,
+                  "id": `${postData.author.id}/`,
+                },
                 "id": `${postData.id}/`
               }
             }
