@@ -12,8 +12,17 @@ export function configureImageEncoding(post: Post): string {
   }
 }
 
+// TODO: this should be named getIdFromIdUrl
 export function getAuthorIdFromResponse(author_id_url: string): string {
 	return author_id_url.split("/").pop() as string
+}
+
+export function getAuthorUrlFromIdUrl(url: string): string {
+  const parts: string[] = url.split("/");
+  const authorsIndex = parts.indexOf("authors");
+  const extractedParts = parts.slice(0, authorsIndex + 2);
+
+  return extractedParts.join("/");
 }
 
 export function getCodeFromObjectId(objectIdUrl: string): string {
