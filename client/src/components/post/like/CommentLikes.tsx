@@ -4,6 +4,7 @@ import { Button, Typography } from "@mui/material";
 import axios from "axios";
 import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
+  getAuthorUrlFromIdUrl,
   getCodeFromObjectId,
   isApiPathNoSlash,
   isUrlIdLocal,
@@ -15,9 +16,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { Comment } from "../../../interfaces/interfaces";
 import { ApiPaths, Hosts, Links, ToastMessages, Username } from "../../../enums/enums";
 import { codes } from "../../../objects/objects";
-import { extractEndpointSegmentFromCommentId } from "../../../utils/requestUtils";
-
-const APP_URI = process.env.REACT_APP_URI;
 
 const CommentLikes = ({
   comment,
@@ -38,11 +36,12 @@ const CommentLikes = ({
       "object": comment.id,
       "summary": `${userData.displayName} Likes your post`
     }
+    const authorUrl = getAuthorUrlFromIdUrl(comment.id);
 
     try {
       if (isLocal) {
         const userCredentials = getUserCredentials();
-        const url = `${comment.author.id}/inbox/`;
+        const url = `${authorUrl}/inbox/`;
 
         if (userCredentials.username && userCredentials.password) {
           const response = await axios.post(url, data, {
@@ -58,8 +57,8 @@ const CommentLikes = ({
         }
       } else {
         const url = isApiPathNoSlash(comment.author.host, ApiPaths.INBOX) ?
-          `${comment.author.id}/inbox` :
-          `${comment.author.id}/inbox/`;
+          `${authorUrl}/inbox` :
+          `${authorUrl}/inbox/`;
 
         if (comment.author.host === Hosts.TRIET) {
           data = {
