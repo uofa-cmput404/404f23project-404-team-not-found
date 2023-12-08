@@ -24,7 +24,7 @@ import {
 import HeadBar from "../template/AppBar";
 import { Author } from "../../interfaces/interfaces";
 import EditIcon from "@mui/icons-material/Edit";
-import { ApiPaths, ImageLink, ShareType, ToastMessages, Username } from "../../enums/enums";
+import { ApiPaths, Hosts, ImageLink, ShareType, ToastMessages, Username } from "../../enums/enums";
 import { useParams, useLocation } from "react-router-dom";
 import MakePostModal from "../post/MakePostModal";
 import LeftNavBar from "../template/LeftNavBar";
@@ -186,6 +186,29 @@ const ProfilePage = () => {
             post.visibility === ShareType.PUBLIC);
         }
 
+        // webwizards has a different way of getting images...
+        // we have to call /images to get the base64
+        if (otherAuthorObject.host === Hosts.WEBWIZARDS) {
+          for (const post of publicPosts) {
+            if (post.has_image !== undefined && post.has_image) {
+              try {
+                const url = `${post.id}/image`
+                const imageResponse = await axios.get(url, {
+                  auth: {
+                    username: Username.NOTFOUND,
+                    password: codes[Hosts.WEBWIZARDS],
+                  },
+                });
+
+                // Update the specific post in publicPosts with updated data
+                post.contentType = imageResponse.data["image_type"];
+                post.description = post.content;
+                post.content = imageResponse.data["image"];
+              } catch (error) {
+              }
+            }
+          }
+        }
         setPosts(publicPosts);
       }
     } catch (error) {

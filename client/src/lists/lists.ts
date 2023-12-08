@@ -14,6 +14,7 @@ export const remoteAuthorHosts: string[] = [
 export const webWizardsNoSlashApiPath: string[] = [
   ApiPaths.FOLLOWER,
   ApiPaths.FOLLOWERS,
+  ApiPaths.IMAGE,
   ApiPaths.INBOX,
   ApiPaths.POSTLIKES,
   ApiPaths.POST,
