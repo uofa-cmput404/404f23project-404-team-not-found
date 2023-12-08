@@ -5,7 +5,8 @@ import { codes } from "../objects/objects";
 
 export function configureImageEncoding(post: Post): string {
   // different context for image base64, so we have to adapt the encoding to show images
-  if (isHostCodeMonkeys(post.author.host)) {
+  if (post.author.host === Hosts.CODEMONKEYS ||
+    post.author.host === Hosts.WEBWIZARDS) {
     return `data:${post.contentType},${post.content}`;
   } else {
     return post.content;
@@ -42,10 +43,6 @@ export function isApiPathNoSlash(url: string, path: string): boolean {
 
 export function isHostLocal(host: string): boolean {
   return localAuthorHosts.includes(host);
-}
-
-export function isHostCodeMonkeys(host: string): boolean {
-  return host === Hosts.CODEMONKEYS;
 }
 
 export function isObjectFromTriet(objectUrlId: string): boolean {
