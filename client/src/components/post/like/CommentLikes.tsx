@@ -6,7 +6,7 @@ import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
   getAuthorUrlFromIdUrl,
   getCodeFromObjectId,
-  isApiPathNoSlash,
+  isApiPathNoSlash, isObjectFromTriet,
   isUrlIdLocal,
 } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
@@ -56,11 +56,11 @@ const CommentLikes = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        const url = isApiPathNoSlash(comment.author.host, ApiPaths.INBOX) ?
+        const url = isApiPathNoSlash(authorUrl, ApiPaths.INBOX) ?
           `${authorUrl}/inbox` :
           `${authorUrl}/inbox/`;
 
-        if (comment.author.host === Hosts.TRIET) {
+        if (isObjectFromTriet(authorUrl)) {
           data = {
             ...data,
             "@context": Links.LIKECONTEXT,
@@ -76,7 +76,7 @@ const CommentLikes = ({
         const response = await axios.post(url, data, {
           auth: {
             username: Username.NOTFOUND,
-            password: codes[comment.author.host],
+            password: getCodeFromObjectId(authorUrl),
           },
         });
 
