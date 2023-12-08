@@ -220,6 +220,7 @@ const PostPage = () => {
 
   const handleCommentSubmit = async (comment: string, contentType: string, post: Post) => {
     let data: CommentPostRequest = {
+      type: "comment",
       comment: comment,
       contentType: contentType as ContentType,
       author: userData,
@@ -249,7 +250,7 @@ const PostPage = () => {
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        if (post.author.host === Hosts.CODEMONKEYS || post.author.host === Hosts.TRIET) {
+        if (post.author.host === Hosts.CODEMONKEYS) {
           data = {
             ...data,
             id: `${post.id}/comments/${uuidv4()}`,
@@ -322,7 +323,6 @@ const PostPage = () => {
               ...data.author,
               "id": `${data.author.id}/`,
             },
-            "id": `${data.id}/`,
           }
         }
 

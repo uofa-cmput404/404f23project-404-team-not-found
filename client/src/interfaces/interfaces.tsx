@@ -116,6 +116,7 @@ export interface Comment {
 }
 
 export interface CommentPostRequest {
+  type: string;
   id?: string;
   author: Author;
   comment: string;

@@ -64,7 +64,6 @@ const PostLikes = ({
               "id": `${data.author.id}/`,
             },
             "@context": Links.LIKECONTEXT,
-            "object": `${data.object}/`,
           }
         } else {
           data = {

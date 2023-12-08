@@ -251,7 +251,6 @@ const MakePostModal = ({
                     ...postData.author,
                     "id": `${postData.author.id}/`,
                   },
-                  "id": `${postData.id}/`
                 }
               }
 
@@ -287,7 +286,6 @@ const MakePostModal = ({
                       ...postData.author,
                       "id": `${postData.author.id}/`,
                     },
-                    "id": `${postData.id}/`
                   }
                 }
 
@@ -321,7 +319,6 @@ const MakePostModal = ({
                   ...postData.author,
                   "id": `${postData.author.id}/`,
                 },
-                "id": `${postData.id}/`
               }
             }
 
