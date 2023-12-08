@@ -166,6 +166,7 @@ const MakeCommentModal = ({
 
   const handleSubmit = async (comment: string, contentType: string) => {
     let data: CommentPostRequest = {
+      type: "comment",
       comment: comment,
       contentType: contentType as ContentType,
       author: userData,
@@ -193,7 +194,7 @@ const MakeCommentModal = ({
           toast.error(ToastMessages.NOUSERCREDS);
         }
       } else {
-        if (post.author.host === Hosts.CODEMONKEYS || post.author.host === Hosts.TRIET) {
+        if (post.author.host === Hosts.CODEMONKEYS) {
           data = {
             ...data,
             id: `${post.id}/comments/${uuidv4()}`,
@@ -266,7 +267,6 @@ const MakeCommentModal = ({
               ...data.author,
               "id": `${data.author.id}/`,
             },
-            "id": `${data.id}/`,
           }
         }
 
