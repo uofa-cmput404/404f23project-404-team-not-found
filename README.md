@@ -41,6 +41,8 @@ User Stories
 - [x] As an author, when someone sends me a friends only-post I want to see the likes.
 - [x] As an author, comments on friend posts are private only to me the original author.
 - [x] As an author, I want un-befriend local and remote authors
+  - Done for local. Unfollowing Code Monkey's author works.
+  - Some teams have implemented their `DELETE` `/followers` request in local-only mode, so we aren't able to "Unfollow" their author.
 - [x] As an author, I want to be able to use my web-browser to manage my profile
 - [x] As an author, I want to be able to use my web-browser to manage/author my posts
 - [x] As a server admin, I want to be able to add, modify, and remove authors.
@@ -69,12 +71,12 @@ Connections
   - username: node-404-team-not-found
   - password: chimpchatapi
   - full connection
--  Web Wizards
-  -  website url: https://uofa-cmput404.github.io/404f23project-web-wizards/
-  - username: node-404-team-not-found
-  - password: socialpassword
-  - full connection
-  - Note: At the time of writing, Web Wizards doesn't support visibility = "Private".
+- Web Wizards
+   - website url: https://uofa-cmput404.github.io/404f23project-web-wizards/
+   - username: node-404-team-not-found
+   - password: socialpassword
+   - full connection
+   - Note: At the time of writing, Web Wizards doesn't support visibility = "Private".
 - Triet
   - website url: https://fakebook-frontend-f922a5dc4574.herokuapp.com/
   - username: 404-not-found
