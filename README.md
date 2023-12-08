@@ -76,15 +76,15 @@ Connections
    - username: node-404-team-not-found
    - password: socialpassword
    - full connection
-   - Note: At the time of writing, Web Wizards doesn't support visibility = "Private".
+   - Note: At the time of writing, Web Wizards doesn't support visibility = "Private". We are attempting to send it to them, in case it changes.
 - Triet
   - website url: https://fakebook-frontend-f922a5dc4574.herokuapp.com/
   - username: 404-not-found
   - password: 1
   - partial connection
-  - Note: At the time of writing, Triet's database resets every day, so node and author registrations need to be done manually.
+  - Note: At the time of writing, Triet's database resets every day, so node and author registrations need to be done manually by Triet.
 - Net Ninjas
   - website url: https://netninjas-58669f3bc849.herokuapp.com
-  - credentials: can create on their own website
+  - credentials: should be able to create on their website
   - partial connection
   - Note: At the time of writing, their API is currently returning an OperationalError. Net ninjas mentioned that it's something related to their database.
