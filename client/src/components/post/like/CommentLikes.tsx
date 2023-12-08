@@ -63,6 +63,10 @@ const CommentLikes = ({
         if (isObjectFromTriet(authorUrl)) {
           data = {
             ...data,
+            "author": {
+              ...data.author,
+              "id": `${data.author.id}/`,
+            },
             "@context": Links.LIKECONTEXT,
             "object": `${data.object}/`,
           }

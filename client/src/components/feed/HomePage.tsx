@@ -11,6 +11,8 @@ import { toast } from "react-toastify";
 import HeadBar from "../template/AppBar";
 import LeftNavBar from "../template/LeftNavBar";
 import Loading from "../ui/Loading";
+import { Hosts, Username } from "../../enums/enums";
+import { codes } from "../../objects/objects";
 
 const APP_URI = process.env.REACT_APP_URI;
 
@@ -50,9 +52,31 @@ export default function HomePage() {
           },
         });
         
-        const inboxPosts = inboxresponse.data.items.filter(
+        let inboxPosts = inboxresponse.data.items.filter(
           (item: any) => item && item.type === "post"
         );
+
+        // webwizards has a different way of getting images...
+        // we have to call /images to get the base64
+        for (const post of inboxPosts) {
+          if (post.author.host === Hosts.WEBWIZARDS && post.has_image !== undefined && post.has_image) {
+            try {
+              const url = `${post.id}/image`
+              const imageResponse = await axios.get(url, {
+                auth: {
+                  username: Username.NOTFOUND,
+                  password: codes[Hosts.WEBWIZARDS],
+                },
+              });
+
+              // Update the specific post in publicPosts with updated data
+              post.contentType = imageResponse.data["image_type"];
+              post.description = post.content;
+              post.content = imageResponse.data["image"];
+            } catch (error) {
+            }
+          }
+        }
         
         const validPosts = response.data.filter((item: any) => item !== null);
         
