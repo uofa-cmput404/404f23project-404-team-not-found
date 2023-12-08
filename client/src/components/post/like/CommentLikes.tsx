@@ -99,7 +99,7 @@ const CommentLikes = ({
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
-          const url = `${APP_URI}authors/${endpoint}/likes`;
+          const url = `${APP_URI}authors/${endpoint}/likes/`;
 
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
