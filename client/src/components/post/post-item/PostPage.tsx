@@ -220,6 +220,7 @@ const PostPage = () => {
 
   const handleCommentSubmit = async (comment: string, contentType: string, post: Post) => {
     let data: CommentPostRequest = {
+      type: "comment",
       comment: comment,
       contentType: contentType as ContentType,
       author: userData,
@@ -269,7 +270,7 @@ const PostPage = () => {
 
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.host);
-        if (post.author.host !== Hosts.WEBWIZARDS) {
+        if (post.author.host !== Hosts.WEBWIZARDS && post.author.host !== Hosts.NETNINJAS) {
           await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
         }
       }
@@ -322,7 +323,6 @@ const PostPage = () => {
               ...data.author,
               "id": `${data.author.id}/`,
             },
-            "id": `${data.id}/`,
           }
         }
 

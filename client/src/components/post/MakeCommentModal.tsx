@@ -166,6 +166,7 @@ const MakeCommentModal = ({
 
   const handleSubmit = async (comment: string, contentType: string) => {
     let data: CommentPostRequest = {
+      type: "comment",
       comment: comment,
       contentType: contentType as ContentType,
       author: userData,
@@ -215,7 +216,7 @@ const MakeCommentModal = ({
         await fetchComments();
         // from their API, it seems like creating a comment already sends it to their inbox
         // we don't need to do this, and they don't allow sending type=comment to their inbox (based from their API)
-        if (post.author.host !== Hosts.WEBWIZARDS) {
+        if (post.author.host !== Hosts.WEBWIZARDS && post.author.host !== Hosts.NETNINJAS) {
             await sendCommentToInbox(comment, contentType, response.data["id"], response.data["published"]);
         }
       }
@@ -266,7 +267,6 @@ const MakeCommentModal = ({
               ...data.author,
               "id": `${data.author.id}/`,
             },
-            "id": `${data.id}/`,
           }
         }
 
