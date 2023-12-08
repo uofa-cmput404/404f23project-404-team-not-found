@@ -6,7 +6,7 @@ import { Like, LikePostRequest } from "../../../interfaces/interfaces";
 import {
   getCodeFromObjectId,
   isApiPathNoSlash,
-  isHostLocal,
+  isUrlIdLocal,
 } from "../../../utils/responseUtils";
 import { toast } from "react-toastify";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -28,9 +28,7 @@ const CommentLikes = ({
 }) => {
   const [commentLikes, setCommentLikes] = useState<Like[]>([]);
   const [isUserLiked, setIsUserLiked] = useState<boolean>(false);
-  // have to check the author of the comment instead of the comment.id
-  // since a local author can comment in a remote post, and vice-versa
-  const isLocal = isHostLocal(comment.author.host);
+  const isLocal = isUrlIdLocal(comment.id);
   const userData = getUserData();
 
   const handleLike = async () => {
@@ -93,13 +91,10 @@ const CommentLikes = ({
 
   useEffect(() => {
     const fetchLikes = async () => {
-      const endpoint = extractEndpointSegmentFromCommentId(comment.id);
-
-
       try {
         if (isLocal) {
           const userCredentials = getUserCredentials();
-          const url = `${APP_URI}authors/${endpoint}/likes/`;
+          const url = `${comment.id}/likes/`;
 
           if (userCredentials.username && userCredentials.password) {
             const response = await axios.get(url, {
@@ -120,10 +115,9 @@ const CommentLikes = ({
         } else {
           // TODO: currently not working as comment.id is not well-formed from webwizards,
           // should automatically work when they fix it, but should double check
-          let url = `${comment.author.host}authors/${endpoint}`
-          url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
-            `${url}/likes`:
-            `${url}/likes/`;
+          const url = isApiPathNoSlash(comment.id, ApiPaths.COMMENTLIKES) ?
+            `${comment.id}/likes`:
+            `${comment.id}/likes/`;
 
           const response = await axios.get(url, {
             auth: {
