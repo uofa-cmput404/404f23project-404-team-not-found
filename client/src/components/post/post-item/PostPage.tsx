@@ -269,7 +269,9 @@ const PostPage = () => {
 
         post.count = post.count + 1;
         await fetchComments(post.id, post.author.host);
-        await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
+        if (post.author.host !== Hosts.WEBWIZARDS) {
+          await sendCommentToInbox(comment, contentType, response.data["id"], post.author.id, response.data["published"]);
+        }
       }
 
       handleClear();
