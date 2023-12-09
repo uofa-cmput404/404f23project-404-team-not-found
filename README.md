@@ -8,7 +8,7 @@ CMPUT 404 Project: Social Distribution
 ## Distributed
 - Come check out our [website application](https://distributed-network-37d054f03cf4.herokuapp.com/)!
 - Come check out our [server admin page](https://distributed-network-37d054f03cf4.herokuapp.com/admin/)!
-- - Take a look at our [demo video](https://www.youtube.com/watch?v=hY4vweyiikY)!
+- Take a look at our [demo video](https://www.youtube.com/watch?v=hY4vweyiikY)!
 - Get access to our [API](https://distributed-network-37d054f03cf4.herokuapp.com/api/)
 - [API Documentation](https://documenter.getpostman.com/view/29719988/2s9Ye8hFfD) in Postman
 
