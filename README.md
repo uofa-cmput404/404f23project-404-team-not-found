@@ -7,6 +7,8 @@ CMPUT 404 Project: Social Distribution
 
 ## Distributed
 - Come check out our [website application](https://distributed-network-37d054f03cf4.herokuapp.com/)!
+- Come check out our [server admin page](https://distributed-network-37d054f03cf4.herokuapp.com/admin/)!
+- Take a look at our [demo video](https://www.youtube.com/watch?v=hY4vweyiikY)!
 - Get access to our [API](https://distributed-network-37d054f03cf4.herokuapp.com/api/)
 - [API Documentation](https://documenter.getpostman.com/view/29719988/2s9Ye8hFfD) in Postman
 
@@ -87,6 +89,9 @@ Connections
 - Credentials to use our application
   - username: project_test
   - password: password
+- Credentials to use our admin page
+  - username: not_found
+  - password: not_found
 - Code Monkeys
   - website URL: https://chimp-chat-1e0cca1cc8ce.herokuapp.com/
   - username: node-404-team-not-found
@@ -107,8 +112,9 @@ Connections
      - They implemented their `DELETE` `/followers` request in local-only mode, so we aren't able to "Unfollow" their authors.
 - Triet
   - website URL: https://fakebook-frontend-f922a5dc4574.herokuapp.com/
-  - username: 404-not-found
+  - username: node-404-team-not-found (or if it doesn't work, try 404-not-found)
   - password: 1
   - partial connection
-  - **Notes**:
-    - At the time of writing, Triet's database resets every day, so node and author registrations need to be done manually by Triet.
+    - Can view their authors, public posts, and followers
+    - Can follow their authors and accept their follows
+    - Can fetch comments, however Triet implemented some comments restrictions where the comment and post authors are the only ones who can see their comments.
