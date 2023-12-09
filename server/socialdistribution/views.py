@@ -475,6 +475,7 @@ class InboxView(APIView):
         if "comments" in data["object"]:
             post_id = path_segments[path_segments.index("posts") + 1]
             comment_id = path_segments[path_segments.index("comments") + 1]
+            post_object = get_object_or_404(Post, id=post_id)
             comment_object = get_object_or_404(Comment, id=comment_id)
         else:  # default, it's a like on a post
             post_id = path_segments[path_segments.index("posts") + 1]
