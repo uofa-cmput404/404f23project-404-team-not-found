@@ -5,15 +5,35 @@ CMPUT 404 Project: Social Distribution
 
 [Project requirements](https://github.com/uofa-cmput404/project-socialdistribution/blob/master/project.org) 
 
+## Distributed
+- Come check out our [website application](https://distributed-network-37d054f03cf4.herokuapp.com/)!
+- Come check out our [server admin page](https://distributed-network-37d054f03cf4.herokuapp.com/admin/)!
+- Take a look at our [demo video](https://www.youtube.com/watch?v=hY4vweyiikY)!
+- Get access to our [API](https://distributed-network-37d054f03cf4.herokuapp.com/api/)
+- [API Documentation](https://documenter.getpostman.com/view/29719988/2s9Ye8hFfD) in Postman
+
 Contributors / Licensing
 ========================
-Authors:
-* Kaye Ena Crayzhel Misay
-* Kaustubh Mukherjee
-* Nhat Minh Luu
-* Raphael Gutierrez
-* Mehsheed Ahmed Syed Abdul
 
+## Contributors
+<table style="height:500px;">
+  <tr>
+    <td><a href="https://github.com/kaynzhel"/><img src="https://github.com/kaynzhel.png" width="200"></td>
+    <td><a href="https://github.com/Boredalien248"/><img src="https://github.com/Boredalien248.png" width="200"></td>
+    <td><a href="https://github.com/nluu175"/><img src="https://github.com/nluu175.png" width="200"></td>
+    <td><a href="https://github.com/rmgutierrez"/><img src="https://github.com/rmgutierrez.png" width="200"></td>
+    <td><a href="https://github.com/mehsheed"/><img src="https://github.com/mehsheed.png" width="200"></td>
+  </tr>
+  <tr>
+    <td>Kaye Ena Crayzhel Misay</td>
+    <td>Kaustubh Mukherjee</td>
+    <td>Nhat Minh Luu</td>
+    <td>Raphael Gutierrez</td>
+    <td>Mehsheed Ahmed Syed Abdul</td>
+  </tr>
+</table>
+
+## Licensing
 Generally, everything is LICENSE'D under the Apache 2 license by 404_Team_not_found.
 
 User Stories
@@ -41,7 +61,7 @@ User Stories
 - [x] As an author, when someone sends me a friends only-post I want to see the likes.
 - [x] As an author, comments on friend posts are private only to me the original author.
 - [x] As an author, I want un-befriend local and remote authors
-  - Done for local. Unfollowing Code Monkey's author works.
+  - Done for local. Unfollowing Code Monkeys' authors and Net Ninjas' authors works.
   - Some teams have implemented their `DELETE` `/followers` request in local-only mode, so we aren't able to "Unfollow" their author.
 - [x] As an author, I want to be able to use my web-browser to manage my profile
 - [x] As an author, I want to be able to use my web-browser to manage/author my posts
@@ -66,25 +86,35 @@ User Stories
 
 Connections
 ========================
+- Credentials to use our application
+  - username: project_test
+  - password: password
+- Credentials to use our admin page
+  - username: not_found
+  - password: not_found
 - Code Monkeys
-  - website url: https://chimp-chat-1e0cca1cc8ce.herokuapp.com/
+  - website URL: https://chimp-chat-1e0cca1cc8ce.herokuapp.com/
   - username: node-404-team-not-found
   - password: chimpchatapi
   - full connection
+- Net Ninjas
+  - website URL: https://netninjas-58669f3bc849.herokuapp.com
+  - username: 404-team-not-found
+  - password: 404-team-not-found
+  - full connection
 - Web Wizards
-   - website url: https://uofa-cmput404.github.io/404f23project-web-wizards/
+   - website URL: https://uofa-cmput404.github.io/404f23project-web-wizards/
    - username: node-404-team-not-found
    - password: socialpassword
-   - full connection
-   - Note: At the time of writing, Web Wizards doesn't support visibility = "Private". We are attempting to send it to them, in case it changes.
+   - (almost) full connection, given Web Wizards' API state
+   - **Notes**:
+     - At the time of writing, Web Wizards doesn't support visibility = "Private". However, we handle sending a private post to them, in case it changes.
+     - They implemented their `DELETE` `/followers` request in local-only mode, so we aren't able to "Unfollow" their authors.
 - Triet
-  - website url: https://fakebook-frontend-f922a5dc4574.herokuapp.com/
-  - username: 404-not-found
+  - website URL: https://fakebook-frontend-f922a5dc4574.herokuapp.com/
+  - username: node-404-team-not-found (or if it doesn't work, try 404-not-found)
   - password: 1
   - partial connection
-  - Note: At the time of writing, Triet's database resets every day, so node and author registrations need to be done manually by Triet.
-- Net Ninjas
-  - website url: https://netninjas-58669f3bc849.herokuapp.com
-  - credentials: should be able to create on their website
-  - partial connection
-  - Note: At the time of writing, their API is currently returning an OperationalError. Net ninjas mentioned that it's something related to their database.
+    - Can view their authors, public posts, and followers
+    - Can follow their authors and accept their follows
+    - Can fetch comments, however Triet implemented some comments restrictions where the comment and post authors are the only ones who can see their comments.
